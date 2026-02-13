@@ -93,6 +93,9 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex)
             {
+
+
+                
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.ToString());
             }
         }
