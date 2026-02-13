@@ -1,0 +1,12 @@
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/bin/Debug/net10.0/CarGalary.Domain.deps.json
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/bin/Debug/net10.0/CarGalary.Domain.dll
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/bin/Debug/net10.0/CarGalary.Domain.pdb
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/obj/Debug/net10.0/CarGalary.Domain.csproj.AssemblyReference.cache
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/obj/Debug/net10.0/CarGalary.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/obj/Debug/net10.0/CarGalary.Domain.AssemblyInfoInputs.cache
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/obj/Debug/net10.0/CarGalary.Domain.AssemblyInfo.cs
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/obj/Debug/net10.0/CarGalary.Domain.csproj.CoreCompileInputs.cache
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/obj/Debug/net10.0/CarGalary.Domain.dll
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/obj/Debug/net10.0/refint/CarGalary.Domain.dll
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/obj/Debug/net10.0/CarGalary.Domain.pdb
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Domain/obj/Debug/net10.0/ref/CarGalary.Domain.dll

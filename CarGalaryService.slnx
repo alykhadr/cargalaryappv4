@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="CarGalary.Admin.Api/CarGalary.Admin.Api.csproj" />
+  <Project Path="CarGalary.Api/CarGalary.Api.csproj" />
+  <Project Path="CarGalary.Application/CarGalary.Application.csproj" />
+  <Project Path="CarGalary.Domain/CarGalary.Domain.csproj" />
+  <Project Path="CarGalary.Infrastructure/CarGalary.Infrastructure.csproj" />
+</Solution>

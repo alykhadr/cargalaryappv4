@@ -1,0 +1,156 @@
+dotnet new classlib -n CarGalary.Domain
+dotnet new classlib -n CarGalary.Application
+dotnet new classlib -n CarGalary.Infrastructure
+dotnet new webapi -n CarGalary.Api
+
+Run from solution root:
+dotnet sln add \
+  CarGalary.Domain/CarGalary.Domain.csproj \
+  CarGalary.Application/CarGalary.Application.csproj \
+  CarGalary.Infrastructure/CarGalary.Infrastructure.csproj \
+  CarGalary.Api/CarGalary.Api.csproj
+
+
+dotnet sln list
+
+Run from solution root:
+dotnet add CarGalary.Application reference CarGalary.Domain
+
+dotnet add CarGalary.Infrastructure reference CarGalary.Application
+dotnet add CarGalary.Infrastructure reference CarGalary.Domain
+
+dotnet add CarGalary.Api reference CarGalary.Application
+dotnet add CarGalary.Api reference CarGalary.Infrastructure
+
+
+
+CarGalary/
+├── CarGalary.Domain/          # Entities (no dependencies)
+├── CarGalary.Application/     # DTOs, Interfaces, Business Logic
+├── CarGalary.Infrastructure/  # DbContext, Repositories
+└── CarGalary.Api/            # Controllers, Program.cs
+
+Api → Application → Domain
+Api → Infrastructure → Application → Domain
+
+
+Run from solution root:
+dotnet add CarGalary.Infrastructure package Microsoft.EntityFrameworkCore
+dotnet add CarGalary.Infrastructure package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add CarGalary.Infrastructure package Microsoft.EntityFrameworkCore.Tools
+
+Run from solution root:
+dotnet add CarGalary.Api package Microsoft.EntityFrameworkCore.SqlServer
+
+Run from solution root:
+ dotnet ef migrations add InitialCreate --project CarGalary.Infrastructure --startup-project CarGalary.API
+
+Run from solution root:
+dotnet ef database update --project CarGalary.Infrastructure --startup-project CarGalary.API
+
+
+  ✔ Domain has zero dependencies
+✔ Application depends only on Domain
+✔ Infrastructure contains EF Core & DbContext
+✔ API wires everything together
+✔ No circular references
+✔ Migrations in Infrastructure
+
+
+
+/src
+  /Domain
+      Entities/
+      Enums/
+      Exceptions/
+  /Application
+      Interfaces/
+      DTOs/
+      Services/
+      Validators/
+  /Infrastructure
+      Data/
+        DbContext.cs
+        Repositories/
+      Services/
+  /API
+      Controllers/
+      Program.cs
+
+
+      dotnet run --project CarGalary.Api
+
+
+
+In Clean Architecture:
+Layer =>	Responsibility
+Domain =>	Define repository interfaces
+Application	=>Use repositories in use cases / services /CACHING HERE
+Infrastructure =>	Implement repositories (EF Core, Dapper, etc.)
+API	 => Call application layer only
+
+
+
+src/
+├── MyApp.Domain
+│   ├── Entities
+│   │   └── Product.cs
+│   └── Interfaces
+│       └── IProductRepository.cs
+│
+├── MyApp.Application
+│   ├── DTOs
+│   ├── Interfaces
+│   └── Services
+│       └── ProductService.cs
+│
+├── MyApp.Infrastructure
+│   ├── Data
+│   │   └── AppDbContext.cs
+│   └── Repositories
+│       └── ProductRepository.cs
+│
+└── MyApp.API
+    └── Controllers
+        └── ProductsController.cs
+
+
+        API → Application (Use case)
+        ↓
+   UnitOfWork
+   /        \
+Repository  Repository
+        ↓
+     DbContext
+
+
+The correct rule (Clean Architecture)
+Inject IUnitOfWork into the Application layer,
+implement UnitOfWork in the Infrastructure layer.
+In one sentence:
+Application depends on abstraction
+Infrastructure provides the implementation
+
+AutoMapper lives in Application, not Infrastructure
+
+note : to work with vs code with debug mode should be add lunch.json file on .vscode folder
+        to open debug mode use cmd+shift+d   then select your project
+
+// for identity user 
+API
+ └── Controllers (Authorize, Claims, Policies)
+
+Application
+ └── Interfaces (IIdentityService)
+ └── Use cases (CreateUser, AssignRole, Login)
+
+Domain
+ └── Business rules only (NO Identity)
+
+Infrastructure
+ └── ASP.NET Identity
+ └── UserManager, RoleManager
+ └── EF Core DbContext
+
+
+

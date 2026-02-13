@@ -1,0 +1,17 @@
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/bin/Debug/net10.0/CarGalary.Infrastructure.deps.json
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/bin/Debug/net10.0/CarGalary.Infrastructure.runtimeconfig.json
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/bin/Debug/net10.0/CarGalary.Infrastructure.dll
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/bin/Debug/net10.0/CarGalary.Infrastructure.pdb
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/bin/Debug/net10.0/CarGalary.Domain.dll
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/bin/Debug/net10.0/CarGalary.Domain.pdb
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.csproj.AssemblyReference.cache
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.AssemblyInfoInputs.cache
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.AssemblyInfo.cs
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalar.C60F62BE.Up2Date
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.dll
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/refint/CarGalary.Infrastructure.dll
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.pdb
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.genruntimeconfig.cache
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/ref/CarGalary.Infrastructure.dll

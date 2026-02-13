@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "C#: CarGalary.Api [http]",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/CarGalary.Api/CarGalary.Api.csproj",
+            "launchConfigurationId": "TargetFramework=;http"
+        },
+        {
+            "name": "C#: CarGalary.Admin.Api [http]",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/CarGalary.Admin.Api/CarGalary.Admin.Api.csproj",
+            "launchConfigurationId": "TargetFramework=;http"
+        }
+    ]
+}
