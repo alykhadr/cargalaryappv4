@@ -61,6 +61,7 @@ namespace CarGalary.Admin.Api
             services.AddScoped<IBrandService, BrandService>();
             services.AddScoped<ICarModelService, CarModelService>();
             services.AddScoped<IAudioAndCommunicationSystemService, AudioAndCommunicationSystemService>();
+            services.AddScoped<ICarColorService, CarColorService>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<IBranchService, BranchService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();

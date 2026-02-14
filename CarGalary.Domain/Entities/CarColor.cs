@@ -10,7 +10,7 @@ namespace CarGalary.Domain.Entities
         public string? ColorCode { get; set; }
        
         public string? CreatedBy { get; set; }
-         // Navigation property for many-to-many
+        
     public ICollection<CarCarColor> Cars { get; set; } = new List<CarCarColor>();
     }
 }
