@@ -18,4 +18,8 @@ public class CarCarFeature
 
     public int CarFeatureId { get; set; }
     public CarFeature CarFeature { get; set; } = null!;
+    public bool   IsAvailable { get; set; }
+    public string? CreatedBy { get; set; }
+    public DateTime? CreatedAt { get; set; }
+
 }

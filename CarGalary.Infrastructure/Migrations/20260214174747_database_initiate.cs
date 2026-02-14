@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CarGalary.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialIdentity : Migration
+    public partial class database_initiate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,6 +17,7 @@ namespace CarGalary.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -31,6 +32,8 @@ namespace CarGalary.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FullNameAr = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FullNameEn = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     IsAvailable = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -455,6 +458,7 @@ namespace CarGalary.Infrastructure.Migrations
                     NameAr = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NameEn = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BrandId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     IsAvailable = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
@@ -541,7 +545,8 @@ namespace CarGalary.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NameAr = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NameEn = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DescriptionEn = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DescriptionAr = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CarId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -559,7 +564,7 @@ namespace CarGalary.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CarCarColor",
+                name: "CarCarColors",
                 columns: table => new
                 {
                     CarId = table.Column<int>(type: "int", nullable: false),
@@ -567,21 +572,20 @@ namespace CarGalary.Infrastructure.Migrations
                     StockQuantity = table.Column<int>(type: "int", nullable: true),
                     ColorImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PricingPerColor = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsAvailable = table.Column<bool>(type: "bit", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    IsAvailable = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CarCarColor", x => new { x.CarId, x.ColorId });
+                    table.PrimaryKey("PK_CarCarColors", x => new { x.CarId, x.ColorId });
                     table.ForeignKey(
-                        name: "FK_CarCarColor_CarColors_ColorId",
+                        name: "FK_CarCarColors_CarColors_ColorId",
                         column: x => x.ColorId,
                         principalTable: "CarColors",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CarCarColor_Cars_CarId",
+                        name: "FK_CarCarColors_Cars_CarId",
                         column: x => x.CarId,
                         principalTable: "Cars",
                         principalColumn: "Id",
@@ -593,7 +597,10 @@ namespace CarGalary.Infrastructure.Migrations
                 columns: table => new
                 {
                     CarId = table.Column<int>(type: "int", nullable: false),
-                    CarFeatureId = table.Column<int>(type: "int", nullable: false)
+                    CarFeatureId = table.Column<int>(type: "int", nullable: false),
+                    IsAvailable = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValueSql: "GETUTCDATE()")
                 },
                 constraints: table =>
                 {
@@ -926,8 +933,8 @@ namespace CarGalary.Infrastructure.Migrations
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CarCarColor_ColorId",
-                table: "CarCarColor",
+                name: "IX_CarCarColors_ColorId",
+                table: "CarCarColors",
                 column: "ColorId");
 
             migrationBuilder.CreateIndex(
@@ -1061,7 +1068,7 @@ namespace CarGalary.Infrastructure.Migrations
                 name: "BranchWorkingDays");
 
             migrationBuilder.DropTable(
-                name: "CarCarColor");
+                name: "CarCarColors");
 
             migrationBuilder.DropTable(
                 name: "CarCarFeatures");

@@ -15,6 +15,8 @@ namespace CarGalary.Infrastructure.Configuration
             // Composite Key
             builder.HasKey(cc => new { cc.CarId, cc.ColorId });
 
+            builder.Property(cc => cc.CarId);
+            builder.Property(cc => cc.ColorId);
             // Relationships
             builder.HasOne(cc => cc.Car)
                 .WithMany(c => c.CarColors)
