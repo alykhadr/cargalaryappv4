@@ -3,6 +3,7 @@ using CarGalary.Application.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace CarGalary.Admin.Api.Controllers
 {
@@ -12,10 +13,12 @@ namespace CarGalary.Admin.Api.Controllers
     public class BrandController : ControllerBase
     {
         private readonly IBrandService _brandService;
+        private readonly IWebHostEnvironment _environment;
 
-        public BrandController(IBrandService brandService)
+        public BrandController(IBrandService brandService, IWebHostEnvironment environment)
         {
             _brandService = brandService;
+            _environment = environment;
         }
 
         [HttpGet]
@@ -39,7 +42,7 @@ namespace CarGalary.Admin.Api.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Create(
-            [FromBody] CreateBrandRequestDto createBrandRequestDto,
+            [FromForm] CreateBrandRequestDto createBrandRequestDto,
             [FromServices] IValidator<CreateBrandRequestDto> validator)
         {
             var validationResult = validator.Validate(createBrandRequestDto);
@@ -49,6 +52,11 @@ namespace CarGalary.Admin.Api.Controllers
                 return BadRequest(errors);
             }
 
+            if (createBrandRequestDto.ImageFile != null)
+            {
+                createBrandRequestDto.ImageUrl = await SaveBrandImageAsync(createBrandRequestDto.ImageFile);
+            }
+
             var created = await _brandService.CreateAsync(createBrandRequestDto);
             return Ok(created);
         }
@@ -56,14 +64,26 @@ namespace CarGalary.Admin.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(
             int id,
-            [FromBody] UpdateBrandRequestDto updateBrandRequestDto,
+            [FromForm] UpdateBrandRequestDto updateBrandRequestDto,
             [FromServices] IValidator<UpdateBrandRequestDto> validator)
         {
+            var existingBrand = await _brandService.GetByIdAsync(id);
+            if (existingBrand == null)
+            {
+                return NotFound();
+            }
+
             var validationResult = validator.Validate(updateBrandRequestDto);
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(errors);
+            }
+
+            if (updateBrandRequestDto.ImageFile != null)
+            {
+                DeleteBrandImageIfExists(existingBrand.ImageUrl);
+                updateBrandRequestDto.ImageUrl = await SaveBrandImageAsync(updateBrandRequestDto.ImageFile);
             }
 
             try
@@ -89,6 +109,63 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return NotFound();
             }
+        }
+
+        private void DeleteBrandImageIfExists(string? imageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+            {
+                return;
+            }
+
+            var rootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+            var uploadFolder = Path.Combine(rootPath, "uploads", "brands");
+
+            string? relativePath = null;
+            if (Uri.TryCreate(imageUrl, UriKind.Absolute, out var absoluteUri))
+            {
+                relativePath = absoluteUri.AbsolutePath.TrimStart('/');
+            }
+            else
+            {
+                relativePath = imageUrl.TrimStart('/');
+            }
+
+            if (string.IsNullOrWhiteSpace(relativePath))
+            {
+                return;
+            }
+
+            var fullPath = Path.GetFullPath(Path.Combine(rootPath, relativePath.Replace('/', Path.DirectorySeparatorChar)));
+            var uploadFolderFullPath = Path.GetFullPath(uploadFolder);
+
+            if (!fullPath.StartsWith(uploadFolderFullPath, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+            }
+        }
+
+        private async Task<string> SaveBrandImageAsync(IFormFile file)
+        {
+            var rootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+            var uploadPath = Path.Combine(rootPath, "uploads", "brands");
+            Directory.CreateDirectory(uploadPath);
+
+            var extension = Path.GetExtension(file.FileName);
+            var fileName = string.Create(
+                CultureInfo.InvariantCulture,
+                $"{Guid.NewGuid():N}{extension}");
+            var filePath = Path.Combine(uploadPath, fileName);
+
+            await using var stream = new FileStream(filePath, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            return $"{Request.Scheme}://{Request.Host}/uploads/brands/{fileName}";
         }
     }
 }
