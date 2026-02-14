@@ -18,7 +18,8 @@ namespace CarGalary.Infrastructure.Configuration
                    builder.Property(e => e.NameEn)
                    .IsRequired();
 
-            builder.Property(e => e.Description);
+            builder.Property(e => e.DescriptionEn);
+               builder.Property(e => e.DescriptionAr);
 
             builder.Property(e => e.CreatedBy);
 
