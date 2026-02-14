@@ -23,6 +23,7 @@ namespace CarGalary.Infrastructure.Configuration
                                     .HasDefaultValueSql("GETUTCDATE()");
             builder.Property(c => c.CreatedBy);
              builder.Property(c => c.IsAvailable).HasDefaultValue(true);
+            builder.Property(c => c.ImageUrl);
 
             builder.HasMany(t => t.Cars)
                 .WithOne(c => c.CarModel)
