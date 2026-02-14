@@ -17,6 +17,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
         public ICarGalleryImageRepository CarGalleryImages { get; }
         public ICarRepository Cars { get; }
         public ICarTypeRepository CarTypes { get; }
+        public IAudioAndCommunicationSystemRepository AudioAndCommunicationSystems { get; }
         public ICompanyInformationRepository CompanyInformations { get; }
         public IContactSalesOfficerRepository ContactSalesOfficers { get; }
         public IContactUsRepository ContactUs { get; }
@@ -42,6 +43,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             ICarGalleryImageRepository carGalleryImageRepository,
             ICarRepository carRepository,
             ICarTypeRepository carTypeRepository,
+            IAudioAndCommunicationSystemRepository audioAndCommunicationSystemRepository,
             ICompanyInformationRepository companyInformationRepository,
             IContactSalesOfficerRepository contactSalesOfficerRepository,
             IContactUsRepository contactUsRepository,
@@ -62,6 +64,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             CarModels = carModelRepository;
             Cars = carRepository;
             CarTypes=carTypeRepository;
+            AudioAndCommunicationSystems = audioAndCommunicationSystemRepository;
             CompanyInformations=companyInformationRepository;
             ContactSalesOfficers=contactSalesOfficerRepository;
             ContactUs=contactUsRepository;

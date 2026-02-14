@@ -28,6 +28,7 @@ namespace CarGalary.Admin.Api
             services.AddScoped<ICarGalleryImageRepository, CarGalleryImageRepository>();
             services.AddScoped<ICarRepository, CarRepository>();
             services.AddScoped<ICarTypeRepository, CarTypeRepository>();
+            services.AddScoped<IAudioAndCommunicationSystemRepository, AudioAndCommunicationSystemRepository>();
             services.AddScoped<ICompanyInformationRepository, CompanyInformationRepository>();
             services.AddScoped<IContactSalesOfficerRepository, ContactSalesOfficerRepository>();
             services.AddScoped<IContactUsRepository, ContactUsRepository>();
@@ -59,6 +60,7 @@ namespace CarGalary.Admin.Api
 
             services.AddScoped<IBrandService, BrandService>();
             services.AddScoped<ICarModelService, CarModelService>();
+            services.AddScoped<IAudioAndCommunicationSystemService, AudioAndCommunicationSystemService>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<IBranchService, BranchService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
