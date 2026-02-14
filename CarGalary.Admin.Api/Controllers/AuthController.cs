@@ -156,11 +156,6 @@ namespace CarGalary.Admin.Api.Controllers
             await _identity.AssignRoleAsync(userId, role);
             return Ok("Role assigned");
 
-
-
-
-
-            
         }
 
         // ================= REMOVE ROLE =================
