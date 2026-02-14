@@ -89,6 +89,9 @@ var app = builder.Build();
 // 2. HTTPS
 app.UseHttpsRedirection();
 
+// 2.1 Serve files from wwwroot
+app.UseStaticFiles();
+
 // 3. Routing
 app.UseRouting();
 

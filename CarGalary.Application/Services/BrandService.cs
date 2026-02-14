@@ -54,6 +54,11 @@ namespace CarGalary.Application.Services
                 throw new Exception("Brand not found");
             }
 
+            if (string.IsNullOrWhiteSpace(dto.ImageUrl))
+            {
+                dto.ImageUrl = brand.ImageUrl;
+            }
+
             _mapper.Map(dto, brand);
             await _unitOfWork.Brands.UpdateBrand(brand);
             await _unitOfWork.SaveChangesAsync();
