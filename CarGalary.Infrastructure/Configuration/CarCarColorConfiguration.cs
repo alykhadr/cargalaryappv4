@@ -12,7 +12,6 @@ namespace CarGalary.Infrastructure.Configuration
     {
         public void Configure(EntityTypeBuilder<CarCarColor> builder)
         {
-
             // Composite Key
             builder.HasKey(cc => new { cc.CarId, cc.ColorId });
 
@@ -31,6 +30,9 @@ namespace CarGalary.Infrastructure.Configuration
 
             builder.Property(cc => cc.ColorImageUrl);
             builder.Property(c => c.PricingPerColor);
+            builder.Property(b => b.CreatedAt)
+           .HasDefaultValueSql("GETUTCDATE()");
+            builder.Property(c => c.IsAvailable).HasDefaultValue(true);
         }
     }
 }

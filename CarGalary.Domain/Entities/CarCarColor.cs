@@ -2,7 +2,7 @@
 
 namespace CarGalary.Domain.Entities
 {
-    public class CarCarColor:BaseEntity
+    public class CarCarColor
     {
         public int CarId { get; set; }
          public Car Car { get; set; } = null!;
@@ -12,6 +12,9 @@ namespace CarGalary.Domain.Entities
         public int? StockQuantity { get; set; }
         public string? ColorImageUrl { get; set; }
         public decimal? PricingPerColor { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public bool IsAvailable { get; set; } = true;
 
     }
 }
