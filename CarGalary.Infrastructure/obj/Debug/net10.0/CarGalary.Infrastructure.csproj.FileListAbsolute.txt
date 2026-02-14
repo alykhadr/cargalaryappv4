@@ -15,3 +15,4 @@
 /Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.pdb
 /Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.genruntimeconfig.cache
 /Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/ref/CarGalary.Infrastructure.dll
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Infrastructure/obj/Debug/net10.0/CarGalary.Infrastructure.sourcelink.json

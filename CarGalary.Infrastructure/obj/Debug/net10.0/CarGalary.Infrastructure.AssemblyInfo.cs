@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CarGalary.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8efa1a1b077af1a2459911b77dcd6f7c308db85e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+37386f9b2478acc6ceca5f3f8e9f84cebe6d3189")]
 [assembly: System.Reflection.AssemblyProductAttribute("CarGalary.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CarGalary.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

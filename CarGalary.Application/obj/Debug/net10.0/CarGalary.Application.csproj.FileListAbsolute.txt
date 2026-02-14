@@ -13,3 +13,4 @@
 /Users/alikhadr/Projects/CarGalaryService/CarGalary.Application/obj/Debug/net10.0/refint/CarGalary.Application.dll
 /Users/alikhadr/Projects/CarGalaryService/CarGalary.Application/obj/Debug/net10.0/CarGalary.Application.pdb
 /Users/alikhadr/Projects/CarGalaryService/CarGalary.Application/obj/Debug/net10.0/ref/CarGalary.Application.dll
+/Users/alikhadr/Projects/CarGalaryService/CarGalary.Application/obj/Debug/net10.0/CarGalary.Application.sourcelink.json
