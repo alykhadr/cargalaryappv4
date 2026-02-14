@@ -17,42 +17,42 @@ namespace CarGalary.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<CarBrand> BrandExists(int id)
+        public async Task<CarBrand?> BrandExists(int id)
         {
             var carbrand = await _context.CarBrands.FirstOrDefaultAsync(e => e.Id == id);
             return carbrand;
         }
 
-        public async Task CreateBrand(CarBrand brand)
+        public Task CreateBrand(CarBrand brand)
         {
             _context.CarBrands.Add(brand);
-            
+            return Task.CompletedTask;
         }
 
-        public async Task DeleteBrandById(CarBrand carBrand)
+        public Task DeleteBrandById(CarBrand carBrand)
         {
-            _context.CarBrands.Remove(carBrand);
-           
+            carBrand.IsAvailable=false;
+            _context.Entry(carBrand).State = EntityState.Modified;
+            return Task.CompletedTask;
         }
 
-        public async Task<CarBrand> GetBrandById(int id)
+        public async Task<CarBrand?> GetBrandById(int id)
         {
-            return await _context.CarBrands
-                                 .Include(b => b.CarModels)
-                                 .FirstOrDefaultAsync(c => c.Id == id);
+            var brands = await GetBrands();
+            return brands.FirstOrDefault(c => c.Id == id);
         }
 
         public async Task<List<CarBrand>> GetBrands()
         {
-            return await _context.CarBrands
+            return await _context.CarBrands.Where(c => c.IsAvailable)
                                   .Include(b => b.CarModels) // Include related cars
                                   .ToListAsync();
         }
 
-        public async Task UpdateBrand(CarBrand brand)
+        public Task UpdateBrand(CarBrand brand)
         {
             _context.Entry(brand).State = EntityState.Modified;
-            
+            return Task.CompletedTask;
         }
     }
 }

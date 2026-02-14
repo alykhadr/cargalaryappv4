@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CarGalary.Admin.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+37386f9b2478acc6ceca5f3f8e9f84cebe6d3189")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07fd03588f80018a5c54ec4160e2cf41adad2743")]
 [assembly: System.Reflection.AssemblyProductAttribute("CarGalary.Admin.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CarGalary.Admin.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

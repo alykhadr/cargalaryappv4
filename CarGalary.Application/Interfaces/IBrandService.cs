@@ -1,18 +1,19 @@
 
 using CarGalary.Application.Dtos.Brand;
+using CarGalary.Application.Dtos.Brand.Command;
+using CarGalary.Application.Dtos.Brand.Query;
 
 namespace CarGalary.Application.Interfaces
 {
     public interface IBrandService
     {
         Task<List<BrandDto>> GetAllAsync();
-        //   Task<CarBrand> GetBrandById(int id);
+        Task<BrandResponseDto?> GetByIdAsync(int id);
 
-        Task CreateAsync(BrandDto dto);
+      
+        Task<BrandResponseDto> CreateAsync(CreateBrandRequestDto dto);
+        Task UpdateAsync(int id, UpdateBrandRequestDto dto);
+        Task DeleteAsync(int id);
 
-        //  Task<bool> UpdateBrand(int id, CarBrand brand) ;
-        //  Task<bool>  BrandExists(int id);
-
-        //  Task<bool> DeleteBrandById(int id);
     }
 }
