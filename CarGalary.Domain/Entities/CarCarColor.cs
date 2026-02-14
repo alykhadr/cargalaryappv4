@@ -1,7 +1,5 @@
 
 
-using CarGalary.Domain.Entities;
-
 namespace CarGalary.Domain.Entities
 {
     public class CarCarColor:BaseEntity

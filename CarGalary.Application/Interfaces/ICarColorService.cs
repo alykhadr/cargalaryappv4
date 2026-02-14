@@ -1,18 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CarGalary.Domain.Entities;
-
+using CarGalary.Application.Dtos.CarColor.Command;
+using CarGalary.Application.Dtos.CarColor.Query;
 
 namespace CarGalary.Application.Interfaces
 {
     public interface ICarColorService
-{
-    //  Task<CarColor> AddCarColorAsync(CarColor carColor);
-    // Task<CarColor?> GetCarColorByIdAsync(int id);
-    // Task<IEnumerable<CarColor>> GetAllCarColorsAsync();
-    // Task<bool> UpdateCarColorAsync(CarColor carColor);
-    // Task<bool> DeleteCarColorAsync(int id);
+    {
+        Task<List<CarColorResponseDto>> GetAllAsync();
+        Task<CarColorResponseDto?> GetByIdAsync(int id);
+
+        Task<CarColorResponseDto> CreateAsync(CreateCarColorRequestDto dto);
+        Task UpdateAsync(int id, UpdateCarColorRequestDto dto);
+        Task DeleteAsync(int id);
+    }
 }
-}
+
