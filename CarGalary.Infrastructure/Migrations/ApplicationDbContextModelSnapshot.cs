@@ -68,6 +68,19 @@ namespace CarGalary.Infrastructure.Migrations
                     b.Property<int>("CarFeatureId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.HasKey("CarId", "CarFeatureId");
 
                     b.HasIndex("CarFeatureId");
@@ -453,13 +466,14 @@ namespace CarGalary.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<decimal?>("PricingPerColor")
                         .HasColumnType("decimal(18,2)");
@@ -471,7 +485,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("ColorId");
 
-                    b.ToTable("CarCarColor");
+                    b.ToTable("CarCarColors");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.CarColor", b =>

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarGalary.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260208181310_InitialIdentity_2")]
-    partial class InitialIdentity_2
+    [Migration("20260214174747_database_initiate")]
+    partial class database_initiate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,6 +70,19 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.Property<int>("CarFeatureId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.HasKey("CarId", "CarFeatureId");
 
@@ -258,7 +271,10 @@ namespace CarGalary.Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("DescriptionAr")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DescriptionEn")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAvailable")
@@ -281,7 +297,55 @@ namespace CarGalary.Infrastructure.Migrations
                     b.ToTable("AudioAndCommunicationSystems");
                 });
 
-            modelBuilder.Entity("CarGalary.Domain.Entities.Branch", b =>
+            modelBuilder.Entity("CarGalary.Domain.Entities.BranchWorkingDays", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DayAr")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DayEn")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("TimeType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("WorkingFrom")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("WorkingTo")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.ToTable("BranchWorkingDays");
+                });
+
+            modelBuilder.Entity("CarGalary.Domain.Entities.Branchs", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -337,54 +401,6 @@ namespace CarGalary.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Branches");
-                });
-
-            modelBuilder.Entity("CarGalary.Domain.Entities.BranchWorkingDays", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DayAr")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DayEn")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAvailable")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("TimeType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("WorkingFrom")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("WorkingTo")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
-
-                    b.ToTable("BranchWorkingDays");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Car", b =>
@@ -453,13 +469,14 @@ namespace CarGalary.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<decimal?>("PricingPerColor")
                         .HasColumnType("decimal(18,2)");
@@ -471,7 +488,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("ColorId");
 
-                    b.ToTable("CarCarColor");
+                    b.ToTable("CarCarColors");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.CarColor", b =>
@@ -567,6 +584,9 @@ namespace CarGalary.Infrastructure.Migrations
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAvailable")
@@ -1524,7 +1544,7 @@ namespace CarGalary.Infrastructure.Migrations
 
             modelBuilder.Entity("CarGalary.Domain.Entities.BranchWorkingDays", b =>
                 {
-                    b.HasOne("CarGalary.Domain.Entities.Branch", "Branch")
+                    b.HasOne("CarGalary.Domain.Entities.Branchs", "Branch")
                         .WithMany("BranchWorkingDays")
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1790,7 +1810,7 @@ namespace CarGalary.Infrastructure.Migrations
                     b.Navigation("Profile");
                 });
 
-            modelBuilder.Entity("CarGalary.Domain.Entities.Branch", b =>
+            modelBuilder.Entity("CarGalary.Domain.Entities.Branchs", b =>
                 {
                     b.Navigation("BranchWorkingDays");
                 });
