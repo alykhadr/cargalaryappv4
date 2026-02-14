@@ -8,7 +8,9 @@ namespace CarGalary.Application.Dtos.Brand
     public class BrandDto
     {
         public string? NameAr { get; set; } 
-    public string? NameEn { get; set; } 
+        public string? NameEn { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? CreatedBy { get; set; }
 
     }
 }

@@ -1,0 +1,9 @@
+namespace CarGalary.Application.Dtos.Brand.Command
+{
+    public class UpdateBrandRequestDto
+    {
+        public string? NameAr { get; set; }
+        public string? NameEn { get; set; }
+        public string? ImageUrl { get; set; }
+    }
+}

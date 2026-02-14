@@ -56,6 +56,7 @@ namespace CarGalary.Admin.Api
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
 
+            services.AddScoped<IBrandService, BrandService>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<IBranchService, BranchService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();

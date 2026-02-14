@@ -1,6 +1,8 @@
 
 using AutoMapper;
 using CarGalary.Application.Dtos.Brand;
+using CarGalary.Application.Dtos.Brand.Command;
+using CarGalary.Application.Dtos.Brand.Query;
 using CarGalary.Application.Interfaces;
 using CarGalary.Domain.UnitOfWork;
 
@@ -9,12 +11,14 @@ namespace CarGalary.Application.Services
     public class BrandService : IBrandService
     {
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BrandService(IUnitOfWork unitOfWork, IMapper mapper)
+        public BrandService(IUnitOfWork unitOfWork, IMapper mapper,ICurrentUserService currentUserService )
         {
             this._unitOfWork = unitOfWork;
             _mapper = mapper;
+            this._currentUserService = currentUserService;
         }
 
         public async Task<List<BrandDto>> GetAllAsync()
@@ -23,36 +27,48 @@ namespace CarGalary.Application.Services
             return _mapper.Map<List<BrandDto>>(brands);
         }
 
-        // public async Task<BrandDto?> GetByIdAsync(int id)
-        // {
-        //     var brand = await _repository.GetByIdAsync(id);
-        //     return brand == null ? null : _mapper.Map<BrandDto>(brand);
-        // }
+        public async Task<BrandResponseDto?> GetByIdAsync(int id)
+        {
+            var brand = await _unitOfWork.Brands.GetBrandById(id);
+            return brand == null ? null : _mapper.Map<BrandResponseDto>(brand);
+        }
 
-        public async Task CreateAsync(BrandDto dto)
+      
+
+        public async Task<BrandResponseDto> CreateAsync(CreateBrandRequestDto dto)
         {
             var brand = _mapper.Map<CarBrand>(dto);
+            brand.CreatedAt=DateTime.UtcNow;
+            brand.CreatedBy=_currentUserService.UserName;
             await _unitOfWork.Brands.CreateBrand(brand);
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<BrandResponseDto>(brand);
+        }
+
+        public async Task UpdateAsync(int id, UpdateBrandRequestDto dto)
+        {
+            var brand = await _unitOfWork.Brands.GetBrandById(id);
+            if (brand == null)
+            {
+                throw new Exception("Brand not found");
+            }
+
+            _mapper.Map(dto, brand);
+            await _unitOfWork.Brands.UpdateBrand(brand);
             await _unitOfWork.SaveChangesAsync();
         }
 
-        // public async Task<bool> UpdateAsync(int id, BrandDto dto)
-        // {
-        //     var brand = await _repository.GetByIdAsync(id);
-        //     if (brand == null) return false;
+        public async Task DeleteAsync(int id)
+        {
+            var brand = await _unitOfWork.Brands.GetBrandById(id);
+            if (brand == null)
+            {
+                throw new Exception("Brand not found");
+            }
 
-        //     _mapper.Map(dto, brand);
-        //     await _repository.UpdateAsync(brand);
-        //     return true;
-        // }
-
-        // public async Task<bool> DeleteAsync(int id)
-        // {
-        //     var brand = await _repository.GetByIdAsync(id);
-        //     if (brand == null) return false;
-
-        //     await _repository.DeleteAsync(brand);
-        //     return true;
-        // }
+            await _unitOfWork.Brands.DeleteBrandById(brand);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

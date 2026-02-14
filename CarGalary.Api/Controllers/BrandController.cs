@@ -41,49 +41,5 @@ namespace CarGalary.Api.Controllers
         }
 
 
-        // [HttpGet("{id}")]
-        // public async Task<ActionResult<CarBrand>> GetBrand(int id)
-        // {
-        //     var brand = await brandService.GetBrandById(id);
-
-        //     if (brand is null)
-        //         return NotFound();
-
-        //     return Ok(brand);
-        // }
-
-       // [Authorize(Roles = "Admin,Manager")]
-        [HttpPost]
-
-        public async Task<ActionResult<CarBrand>> PostBrand(BrandDto brandDto)
-        {
-
-            await brandService.CreateAsync(brandDto);
-            //return CreatedAtAction(nameof(GetBrand), new { id = brand.Id }, brand);
-            return Ok();
-        }
-
-
-        // [Authorize(Roles="Admin,Manager")]
-        // [HttpPut("{id}")]
-        // public async Task<IActionResult> PutBrand(int id, CarBrand brand)
-        // {
-        //     if (id != brand.Id)
-        //         return BadRequest();
-
-
-        //     var result = await brandService.UpdateBrand(id, brand);
-        //     if (!result) return BadRequest();
-        //     return Ok();
-        // }
-
-        // [Authorize(Roles="Admin,Manager")]
-        // [HttpDelete("{id}")]
-        // public async Task<IActionResult> DeleteBrand(int id)
-        // {
-        //     var result = await brandService.DeleteBrandById(id);
-        //     if (!result) return NotFound();
-        //     return Ok();
-        // }
     }
 }
