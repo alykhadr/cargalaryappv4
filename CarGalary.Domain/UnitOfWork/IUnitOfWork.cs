@@ -7,6 +7,7 @@ namespace CarGalary.Domain.UnitOfWork
     {
         IBrandRepository Brands { get; }
         IBranchRepository Branches { get; }
+        ICarModelRepository CarModels { get; }
         public IIdentityRepository identities { get; }
         public ICarColorRepository CarColors { get; }
         public ICarFeatureRepository CarFeatures { get; }

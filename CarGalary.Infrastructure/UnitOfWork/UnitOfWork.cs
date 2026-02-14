@@ -11,6 +11,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
 
         public IBrandRepository Brands { get; }
         public IBranchRepository Branches { get; }
+        public ICarModelRepository CarModels { get; }
         public ICarColorRepository CarColors { get; }
         public ICarFeatureRepository CarFeatures { get; }
         public ICarGalleryImageRepository CarGalleryImages { get; }
@@ -33,6 +34,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             ApplicationDbContext context,
             IBrandRepository brandRepository,
             IBranchRepository branchRepository,
+            ICarModelRepository carModelRepository,
             IIdentityRepository identityRepository,
             
             ICarColorRepository carColorRepository,
@@ -57,6 +59,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             CarGalleryImages = carGalleryImageRepository;
             Brands = brandRepository;
             Branches = branchRepository;
+            CarModels = carModelRepository;
             Cars = carRepository;
             CarTypes=carTypeRepository;
             CompanyInformations=companyInformationRepository;

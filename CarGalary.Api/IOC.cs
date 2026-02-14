@@ -21,6 +21,7 @@ namespace CarGalary.Api
         {
             services.AddScoped<IBrandRepository, BrandRepository>();
             services.AddScoped<IBranchRepository, BranchRepository>();
+            services.AddScoped<ICarModelRepository, CarModelRepository>();
             
             services.AddScoped<ICarColorRepository, CarColorRepository>();
             services.AddScoped<ICarFeatureRepository, CarFeatureRepository>();
@@ -38,6 +39,8 @@ namespace CarGalary.Api
             services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
             services.AddScoped<IUserProfileRepository, UserProfileRepository>();
             services.AddScoped<IIdentityRepository, IdentityRepository>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
+             services.AddScoped<ICarModelRepository, CarModelRepository>();
             return services;
         }
 
@@ -56,6 +59,7 @@ namespace CarGalary.Api
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IBrandService, BrandService>();
+            services.AddScoped<ICarModelService, CarModelService>();
             services.AddScoped<IIdentityService, IdentityService>();
             // services.AddScoped<IBranchService, BranchService>();
             return services;
