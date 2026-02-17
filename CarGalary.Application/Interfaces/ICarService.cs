@@ -1,17 +1,16 @@
 
-using CarGalary.Domain.Entities;
+using CarGalary.Application.Dtos.Car.Command;
+using CarGalary.Application.Dtos.Car.Query;
 
 namespace CarGalary.Application.Interfaces
 {
     public interface ICarService
     {
-
-        // Task<List<Car>> GetAllAsync();
-        // Task<Car?> GetByIdAsync(int id);
-        // Task<Car> CreateAsync(Car car);
-        // Task<bool> UpdateAsync(int id, Car car);
-        // Task<bool> DeleteAsync(int id);
-        // Task<bool> CarExistsAsync(int id);
-        // Task<List<Car>> FilterAsync(int? brandId = null, int? typeId = null, bool? isAvailable = null);
+        Task<List<CarResponseDto>> GetAllAsync();
+        Task<CarResponseDto?> GetByIdAsync(int id);
+        Task<CarResponseDto> CreateAsync(CreateCarRequestDto dto);
+        Task UpdateAsync(int id, UpdateCarRequestDto dto);
+        Task DeleteAsync(int id);
+        Task<List<CarResponseDto>> FilterAsync(int? modelId = null, int? typeId = null, bool? isAvailable = null);
     }
 }
