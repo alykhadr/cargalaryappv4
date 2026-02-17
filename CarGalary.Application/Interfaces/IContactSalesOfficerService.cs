@@ -1,15 +1,15 @@
 
-
-using CarGalary.Domain.Entities;
+using CarGalary.Application.Dtos.ContactSalesOfficer.Command;
+using CarGalary.Application.Dtos.ContactSalesOfficer.Query;
 
 namespace CarGalary.Application.Interfaces
 {
     public interface IContactSalesOfficerService
     {
-    //     Task<IEnumerable<ContactSalesOfficer>> GetAllAsync();
-    // Task<ContactSalesOfficer> GetByIdAsync(int id);
-    // Task<ContactSalesOfficer> CreateAsync(ContactSalesOfficer model);
-    // Task<bool> UpdateAsync(int id, ContactSalesOfficer model);
-    // Task<bool> DeleteAsync(int id);
+        Task<List<ContactSalesOfficerResponseDto>> GetAllAsync();
+        Task<ContactSalesOfficerResponseDto?> GetByIdAsync(int id);
+        Task<ContactSalesOfficerResponseDto> CreateAsync(CreateContactSalesOfficerRequestDto dto);
+        Task UpdateAsync(int id, UpdateContactSalesOfficerRequestDto dto);
+        Task DeleteAsync(int id);
     }
 }
