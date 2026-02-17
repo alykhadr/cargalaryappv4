@@ -21,11 +21,26 @@ namespace CarGalary.Infrastructure.ImplementRepositories
            
             .ToListAsync();
     }
+    
+    public async Task<CarFeature> GetByIdAsync(int id)
+    {
+        return await _context.CarFeatures.FirstOrDefaultAsync(x => x.Id == id);
+    }
 
     public async Task CreateAsync(CarFeature carFeature)
     {
         
         _context.CarFeatures.Add(carFeature);
+    }
+
+    public async Task UpdateAsync(CarFeature carFeature)
+    {
+        _context.Entry(carFeature).State = EntityState.Modified;
+    }
+
+    public async Task DeleteAsync(CarFeature carFeature)
+    {
+        _context.CarFeatures.Remove(carFeature);
     }
 
     public async Task AssignFeaturesToCarAsync(
