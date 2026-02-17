@@ -1,17 +1,14 @@
-
-
-
-
-using CarGalary.Domain.Entities;
+using CarGalary.Application.Dtos.ServiceType.Command;
+using CarGalary.Application.Dtos.ServiceType.Query;
 
 namespace CarGalary.Application.Interfaces
 {
     public interface IServiceTypeService
     {
-        // Task<IEnumerable<ServiceType>> GetAllAsync();
-        // Task<ServiceType> GetByIdAsync(int id);
-        // Task<ServiceType> CreateAsync(ServiceType serviceType);
-        // Task<bool> UpdateAsync(int id, ServiceType serviceType);
-        // Task<bool> DeleteAsync(int id);
+        Task<List<ServiceTypeResponseDto>> GetAllAsync();
+        Task<ServiceTypeResponseDto?> GetByIdAsync(int id);
+        Task<ServiceTypeResponseDto> CreateAsync(CreateServiceTypeRequestDto dto);
+        Task UpdateAsync(int id, UpdateServiceTypeRequestDto dto);
+        Task DeleteAsync(int id);
     }
 }

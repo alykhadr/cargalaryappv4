@@ -20,5 +20,25 @@ namespace CarGalary.Infrastructure.ImplementRepositories
                                  .OrderByDescending(c => c.CreatedAt)
                                  .ToListAsync();
         }
+
+        public async Task<ContactUs> GetByIdAsync(int id)
+        {
+            return await _context.ContactUs.FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task CreateAsync(ContactUs contactUs)
+        {
+            _context.ContactUs.Add(contactUs);
+        }
+
+        public async Task UpdateAsync(ContactUs contactUs)
+        {
+            _context.Entry(contactUs).State = EntityState.Modified;
+        }
+
+        public async Task DeleteAsync(ContactUs contactUs)
+        {
+            _context.ContactUs.Remove(contactUs);
+        }
     }
 }

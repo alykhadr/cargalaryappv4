@@ -17,6 +17,31 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             _context = context;
         }
 
+        public async Task<IEnumerable<UserFavorite>> GetAllAsync()
+        {
+            return await _context.UserFavorites.ToListAsync();
+        }
+
+        public async Task<UserFavorite> GetByIdAsync(Guid userId, int carId)
+        {
+            return await _context.UserFavorites.FirstOrDefaultAsync(x => x.UserId == userId && x.CarId == carId);
+        }
+
+        public async Task CreateAsync(UserFavorite userFavorite)
+        {
+            _context.UserFavorites.Add(userFavorite);
+        }
+
+        public async Task UpdateAsync(UserFavorite userFavorite)
+        {
+            _context.Entry(userFavorite).State = EntityState.Modified;
+        }
+
+        public async Task DeleteAsync(UserFavorite userFavorite)
+        {
+            _context.UserFavorites.Remove(userFavorite);
+        }
+
         public async Task AddToFavoritesAsync(UserFavorite userFavorite)
         {
             
@@ -31,14 +56,11 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             _context.UserFavorites.Remove(userFavorite);
 
         }
-        public async Task<List<UserFavorite>> GetMyFavoritesAsync(int userId)
+        public async Task<List<UserFavorite>> GetMyFavoritesAsync(Guid userId)
         {
-            // return await _context.UserFavorites
-            //     .Where(f => f.UserId == userId)
-                
-            //     .ToListAsync();
-
-            return null;
+            return await _context.UserFavorites
+                .Where(f => f.UserId == userId)
+                .ToListAsync();
         }
 
        
