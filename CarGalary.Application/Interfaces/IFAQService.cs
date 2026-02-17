@@ -1,18 +1,14 @@
-
-
-
-using CarGalary.Domain.Entities;
+using CarGalary.Application.Dtos.FAQ.Command;
+using CarGalary.Application.Dtos.FAQ.Query;
 
 namespace CarGalary.Application.Interfaces
 {
     public interface IFAQService
-{
-    // Task<IEnumerable<FAQ>> GetAllAsync();
-    // Task<IEnumerable<FAQ>> GetAvailableAsync();
-    // Task<FAQ> GetByIdAsync(int id);
-    // Task<FAQ> CreateAsync(FAQ faq);
-    // Task<bool> UpdateAsync(int id, FAQ faq);
-    // Task<bool> DeleteAsync(int id);
-}
-
+    {
+        Task<List<FAQResponseDto>> GetAllAsync();
+        Task<FAQResponseDto?> GetByIdAsync(int id);
+        Task<FAQResponseDto> CreateAsync(CreateFAQRequestDto dto);
+        Task UpdateAsync(int id, UpdateFAQRequestDto dto);
+        Task DeleteAsync(int id);
+    }
 }

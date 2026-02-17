@@ -49,6 +49,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<Services> Services { get; set; }
     public DbSet<MemberService>  MemberServices { get; set; }
        public DbSet<FAQ>   FAQs { get; set; }
+       public DbSet<Measurements>    Measurements { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -84,6 +85,7 @@ namespace CarGalary.Infrastructure.Context;
 
         modelBuilder.ApplyConfiguration(new ServicesConfiguration());
           modelBuilder.ApplyConfiguration(new MemberServiceConfiguration());
+          modelBuilder.ApplyConfiguration(new MeasurementConfiguration());
 
               modelBuilder.ApplyConfiguration(new FAQConfiguration());
 

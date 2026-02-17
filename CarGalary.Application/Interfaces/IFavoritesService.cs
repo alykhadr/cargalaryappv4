@@ -1,13 +1,14 @@
-
-
-using CarGalary.Application.Dtos;
+using CarGalary.Application.Dtos.UserFavoriteAdmin.Command;
+using CarGalary.Application.Dtos.UserFavoriteAdmin.Query;
 
 namespace CarGalary.Application.Interfaces
 {
    public interface IFavoritesService
-{
-    // Task AddToFavoritesAsync(int userId, int carId);
-    // Task RemoveFromFavoritesAsync(int userId, int carId);
-    // Task<List<FavoriteCarDto>> GetMyFavoritesAsync(int userId);
-}
+   {
+      Task<List<UserFavoriteAdminResponseDto>> GetAllAsync();
+      Task<UserFavoriteAdminResponseDto?> GetByIdAsync(Guid userId, int carId);
+      Task<UserFavoriteAdminResponseDto> CreateAsync(CreateUserFavoriteAdminRequestDto dto);
+      Task UpdateAsync(Guid userId, int carId, UpdateUserFavoriteAdminRequestDto dto);
+      Task DeleteAsync(Guid userId, int carId);
+   }
 }

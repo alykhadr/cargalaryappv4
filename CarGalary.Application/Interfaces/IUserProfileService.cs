@@ -1,17 +1,14 @@
-
-
-
-using CarGalary.Api.Dtos;
-using CarGalary.Application.Dtos;
+using CarGalary.Application.Dtos.UserProfileAdmin.Command;
+using CarGalary.Application.Dtos.UserProfileAdmin.Query;
 
 namespace CarGalary.Application.Interfaces
 {
     public interface IUserProfileService
     {
-       
-        // Task<UserProfileResponseDto?> GetProfileByUserIdAsync(int userId);
-        // Task<UserProfileResponseDto> CreateProfileAsync(int userId, CreateUserProfileRequestDto dto, string? createdBy);
-        // Task<UserProfileResponseDto?> UpdateProfileAsync(int userId, UpdateUserProfileRequestDto dto);
-        // Task<bool> DeleteProfileAsync(int userId);
+        Task<List<UserProfileAdminResponseDto>> GetAllAsync();
+        Task<UserProfileAdminResponseDto?> GetByIdAsync(int id);
+        Task<UserProfileAdminResponseDto> CreateAsync(CreateUserProfileAdminRequestDto dto);
+        Task UpdateAsync(int id, UpdateUserProfileAdminRequestDto dto);
+        Task DeleteAsync(int id);
     }
 }

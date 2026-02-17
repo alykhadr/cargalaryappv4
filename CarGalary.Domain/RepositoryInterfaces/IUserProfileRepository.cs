@@ -9,8 +9,9 @@ namespace CarGalary.Domain.RepositoryInterfaces
 {
     public interface IUserProfileRepository
     {
-       //TODO
-         Task<UserProfile> GetProfileByUserIdAsync(int userId);
+         Task<IEnumerable<UserProfile>> GetAllAsync();
+         Task<UserProfile> GetByIdAsync(int id);
+         Task<UserProfile> GetProfileByUserIdAsync(Guid userId);
          Task CreateProfileAsync(UserProfile userProfile);
         Task UpdateProfileAsync(UserProfile userProfile);
         Task DeleteProfileAsync(UserProfile userProfile);

@@ -15,13 +15,19 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             _context = context;
         }
 
-        public async Task<UserProfile> GetProfileByUserIdAsync(int userId)
+        public async Task<IEnumerable<UserProfile>> GetAllAsync()
         {
-            // var profile = await _context.Profiles
-            //     .Include(up => up.User)
-            //     .FirstOrDefaultAsync(up => up.UserId == userId);
+            return await _context.Profiles.Include(up => up.User).ToListAsync();
+        }
 
-            return null;
+        public async Task<UserProfile> GetByIdAsync(int id)
+        {
+            return await _context.Profiles.Include(up => up.User).FirstOrDefaultAsync(up => up.Id == id);
+        }
+
+        public async Task<UserProfile> GetProfileByUserIdAsync(Guid userId)
+        {
+            return await _context.Profiles.Include(up => up.User).FirstOrDefaultAsync(up => up.UserId == userId);
         }
 
         public async Task CreateProfileAsync(UserProfile userProfile)
