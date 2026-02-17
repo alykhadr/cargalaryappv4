@@ -10,13 +10,11 @@ namespace CarGalary.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ICurrentUserService _currentUserService;
 
-        public CarFeatureService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
+        public CarFeatureService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _currentUserService = currentUserService;
         }
 
         public async Task<List<CarFeatureResponseDto>> GetAllAsync()
