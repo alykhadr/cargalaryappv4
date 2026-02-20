@@ -11,7 +11,16 @@ using Microsoft.IdentityModel.Tokens;
 using CarGalary.Admin.Api;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200") // frontend origin
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 // =======================
 // Services
 // =======================
@@ -78,7 +87,8 @@ builder.Services.AddCarGalaryDependencies();
 // Build App
 // =======================
 var app = builder.Build();
-
+// 3. Use CORS
+app.UseCors("AllowAngular");
 // =======================
 // Middleware Pipeline
 // =======================

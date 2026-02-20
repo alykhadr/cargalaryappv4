@@ -115,7 +115,7 @@ namespace CarGalary.Infrastructure.Identity
             var user = await _userManager.FindByNameAsync(userName);
 
             if (user == null || !await _userManager.CheckPasswordAsync(user, password))
-                throw new UnauthorizedAccessException("Invalid credentials");
+                throw new UnauthorizedAccessException("Invalid user name or password");
 
             var roles = await _userManager.GetRolesAsync(user);
 
