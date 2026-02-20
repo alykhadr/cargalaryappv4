@@ -1,5 +1,7 @@
 
+using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Interfaces;
+using CarGalary.Domain.Entities;
 using CarGalary.Domain.UnitOfWork;
 
 namespace CarGalary.Application.Services
@@ -32,9 +34,10 @@ namespace CarGalary.Application.Services
             await _unitOfWork.identities.CreateRoleAsync(roleName);
         }
 
-        public async Task<string> CreateUserAsync(string userName, string email, string password)
+        public async Task<UserDto> CreateUserAsync(string userName, string email, string password, string? firstName, string? lastName)
         {
-            return await _unitOfWork.identities.CreateUserAsync(userName, email,password);
+            var result = await _unitOfWork.identities.CreateUserAsync(userName, email, password, firstName, lastName);
+            return ToUserDto(result.User, result.Token);
         }
 
         public async Task<bool> DeleteUserAsync(string userId)
@@ -57,9 +60,10 @@ namespace CarGalary.Application.Services
            await  _unitOfWork.identities.LockUserAsync(userId);
         }
 
-        public async Task<string> LoginAsync(string userName, string password)
+        public async Task<UserDto> LoginAsync(string userName, string password)
         {
-          return await  _unitOfWork.identities.LoginAsync(userName,password);
+            var result = await _unitOfWork.identities.LoginAsync(userName, password);
+            return ToUserDto(result.User, result.Token);
         }
 
         public async Task RemoveRoleAsync(string userId, string roleName)
@@ -85,6 +89,20 @@ namespace CarGalary.Application.Services
         public async Task UpdateUsernameAsync(string userId, string newUsername)
         {
             await _unitOfWork.identities.UpdateUsernameAsync(userId,newUsername);
+        }
+
+        private static UserDto ToUserDto(ApplicationUser user, string token)
+        {
+            return new UserDto
+            {
+                Id = user.Id.ToString(),
+                Username = user.UserName,
+                Password = null,
+                FirstName = user.FullNameEn,
+                LastName = user.FullNameAr,
+                Token = token,
+                Email = user.Email
+            };
         }
     }
 }

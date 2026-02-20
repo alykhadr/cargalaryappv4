@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CarGalary.Application.Dtos.Auth;
 
 namespace CarGalary.Application.Interfaces
 {
     public interface IIdentityService
     {
         // User
-        Task<string> CreateUserAsync(string userName, string email, string password);
+        Task<UserDto> CreateUserAsync(string userName, string email, string password, string? firstName, string? lastName);
         Task<bool> DeleteUserAsync(string userId);
         Task<bool> CheckPasswordAsync(string userName, string password);
         Task<IList<string>> GetUserRolesAsync(string userId);
@@ -24,7 +25,7 @@ namespace CarGalary.Application.Interfaces
         Task<bool> RoleExistsAsync(string roleName);
 
         // Auth
-        Task<string> LoginAsync(string userName, string password);
+        Task<UserDto> LoginAsync(string userName, string password);
 
         // =================== PROFILE MANAGEMENT ===================
         Task ChangePasswordAsync(string userId, string currentPassword, string newPassword);

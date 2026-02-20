@@ -30,12 +30,14 @@ namespace CarGalary.Infrastructure.Identity
 
         // ================= USER =================
 
-        public async Task<string> CreateUserAsync(string userName, string email, string password)
+        public async Task<(ApplicationUser User, string Token)> CreateUserAsync(string userName, string email, string password, string? firstName, string? lastName)
         {
             var user = new ApplicationUser
             {
                 UserName = userName,
-                Email = email
+                Email = email,
+                FullNameEn = firstName,
+                FullNameAr = lastName
             };
 
             var result = await _userManager.CreateAsync(user, password);
@@ -43,7 +45,8 @@ namespace CarGalary.Infrastructure.Identity
             if (!result.Succeeded)
                 throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
-            return user.Id.ToString();
+            var token = await LoginInternalAsync(user, password);
+            return (user, token);
         }
 
         public async Task<bool> DeleteUserAsync(string userId)
@@ -110,15 +113,39 @@ namespace CarGalary.Infrastructure.Identity
 
         // ================= AUTH =================
 
-        public async Task<string> LoginAsync(string userName, string password)
+        public async Task<(ApplicationUser User, string Token)> LoginAsync(string userName, string password)
         {
-            var user = await _userManager.FindByNameAsync(userName);
+            var user = await FindByUserNameOrEmailAsync(userName);
+            var token = await LoginInternalAsync(user, password);
+            return (user, token);
+        }
 
-            if (user == null || !await _userManager.CheckPasswordAsync(user, password))
+        private async Task<ApplicationUser> FindByUserNameOrEmailAsync(string userNameOrEmail)
+        {
+            var normalized = userNameOrEmail.Trim();
+            var user = await _userManager.FindByNameAsync(normalized);
+            if (user != null)
+            {
+                return user;
+            }
+
+            user = await _userManager.FindByEmailAsync(normalized.ToUpper());
+            if (user == null)
+            {
                 throw new UnauthorizedAccessException("Invalid user name or password");
+            }
+
+            return user;
+        }
+
+        private async Task<string> LoginInternalAsync(ApplicationUser user, string password)
+        {
+            if (!await _userManager.CheckPasswordAsync(user, password))
+            {
+                throw new UnauthorizedAccessException("Invalid user name or password");
+            }
 
             var roles = await _userManager.GetRolesAsync(user);
-
             return GenerateJwt(user, roles);
         }
 

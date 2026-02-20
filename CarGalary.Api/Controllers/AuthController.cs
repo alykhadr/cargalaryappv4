@@ -48,19 +48,20 @@ namespace CarGalary.Api.Controllers
                 if (roles.Any(r => r == "Admin"))
                     return Forbid("Admin role cannot be self-assigned");
 
-                var userId = await _identity.CreateUserAsync(
+                var user = await _identity.CreateUserAsync(
                     request.UserName.Trim(),
                    request.Email.ToUpper().Trim(),
-                    request.Password);
+                    request.Password,
+                    request.FirstName?.Trim(),
+                    request.LastName?.Trim());
 
 
                 foreach (var role in roles)
                 {
-                    await _identity.AssignRoleAsync(userId, role);
+                    await _identity.AssignRoleAsync(user.Id!, role);
                 }
 
-                var token = await _identity.LoginAsync(request.UserName, request.Password);
-                return Ok(new { UserId = userId, Token = token, Roles = roles });
+                return Ok(user);
             }
             catch (Exception ex)
             {
@@ -81,18 +82,21 @@ namespace CarGalary.Api.Controllers
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
                     return BadRequest(errors);
                 }
-                var userId = await _identity.CreateUserAsync(
+                var user = await _identity.CreateUserAsync(
                     request.UserName.Trim(),
                    request.Email.ToUpper().Trim(),
-                    request.Password);
+                    request.Password,
+                    request.FirstName?.Trim(),
+                    request.LastName?.Trim());
 
-                foreach (var role in request.Roles)
+                var roles = request.Roles ?? new List<string>();
+
+                foreach (var role in roles)
                 {
-                    await _identity.AssignRoleAsync(userId, role);
+                    await _identity.AssignRoleAsync(user.Id!, role);
                 }
 
-                var token = await _identity.LoginAsync(request.UserName, request.Password);
-                return Ok(new { UserId = userId, Token = token, Roles = request.Roles });
+                return Ok(user);
             }
             catch (Exception ex)
             {
@@ -115,14 +119,11 @@ namespace CarGalary.Api.Controllers
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
                     return BadRequest(errors);
                 }
-                var token = await _identity.LoginAsync(
+                var user = await _identity.LoginAsync(
                     request.UserName.Trim(),
                     request.Password);
 
-                return Ok(new
-                {
-                    Token = token
-                });
+                return Ok(user);
             }
             catch (Exception ex)
             {

@@ -7,7 +7,7 @@ namespace CarGalary.Domain.RepositoryInterfaces
     public interface IIdentityRepository
 {
     // User
-    Task<string> CreateUserAsync(string userName, string email, string password);
+    Task<(ApplicationUser User, string Token)> CreateUserAsync(string userName, string email, string password, string? firstName, string? lastName);
     Task<bool> DeleteUserAsync(string userId);
     Task<bool> CheckPasswordAsync(string userName, string password);
     Task<IList<string>> GetUserRolesAsync(string userId);
@@ -22,7 +22,7 @@ namespace CarGalary.Domain.RepositoryInterfaces
     Task<bool> RoleExistsAsync(string roleName);
 
     // Auth
-    Task<string> LoginAsync(string userName, string password);
+    Task<(ApplicationUser User, string Token)> LoginAsync(string userName, string password);
 
 
     // =================== PROFILE MANAGEMENT ===================
