@@ -22,6 +22,8 @@ namespace CarGalary.Admin.Api.Controllers
             this._registerValidator = registerValidator;
         }
 
+        
+
         // ================= REGISTER =================
 
 
