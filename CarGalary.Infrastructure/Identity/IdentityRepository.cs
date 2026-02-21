@@ -1,4 +1,3 @@
-
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -6,6 +5,7 @@ using CarGalary.Domain.Entities;
 using CarGalary.Domain.RepositoryInterfaces;
 using CarGalary.Infrastructure.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -68,41 +68,122 @@ namespace CarGalary.Infrastructure.Identity
 
         public async Task<IList<string>> GetUserRolesAsync(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId)
+                ?? throw new Exception("User not found");
+
             return await _userManager.GetRolesAsync(user);
         }
 
         public async Task LockUserAsync(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId)
+                ?? throw new Exception("User not found");
+
             await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
         }
 
         public async Task UnlockUserAsync(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId)
+                ?? throw new Exception("User not found");
+
             await _userManager.SetLockoutEndDateAsync(user, null);
         }
 
         // ================= ROLE =================
 
+        public async Task<List<ApplicationRole>> GetRolesAsync()
+        {
+            return await _roleManager.Roles
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<ApplicationRole?> GetRoleByIdAsync(string roleId)
+        {
+            return await _roleManager.FindByIdAsync(roleId);
+        }
+
+        public async Task<ApplicationRole> CreateRoleAsync(string roleName, bool isActive)
+        {
+            var normalizedRole = roleName.Trim();
+
+            if (await _roleManager.RoleExistsAsync(normalizedRole))
+                throw new Exception($"Role '{normalizedRole}' already exists");
+
+            var role = new ApplicationRole
+            {
+                Name = normalizedRole,
+                IsActive = isActive,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await _roleManager.CreateAsync(role);
+            if (!result.Succeeded)
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+
+            return role;
+        }
+
+        public async Task<bool> UpdateRoleAsync(string roleId, string roleName, bool isActive)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null)
+            {
+                return false;
+            }
+
+            var normalizedRole = roleName.Trim();
+            var existingByName = await _roleManager.FindByNameAsync(normalizedRole);
+            if (existingByName != null && existingByName.Id != role.Id)
+                throw new Exception($"Role '{normalizedRole}' already exists");
+
+            role.Name = normalizedRole;
+            role.IsActive = isActive;
+
+            var result = await _roleManager.UpdateAsync(role);
+            if (!result.Succeeded)
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+
+            return true;
+        }
+
+        public async Task<bool> DeleteRoleAsync(string roleId)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null)
+            {
+                return false;
+            }
+
+            var result = await _roleManager.DeleteAsync(role);
+            if (!result.Succeeded)
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+
+            return true;
+        }
+
         public async Task CreateRoleAsync(string roleName)
         {
             if (!await _roleManager.RoleExistsAsync(roleName))
-                await _roleManager.CreateAsync(new ApplicationRole { Name = roleName });
+                await _roleManager.CreateAsync(new ApplicationRole { Name = roleName, IsActive = true, CreatedAt = DateTime.UtcNow });
         }
 
         public async Task AssignRoleAsync(string userId, string roleName)
         {
             await CreateRoleAsync(roleName);
 
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId)
+                ?? throw new Exception("User not found");
+
             await _userManager.AddToRoleAsync(user, roleName);
         }
 
         public async Task RemoveRoleAsync(string userId, string roleName)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId)
+                ?? throw new Exception("User not found");
+
             await _userManager.RemoveFromRoleAsync(user, roleName);
         }
 
@@ -152,11 +233,11 @@ namespace CarGalary.Infrastructure.Identity
         private string GenerateJwt(ApplicationUser user, IList<string> roles)
         {
             var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
 
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
@@ -212,9 +293,8 @@ namespace CarGalary.Infrastructure.Identity
 
         public async Task<string> GetUserByEmailAsync(string email)
         {
-           var user= await _userManager.FindByEmailAsync(email);
-           return user is not null ?user.Id.ToString():"";
+            var user = await _userManager.FindByEmailAsync(email);
+            return user is not null ? user.Id.ToString() : "";
         }
     }
-
 }

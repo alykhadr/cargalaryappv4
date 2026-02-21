@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CarGalary.Application.Dtos.Auth;
 
 namespace CarGalary.Application.Interfaces
@@ -15,10 +11,15 @@ namespace CarGalary.Application.Interfaces
         Task<IList<string>> GetUserRolesAsync(string userId);
         Task LockUserAsync(string userId);
         Task UnlockUserAsync(string userId);
-
-         Task<string> GetUserByEmailAsync(string email);
+        Task<string> GetUserByEmailAsync(string email);
 
         // Role
+        Task<List<RoleDto>> GetRolesAsync();
+        Task<RoleDto?> GetRoleByIdAsync(string roleId);
+        Task<RoleDto> CreateRoleAsync(CreateRoleRequest request);
+        Task<bool> UpdateRoleAsync(string roleId, UpdateRoleRequest request);
+        Task<bool> DeleteRoleAsync(string roleId);
+
         Task CreateRoleAsync(string roleName);
         Task AssignRoleAsync(string userId, string roleName);
         Task RemoveRoleAsync(string userId, string roleName);
@@ -32,5 +33,4 @@ namespace CarGalary.Application.Interfaces
         Task UpdateEmailAsync(string userId, string newEmail);
         Task UpdateUsernameAsync(string userId, string newUsername);
     }
-
 }

@@ -1,4 +1,3 @@
-
 using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Interfaces;
 using CarGalary.Domain.Entities;
@@ -12,21 +11,50 @@ namespace CarGalary.Application.Services
 
         public IdentityService(IUnitOfWork unitOfWork)
         {
-            this._unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
+
+        public async Task<List<RoleDto>> GetRolesAsync()
+        {
+            var roles = await _unitOfWork.identities.GetRolesAsync();
+            return roles.Select(ToRoleDto).ToList();
+        }
+
+        public async Task<RoleDto?> GetRoleByIdAsync(string roleId)
+        {
+            var role = await _unitOfWork.identities.GetRoleByIdAsync(roleId);
+            return role == null ? null : ToRoleDto(role);
+        }
+
+        public async Task<RoleDto> CreateRoleAsync(CreateRoleRequest request)
+        {
+            var role = await _unitOfWork.identities.CreateRoleAsync(request.Name, request.IsActive);
+            return ToRoleDto(role);
+        }
+
+        public async Task<bool> UpdateRoleAsync(string roleId, UpdateRoleRequest request)
+        {
+            return await _unitOfWork.identities.UpdateRoleAsync(roleId, request.Name, request.IsActive);
+        }
+
+        public async Task<bool> DeleteRoleAsync(string roleId)
+        {
+            return await _unitOfWork.identities.DeleteRoleAsync(roleId);
+        }
+
         public async Task AssignRoleAsync(string userId, string roleName)
         {
-          await  _unitOfWork.identities.AssignRoleAsync(userId,roleName);
+            await _unitOfWork.identities.AssignRoleAsync(userId, roleName);
         }
 
         public async Task ChangePasswordAsync(string userId, string currentPassword, string newPassword)
         {
-            await _unitOfWork.identities.ChangePasswordAsync(userId,currentPassword,newPassword);
+            await _unitOfWork.identities.ChangePasswordAsync(userId, currentPassword, newPassword);
         }
 
         public async Task<bool> CheckPasswordAsync(string userName, string password)
         {
-        return await _unitOfWork.identities.CheckPasswordAsync(userName,password);
+            return await _unitOfWork.identities.CheckPasswordAsync(userName, password);
         }
 
         public async Task CreateRoleAsync(string roleName)
@@ -42,7 +70,7 @@ namespace CarGalary.Application.Services
 
         public async Task<bool> DeleteUserAsync(string userId)
         {
-            return await  _unitOfWork.identities.DeleteUserAsync(userId);
+            return await _unitOfWork.identities.DeleteUserAsync(userId);
         }
 
         public async Task<string> GetUserByEmailAsync(string email)
@@ -52,12 +80,12 @@ namespace CarGalary.Application.Services
 
         public async Task<IList<string>> GetUserRolesAsync(string userId)
         {
-            return await  _unitOfWork.identities.GetUserRolesAsync(userId);
+            return await _unitOfWork.identities.GetUserRolesAsync(userId);
         }
 
         public async Task LockUserAsync(string userId)
         {
-           await  _unitOfWork.identities.LockUserAsync(userId);
+            await _unitOfWork.identities.LockUserAsync(userId);
         }
 
         public async Task<UserDto> LoginAsync(string userName, string password)
@@ -68,27 +96,27 @@ namespace CarGalary.Application.Services
 
         public async Task RemoveRoleAsync(string userId, string roleName)
         {
-            await  _unitOfWork.identities.RemoveRoleAsync(userId,roleName);
+            await _unitOfWork.identities.RemoveRoleAsync(userId, roleName);
         }
 
         public async Task<bool> RoleExistsAsync(string roleName)
         {
-            return await  _unitOfWork.identities.RoleExistsAsync(roleName);
+            return await _unitOfWork.identities.RoleExistsAsync(roleName);
         }
 
         public async Task UnlockUserAsync(string userId)
         {
-           await  _unitOfWork.identities.UnlockUserAsync(userId);
+            await _unitOfWork.identities.UnlockUserAsync(userId);
         }
 
         public async Task UpdateEmailAsync(string userId, string newEmail)
         {
-            await _unitOfWork.identities.UpdateEmailAsync(userId,newEmail);
+            await _unitOfWork.identities.UpdateEmailAsync(userId, newEmail);
         }
 
         public async Task UpdateUsernameAsync(string userId, string newUsername)
         {
-            await _unitOfWork.identities.UpdateUsernameAsync(userId,newUsername);
+            await _unitOfWork.identities.UpdateUsernameAsync(userId, newUsername);
         }
 
         private static UserDto ToUserDto(ApplicationUser user, string token)
@@ -102,6 +130,17 @@ namespace CarGalary.Application.Services
                 LastName = user.FullNameAr,
                 Token = token,
                 Email = user.Email
+            };
+        }
+
+        private static RoleDto ToRoleDto(ApplicationRole role)
+        {
+            return new RoleDto
+            {
+                Id = role.Id.ToString(),
+                Name = role.Name ?? string.Empty,
+                IsActive = role.IsActive,
+                CreatedAt = role.CreatedAt
             };
         }
     }
