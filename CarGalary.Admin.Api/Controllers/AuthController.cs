@@ -1,8 +1,10 @@
-
 using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Interfaces;
+using CarGalary.Domain.Entities;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CarGalary.Admin.Api.Controllers
 {
@@ -13,20 +15,20 @@ namespace CarGalary.Admin.Api.Controllers
     {
         private readonly IIdentityService _identity;
         private readonly IValidator<RegisterRequest> _registerValidator;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AuthController(IIdentityService identity,
-        IValidator<RegisterRequest> registerValidator)
+        public AuthController(
+            IIdentityService identity,
+            IValidator<RegisterRequest> registerValidator,
+            UserManager<ApplicationUser> userManager)
         {
             _identity = identity;
-            this._registerValidator = registerValidator;
+            _registerValidator = registerValidator;
+            _userManager = userManager;
         }
-
-        
 
         // ================= REGISTER =================
 
-
-        
         // [Authorize(Roles = "Admin")]
         [HttpPost("register/admin")]
         public async Task<IActionResult> RegisterByAdmin(RegisterRequest request)
@@ -39,18 +41,16 @@ namespace CarGalary.Admin.Api.Controllers
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
                     return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
                 }
-                string emailExist=await _identity.GetUserByEmailAsync(request.Email.ToUpper().Trim());
+
+                string emailExist = await _identity.GetUserByEmailAsync(request.Email.ToUpper().Trim());
                 if (!string.IsNullOrWhiteSpace(emailExist))
                 {
                     return BadRequest(new ApiErrorResponse($"email : {request.Email} already exist"));
                 }
-                // Force default role for public registration
-                var roles = (request.Roles != null && request.Roles.Any()) ? request.Roles
-                    : new List<string> { "User" };
-                    
+
                 var user = await _identity.CreateUserAsync(
                     request.UserName.Trim(),
-                   request.Email.ToUpper().Trim(),
+                    request.Email.ToUpper().Trim(),
                     request.Password,
                     request.FirstName?.Trim(),
                     request.LastName?.Trim());
@@ -70,14 +70,16 @@ namespace CarGalary.Admin.Api.Controllers
                 {
                     return BadRequest(new ApiErrorResponse(ex.Message));
                 }
-                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
-            }
 
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
+            }
         }
+
         // ================= LOGIN =================
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request, 
+        public async Task<IActionResult> Login(LoginRequest request,
                                 [FromServices] IValidator<LoginRequest> _validator)
         {
             try
@@ -88,27 +90,85 @@ namespace CarGalary.Admin.Api.Controllers
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
                     return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
                 }
+
                 var user = await _identity.LoginAsync(
                     request.UserName.Trim(),
                     request.Password);
 
                 return Ok(user);
-
-                
             }
-            catch (Exception ex)
+            catch
             {
-
-
-
-
-
-                
-                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
             }
         }
 
-        // ================= DELETE USER =================
+        // ================= FORGOT/RESET PASSWORD =================
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.UserNameOrEmail))
+            {
+                return BadRequest(new ApiErrorResponse("User name or email is required"));
+            }
+
+            var user = await FindByUserNameOrEmailOrNullAsync(request.UserNameOrEmail.Trim());
+            string? token = null;
+
+            if (user != null)
+            {
+                token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            }
+
+            return Ok(new ForgotPasswordResponse
+            {
+                Message = "If the account exists, a password reset token has been generated.",
+                ResetToken = token
+            });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.UserNameOrEmail))
+            {
+                return BadRequest(new ApiErrorResponse("User name or email is required"));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Token))
+            {
+                return BadRequest(new ApiErrorResponse("Reset token is required"));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                return BadRequest(new ApiErrorResponse("New password is required"));
+            }
+
+            if (request.NewPassword.Length < 6)
+            {
+                return BadRequest(new ApiErrorResponse("New password must be at least 6 characters"));
+            }
+
+            var user = await FindByUserNameOrEmailOrNullAsync(request.UserNameOrEmail.Trim());
+            if (user == null)
+            {
+                return BadRequest(new ApiErrorResponse("Invalid reset request"));
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return BadRequest(new ApiErrorResponse("Password reset failed", StatusCodes.Status400BadRequest, errors));
+            }
+
+            return Ok(new { message = "Password reset successfully" });
+        }
+
+        // ================= USER MANAGEMENT =================
 
         [HttpGet("users")]
         public async Task<IActionResult> GetUsers()
@@ -209,7 +269,6 @@ namespace CarGalary.Admin.Api.Controllers
         {
             await _identity.AssignRoleAsync(userId, role);
             return Ok("Role assigned");
-
         }
 
         // ================= REMOVE ROLE =================
@@ -221,6 +280,20 @@ namespace CarGalary.Admin.Api.Controllers
             await _identity.RemoveRoleAsync(userId, role);
             return Ok("Role removed");
         }
-    }
 
+        private async Task<ApplicationUser?> FindByUserNameOrEmailOrNullAsync(string userNameOrEmail)
+        {
+            var normalized = userNameOrEmail.Trim().ToUpperInvariant();
+
+            var byUserName = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.NormalizedUserName == normalized);
+            if (byUserName != null)
+            {
+                return byUserName;
+            }
+
+            return await _userManager.Users
+                .FirstOrDefaultAsync(u => u.NormalizedEmail == normalized);
+        }
+    }
 }
