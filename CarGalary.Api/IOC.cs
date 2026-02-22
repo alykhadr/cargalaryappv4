@@ -41,7 +41,6 @@ services.AddScoped<IEaseAndComfortRepository, EaseAndComfortRepository>();
             services.AddScoped<IOfferRepository, OfferRepository>();
             services.AddScoped<IServicesRepository, ServicesRepository>();
             services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
-            services.AddScoped<IUserProfileRepository, UserProfileRepository>();
             services.AddScoped<IIdentityRepository, IdentityRepository>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
              services.AddScoped<ICarModelRepository, CarModelRepository>();

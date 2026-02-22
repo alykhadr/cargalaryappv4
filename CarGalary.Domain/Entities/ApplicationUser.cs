@@ -12,7 +12,8 @@ namespace CarGalary.Domain.Entities
 
         public bool IsAvailable { get; set; } = true;
         public string? CreatedBy { get; set; }
-        public UserProfile? Profile { get; set; } // one-to-one relationship
+       public string? Address { get; set; }
+        public string? ProfileImageUrl { get; set; }
 
         public ICollection<UserFavorite> Favorites { get; set; }
            = new List<UserFavorite>();

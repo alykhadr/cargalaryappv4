@@ -36,7 +36,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
         public IServicesRepository Services { get; }
         public IServiceTypeRepository ServiceTypes { get; }
         public ITransmissionRepository Transmissions { get; }
-        public IUserProfileRepository UserProfiles { get; }
+
 
         public IIdentityRepository identities {get;}
 
@@ -70,8 +70,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             ISeatingRepository seatingRepository,
             IServicesRepository servicesRepository,
              IServiceTypeRepository serviceTypeRepository,
-             ITransmissionRepository transmissionRepository,
-             IUserProfileRepository userProfileRepository)
+             ITransmissionRepository transmissionRepository)
         {
             _context = context;
             CarColors = carColorRepository;
@@ -101,7 +100,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             ServiceTypes=serviceTypeRepository;
             Transmissions=transmissionRepository;
             MemberServices=memberServiceRepository;
-            UserProfiles=userProfileRepository;
+
             identities=identityRepository;
 
         }

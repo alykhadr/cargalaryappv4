@@ -33,7 +33,6 @@ namespace CarGalary.Domain.UnitOfWork
         public IServicesRepository Services { get; }
         public IServiceTypeRepository ServiceTypes { get; }
         public ITransmissionRepository Transmissions { get; }
-        public IUserProfileRepository UserProfiles { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

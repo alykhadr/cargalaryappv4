@@ -21,7 +21,6 @@ namespace CarGalary.Infrastructure.Context;
 
     public DbSet<ApplicationRole> Roles { get; set; }
  
-    public DbSet<UserProfile> Profiles { get; set; }
     public DbSet<UserFavorite> UserFavorites { get; set; }
     public DbSet<CarFeature> CarFeatures { get; set; }
     public DbSet<CarCarFeature> CarCarFeatures { get; set; }
@@ -59,7 +58,6 @@ namespace CarGalary.Infrastructure.Context;
         modelBuilder.ApplyConfiguration(new CarTypeConfiguration());
         modelBuilder.ApplyConfiguration(new CarConfiguration());
         modelBuilder.ApplyConfiguration(new RoleConfiguration());
-        modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
         modelBuilder.ApplyConfiguration(new UserFavoriteConfiguration());
         modelBuilder.ApplyConfiguration(new CarCarFeatureConfiguration());
         modelBuilder.ApplyConfiguration(new CarFeatureConfiguration());

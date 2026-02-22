@@ -26,6 +26,8 @@ public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
             .HasDefaultValue(true);
 
             builder.Property(u => u.CreatedBy);
+              builder.Property(u => u.Address);
+                builder.Property(u => u.ProfileImageUrl);
 
         builder.Property(u => u.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
