@@ -32,7 +32,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
 
         public async Task<IEnumerable<Branchs>> GetAllAsync()
         {
-            return await _context.Branches.Where(c=>c.IsAvailable)
+            return await _context.Branches
                                            .Include(c=>c.BranchWorkingDays)
                                            .ToListAsync();
         }
@@ -80,8 +80,11 @@ namespace CarGalary.Infrastructure.ImplementRepositories
 
         public async Task ActiveAsync(Branchs branch)
         {
-            _context.Attach(branch);
             _context.Entry(branch).State = EntityState.Modified;
+            foreach (var wd in branch.BranchWorkingDays)
+            {
+                _context.Entry(wd).State = EntityState.Modified;
+            }
         }
     }
 }

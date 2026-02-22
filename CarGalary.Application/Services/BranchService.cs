@@ -74,9 +74,39 @@ namespace CarGalary.Application.Services
             if (branch == null)
                 throw new Exception("Branch not found");
 
-            _mapper.Map(updateBranchRequestDto, branch);
+            // Update branch basic info
+            branch.BranchNameAr = updateBranchRequestDto.BranchNameAr;
+            branch.BranchNameEn = updateBranchRequestDto.BranchNameEn;
+            branch.DescriptionAr = updateBranchRequestDto.DescriptionAr;
+            branch.DescriptionEn = updateBranchRequestDto.DescriptionEn;
+            branch.MobileNo = updateBranchRequestDto.MobileNo;
+            branch.WhatsUpNo = updateBranchRequestDto.WhatsUpNo;
+            branch.Email = updateBranchRequestDto.Email;
+            branch.Address = updateBranchRequestDto.Address;
+            branch.Latitute = updateBranchRequestDto.Latitute;
+            branch.Longtute = updateBranchRequestDto.Longtute;
+            branch.IsAvailable = updateBranchRequestDto.IsAvailable ?? true;
             branch.UpdatedAt = DateTime.UtcNow;
             branch.UpdatedBy = _currentUserService.UserName;
+
+            // Update working days
+            if (updateBranchRequestDto.CreateBranchWorkingDaysRequestDto != null && 
+                updateBranchRequestDto.CreateBranchWorkingDaysRequestDto.Any())
+            {
+                // Remove existing working days
+                foreach (var existingDay in branch.BranchWorkingDays.ToList())
+                {
+                    await _unitOfWork.Branches.DeleteWorkingDayAsync(existingDay);
+                }
+
+                // Add new working days
+                var newWorkingDays = _mapper.Map<List<BranchWorkingDays>>(updateBranchRequestDto.CreateBranchWorkingDaysRequestDto);
+                foreach (var day in newWorkingDays)
+                {
+                    day.BranchId = branch.Id;
+                    await _unitOfWork.Branches.AddWorkingDayAsync(day);
+                }
+            }
 
             await _unitOfWork.Branches.UpdateAsync(branch);
             await _unitOfWork.SaveChangesAsync();

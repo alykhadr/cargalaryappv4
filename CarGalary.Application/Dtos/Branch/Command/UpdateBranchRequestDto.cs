@@ -2,6 +2,10 @@ namespace CarGalary.Application.Dtos.Branch.Command
 {
     public class UpdateBranchRequestDto
     {
+         public UpdateBranchRequestDto()
+        {
+             CreateBranchWorkingDaysRequestDto = new List<CreateBranchWorkingDaysRequestDto>();
+        }
         public string? DescriptionAr { get; set; }
         public string? DescriptionEn { get; set; }
         public string? MobileNo { get; set; }
@@ -13,5 +17,7 @@ namespace CarGalary.Application.Dtos.Branch.Command
         public string? Latitute { get; set; }
         public string? Longtute { get; set; }
         public bool? IsAvailable { get; set; }
+
+        public List<CreateBranchWorkingDaysRequestDto> CreateBranchWorkingDaysRequestDto { get; set; }
     }
 }
