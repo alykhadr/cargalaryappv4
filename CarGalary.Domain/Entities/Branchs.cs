@@ -17,5 +17,7 @@ namespace CarGalary.Domain.Entities
         public string? Longtute { get; set; }
 
         public ICollection<BranchWorkingDays>     BranchWorkingDays { get; set; }=new List<BranchWorkingDays>();
+        public ICollection<Car>   Cars    { get; set; }=new List<Car>();
+                public ICollection<ApplicationUser>    ApplicationUsers    { get; set; }=new List<ApplicationUser>();
     }
 }

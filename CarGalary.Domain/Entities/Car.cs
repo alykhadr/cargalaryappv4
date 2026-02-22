@@ -19,6 +19,9 @@ public class Car:BaseEntity
      public string? DescriptionEn { get; set; }
     public string? CreatedBy { get; set; }
 
+     public int BranchId { get; set; }
+    public Branchs?  Branchs { get; set; }
+
     public ICollection<UserFavorite> FavoritedBy { get; set; }
         = new List<UserFavorite>();
 

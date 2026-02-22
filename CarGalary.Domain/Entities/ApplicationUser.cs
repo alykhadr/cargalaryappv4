@@ -15,6 +15,9 @@ namespace CarGalary.Domain.Entities
        public string? Address { get; set; }
         public string? ProfileImageUrl { get; set; }
 
+         public int BranchId { get; set; }
+    public Branchs?  Branchs { get; set; }
+
         public ICollection<UserFavorite> Favorites { get; set; }
            = new List<UserFavorite>();
     }
