@@ -104,6 +104,20 @@ namespace CarGalary.Infrastructure.Identity
             return await _roleManager.FindByIdAsync(roleId);
         }
 
+        public async Task<List<ApplicationUser>> GetUsersByRoleIdAsync(string roleId)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null || string.IsNullOrWhiteSpace(role.Name))
+            {
+                return new List<ApplicationUser>();
+            }
+
+            var users = await _userManager.GetUsersInRoleAsync(role.Name);
+            return users
+                .OrderByDescending(user => user.CreatedAt)
+                .ToList();
+        }
+
         public async Task<ApplicationRole> CreateRoleAsync(string roleName, bool isActive)
         {
             var normalizedRole = roleName.Trim();

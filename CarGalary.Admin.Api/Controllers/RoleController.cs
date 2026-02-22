@@ -29,6 +29,19 @@ namespace CarGalary.Admin.Api.Controllers
             return role == null ? NotFound() : Ok(role);
         }
 
+        [HttpGet("{roleId}/users")]
+        public async Task<IActionResult> GetUsersByRole(string roleId)
+        {
+            var role = await _identity.GetRoleByIdAsync(roleId);
+            if (role == null)
+            {
+                return NotFound();
+            }
+
+            var users = await _identity.GetUsersByRoleIdAsync(roleId);
+            return Ok(users);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(
             [FromBody] CreateRoleRequest request,

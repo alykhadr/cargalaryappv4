@@ -16,6 +16,7 @@ namespace CarGalary.Application.Interfaces
         // Role
         Task<List<RoleDto>> GetRolesAsync();
         Task<RoleDto?> GetRoleByIdAsync(string roleId);
+        Task<List<RoleUserDto>> GetUsersByRoleIdAsync(string roleId);
         Task<RoleDto> CreateRoleAsync(CreateRoleRequest request);
         Task<bool> UpdateRoleAsync(string roleId, UpdateRoleRequest request);
         Task<bool> DeleteRoleAsync(string roleId);

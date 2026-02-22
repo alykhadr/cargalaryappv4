@@ -26,6 +26,12 @@ namespace CarGalary.Application.Services
             return role == null ? null : ToRoleDto(role);
         }
 
+        public async Task<List<RoleUserDto>> GetUsersByRoleIdAsync(string roleId)
+        {
+            var users = await _unitOfWork.identities.GetUsersByRoleIdAsync(roleId);
+            return users.Select(ToRoleUserDto).ToList();
+        }
+
         public async Task<RoleDto> CreateRoleAsync(CreateRoleRequest request)
         {
             var role = await _unitOfWork.identities.CreateRoleAsync(request.Name, request.IsActive);
@@ -141,6 +147,18 @@ namespace CarGalary.Application.Services
                 Name = role.Name ?? string.Empty,
                 IsActive = role.IsActive,
                 CreatedAt = role.CreatedAt
+            };
+        }
+
+        private static RoleUserDto ToRoleUserDto(ApplicationUser user)
+        {
+            return new RoleUserDto
+            {
+                Id = user.Id.ToString(),
+                Username = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                FirstName = user.FullNameEn ?? string.Empty,
+                LastName = user.FullNameAr ?? string.Empty
             };
         }
     }
