@@ -22,6 +22,8 @@ namespace CarGalary.Api
             services.AddScoped<IBrandRepository, BrandRepository>();
             services.AddScoped<IBranchRepository, BranchRepository>();
             services.AddScoped<ICarModelRepository, CarModelRepository>();
+services.AddScoped<IEaseAndComfortRepository, EaseAndComfortRepository>();
+            
             
             services.AddScoped<ICarColorRepository, CarColorRepository>();
             services.AddScoped<ICarFeatureRepository, CarFeatureRepository>();
