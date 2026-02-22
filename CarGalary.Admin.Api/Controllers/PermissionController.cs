@@ -1,11 +1,14 @@
+using CarGalary.Admin.Api.Security;
 using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarGalary.Admin.Api.Controllers
 {
     [ApiController]
     [Route("api/permissions")]
+    [Authorize]
     public class PermissionController : ControllerBase
     {
         private readonly IIdentityService _identity;
@@ -16,6 +19,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet]
+        [PermissionAuthorize("permissions.view")]
         public async Task<IActionResult> GetAll()
         {
             var permissions = await _identity.GetPermissionsAsync();
@@ -23,6 +27,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet("roles/{roleId}")]
+        [PermissionAuthorize("permissions.view")]
         public async Task<IActionResult> GetRolePermissions(string roleId)
         {
             var role = await _identity.GetRoleByIdAsync(roleId);
@@ -36,6 +41,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPost("roles/{roleId}")]
+        [PermissionAuthorize("permissions.create")]
         public async Task<IActionResult> AddPermissionToRole(string roleId, [FromBody] AddRolePermissionRequest request)
         {
             var page = request?.Page?.Trim();
@@ -57,6 +63,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpDelete("roles/{roleId}/{permission}")]
+        [PermissionAuthorize("permissions.delete")]
         public async Task<IActionResult> RemovePermissionFromRole(string roleId, string permission)
         {
             if (string.IsNullOrWhiteSpace(permission))
@@ -69,6 +76,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet("users/{userId}")]
+        [PermissionAuthorize("permissions.view")]
         public async Task<IActionResult> GetUserPermissions(string userId)
         {
             var permissions = await _identity.GetUserPermissionsAsync(userId);

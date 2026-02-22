@@ -44,6 +44,9 @@ builder.Services.AddHttpContextAccessor();
 // Authorization & Authentication
 builder.Services.AddAuthorization();
 
+builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationPolicyProvider, CarGalary.Admin.Api.Security.PermissionPolicyProvider>();
+builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, CarGalary.Admin.Api.Security.PermissionAuthorizationHandler>();
+
 
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("Jwt"));

@@ -1,12 +1,15 @@
+using CarGalary.Admin.Api.Security;
 using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarGalary.Admin.Api.Controllers
 {
     [ApiController]
     [Route("api/roles")]
+    [Authorize]
     public class RoleController : ControllerBase
     {
         private readonly IIdentityService _identity;
@@ -17,12 +20,14 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet]
+        [PermissionAuthorize("roles.view")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _identity.GetRolesAsync());
         }
 
         [HttpGet("{roleId}")]
+        [PermissionAuthorize("roles.view")]
         public async Task<IActionResult> GetById(string roleId)
         {
             var role = await _identity.GetRoleByIdAsync(roleId);
@@ -30,6 +35,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet("{roleId}/users")]
+        [PermissionAuthorize("roles.view")]
         public async Task<IActionResult> GetUsersByRole(string roleId)
         {
             var role = await _identity.GetRoleByIdAsync(roleId);
@@ -43,6 +49,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPost]
+        [PermissionAuthorize("roles.create")]
         public async Task<IActionResult> Create(
             [FromBody] CreateRoleRequest request,
             [FromServices] IValidator<CreateRoleRequest> validator)
@@ -65,6 +72,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPut("{roleId}")]
+        [PermissionAuthorize("roles.edit")]
         public async Task<IActionResult> Update(
             string roleId,
             [FromBody] UpdateRoleRequest request,
@@ -95,6 +103,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpDelete("{roleId}")]
+        [PermissionAuthorize("roles.delete")]
         public async Task<IActionResult> Delete(string roleId)
         {
             var deleted = await _identity.DeleteRoleAsync(roleId);
@@ -102,6 +111,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpDelete("bulk")]
+        [PermissionAuthorize("roles.delete")]
         public async Task<IActionResult> DeleteBulk([FromBody] List<string> roleIds)
         {
             if (roleIds == null || roleIds.Count == 0)

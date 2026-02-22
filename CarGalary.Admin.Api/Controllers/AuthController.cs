@@ -1,16 +1,18 @@
 using System.Net;
 using System.Net.Mail;
+using CarGalary.Admin.Api.Security;
 using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Interfaces;
 using CarGalary.Domain.Entities;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarGalary.Admin.Api.Controllers
 {
-   // [Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/auth")]
     public class AuthController : ControllerBase
@@ -37,7 +39,7 @@ namespace CarGalary.Admin.Api.Controllers
 
         // ================= REGISTER =================
 
-        // [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("users.create")]
         [HttpPost("register/admin")]
         public async Task<IActionResult> RegisterByAdmin(RegisterRequest request)
         {
@@ -86,6 +88,7 @@ namespace CarGalary.Admin.Api.Controllers
 
         // ================= LOGIN =================
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request,
                                 [FromServices] IValidator<LoginRequest> _validator)
@@ -115,6 +118,7 @@ namespace CarGalary.Admin.Api.Controllers
 
         // ================= FORGOT/RESET PASSWORD =================
 
+        [AllowAnonymous]
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
@@ -143,6 +147,7 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(new ForgotPasswordResponse());
         }
 
+        [AllowAnonymous]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
@@ -185,6 +190,7 @@ namespace CarGalary.Admin.Api.Controllers
 
         // ================= USER MANAGEMENT =================
 
+        [PermissionAuthorize("users.view")]
         [HttpGet("users")]
         public async Task<IActionResult> GetUsers()
         {
@@ -192,6 +198,7 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(users);
         }
 
+        [PermissionAuthorize("users.edit")]
         [HttpPut("users/{userId}")]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateAdminUserRequest request)
         {
@@ -211,6 +218,7 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok();
         }
 
+        [PermissionAuthorize("users.edit")]
         [HttpPost("users/{userId}/change-password")]
         public async Task<IActionResult> ChangeUserPassword(string userId, [FromBody] ChangeUserPasswordByAdminRequest request)
         {
@@ -227,7 +235,7 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok("Password changed successfully");
         }
 
-        //[Authorize(Roles = "Admin")]
+        [PermissionAuthorize("users.delete")]
         [HttpDelete("users/{userId}")]
         public async Task<IActionResult> DeleteUser(string userId)
         {
@@ -239,9 +247,7 @@ namespace CarGalary.Admin.Api.Controllers
             return NoContent();
         }
 
-        // ================= LOCK USER =================
-
-        //  [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("users.lock")]
         [HttpPost("users/{userId}/lock")]
         public async Task<IActionResult> LockUser(string userId)
         {
@@ -249,9 +255,7 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok("User locked");
         }
 
-        // ================= UNLOCK USER =================
-
-        // [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("users.lock")]
         [HttpPost("users/{userId}/unlock")]
         public async Task<IActionResult> UnlockUser(string userId)
         {
@@ -259,9 +263,7 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok("User unlocked");
         }
 
-        // ================= GET USER ROLES =================
-
-        //[Authorize]
+        [PermissionAuthorize("users.view")]
         [HttpGet("users/{userId}/roles")]
         public async Task<IActionResult> GetUserRoles(string userId)
         {
@@ -269,6 +271,7 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(roles);
         }
 
+        [PermissionAuthorize("users.view")]
         [HttpGet("users/{userId}/permissions")]
         public async Task<IActionResult> GetUserPermissions(string userId)
         {
@@ -276,9 +279,7 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(permissions);
         }
 
-        // ================= ASSIGN ROLE =================
-
-        // [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("users.roles")]
         [HttpPost("users/{userId}/roles/{role}")]
         public async Task<IActionResult> AssignRole(string userId, string role)
         {
@@ -286,9 +287,7 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok("Role assigned");
         }
 
-        // ================= REMOVE ROLE =================
-
-        //[Authorize(Roles = "Admin")]
+        [PermissionAuthorize("users.roles")]
         [HttpDelete("users/{userId}/roles/{role}")]
         public async Task<IActionResult> RemoveRole(string userId, string role)
         {
