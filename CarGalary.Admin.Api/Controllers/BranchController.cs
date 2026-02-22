@@ -1,14 +1,16 @@
 
+using CarGalary.Admin.Api.Security;
 using CarGalary.Application.Dtos.Branch.Command;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarGalary.Admin.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class BranchController : ControllerBase
     {
         private readonly IBranchService _service;
@@ -19,6 +21,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var branches = await _service.GetAllAsync();
@@ -34,6 +37,7 @@ namespace CarGalary.Admin.Api.Controllers
         // }
 
         [HttpPost]
+         [PermissionAuthorize("branches.create")]
         public async Task<IActionResult> Create([FromBody] CreateBrancRequestDto createBrancRequestDto,
          [FromServices] IValidator<CreateBrancRequestDto> _validator)
         {
@@ -56,7 +60,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPut("active")]
-
+ [PermissionAuthorize("branches.active")]
         public async Task<IActionResult> Active(UpdateBranchWorkingDayRequestDto updateBranchWorkingDayRequestDto)
         {
 
@@ -71,58 +75,6 @@ namespace CarGalary.Admin.Api.Controllers
             }
         }
 
-        // [HttpPut("{id}")]
-        // public async Task<IActionResult> Update(int id, [FromBody] Branch branch)
-        // {
-        //     if (id != branch.Id) return BadRequest();
-
-        //     var updated = await _service.UpdateAsync(branch);
-        //     if (!updated) return NotFound();
-
-        //     return Ok();
-        // }
-
-        // [HttpDelete("{id}")]
-        // public async Task<IActionResult> Delete(int id)
-        // {
-        //     var deleted = await _service.DeleteAsync(id);
-        //     if (!deleted) return NotFound();
-
-        //     return Ok();
-        // }
-
-        // [HttpGet("{branchId}/working-days")]
-        // public async Task<IActionResult> GetWorkingDays(int branchId)
-        // {
-        //     var days = await _service.GetWorkingDaysAsync(branchId);
-        //     return Ok(days);
-        // }
-
-        // [HttpPost("{branchId}/working-days")]
-        // public async Task<IActionResult> AddWorkingDay(int branchId, [FromBody] BranchWorkingDays workingDay)
-        // {
-        //     var created = await _service.AddWorkingDayAsync(branchId, workingDay);
-        //     return CreatedAtAction(nameof(GetWorkingDays), new { branchId }, created);
-        // }
-
-        // [HttpPut("working-days/{id}")]
-        // public async Task<IActionResult> UpdateWorkingDay(int id, [FromBody] BranchWorkingDays workingDay)
-        // {
-        //     if (id != workingDay.Id) return BadRequest();
-
-        //     var updated = await _service.UpdateWorkingDayAsync(workingDay);
-        //     if (!updated) return NotFound();
-
-        //     return NoContent();
-        // }
-
-        // [HttpDelete("working-days/{id}")]
-        // public async Task<IActionResult> DeleteWorkingDay(int id)
-        // {
-        //     var deleted = await _service.DeleteWorkingDayAsync(id);
-        //     if (!deleted) return NotFound();
-
-        //     return NoContent();
-        // }
+        
     }
 }
