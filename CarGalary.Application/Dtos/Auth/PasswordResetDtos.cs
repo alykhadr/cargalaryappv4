@@ -7,8 +7,7 @@ namespace CarGalary.Application.Dtos.Auth
 
     public class ForgotPasswordResponse
     {
-        public string Message { get; set; } = "If the account exists, a password reset token has been generated.";
-        public string? ResetToken { get; set; }
+        public string Message { get; set; } = "If the account exists, a password reset link has been sent.";
     }
 
     public class ResetPasswordRequest
