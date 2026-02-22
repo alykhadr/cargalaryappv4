@@ -35,7 +35,7 @@ namespace CarGalary.Domain.RepositoryInterfaces
         Task<bool> RoleExistsAsync(string roleName);
 
         // Auth
-        Task<(ApplicationUser User, string Token)> LoginAsync(string userName, string password);
+        Task<(ApplicationUser User, string Token)> LoginAsync(string userName, string password, bool rememberMe = false);
 
         // =================== PROFILE MANAGEMENT ===================
         Task ChangePasswordAsync(string userId, string currentPassword, string newPassword);

@@ -115,9 +115,9 @@ namespace CarGalary.Application.Services
             await _unitOfWork.identities.LockUserAsync(userId);
         }
 
-        public async Task<UserDto> LoginAsync(string userName, string password)
+        public async Task<UserDto> LoginAsync(string userName, string password, bool rememberMe = false)
         {
-            var result = await _unitOfWork.identities.LoginAsync(userName, password);
+            var result = await _unitOfWork.identities.LoginAsync(userName, password, rememberMe);
             return ToUserDto(result.User, result.Token);
         }
 

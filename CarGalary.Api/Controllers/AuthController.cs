@@ -127,7 +127,8 @@ namespace CarGalary.Api.Controllers
                 }
                 var user = await _identity.LoginAsync(
                     request.UserName.Trim(),
-                    request.Password);
+                    request.Password,
+                    request.RememberMe);
 
                 return Ok(user);
             }

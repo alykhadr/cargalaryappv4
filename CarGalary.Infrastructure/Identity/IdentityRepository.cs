@@ -395,10 +395,10 @@ namespace CarGalary.Infrastructure.Identity
 
         // ================= AUTH =================
 
-        public async Task<(ApplicationUser User, string Token)> LoginAsync(string userName, string password)
+        public async Task<(ApplicationUser User, string Token)> LoginAsync(string userName, string password, bool rememberMe = false)
         {
             var user = await FindByUserNameOrEmailAsync(userName);
-            var token = await LoginInternalAsync(user, password);
+            var token = await LoginInternalAsync(user, password, rememberMe);
             return (user, token);
         }
 
@@ -424,7 +424,7 @@ namespace CarGalary.Infrastructure.Identity
             return user;
         }
 
-        private async Task<string> LoginInternalAsync(ApplicationUser user, string password)
+        private async Task<string> LoginInternalAsync(ApplicationUser user, string password, bool rememberMe = false)
         {
             if (!await _userManager.CheckPasswordAsync(user, password))
             {
@@ -449,10 +449,10 @@ namespace CarGalary.Infrastructure.Identity
                 }
             }
 
-            return GenerateJwt(user, roles, permissions.ToList());
+            return GenerateJwt(user, roles, permissions.ToList(), rememberMe);
         }
 
-        private string GenerateJwt(ApplicationUser user, IList<string> roles, IList<string> permissions)
+        private string GenerateJwt(ApplicationUser user, IList<string> roles, IList<string> permissions, bool rememberMe = false)
         {
             var claims = new List<Claim>
             {
@@ -471,7 +471,7 @@ namespace CarGalary.Infrastructure.Identity
                 issuer: _jwt.Issuer,
                 audience: _jwt.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_jwt.ExpiryMinutes),
+                expires: rememberMe ? DateTime.UtcNow.AddDays(30) : DateTime.UtcNow.AddMinutes(_jwt.ExpiryMinutes),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
