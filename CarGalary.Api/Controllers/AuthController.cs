@@ -31,14 +31,13 @@ namespace CarGalary.Api.Controllers
                 var validator = _registerValidator.Validate(request);
                 if (!validator.IsValid)
                 {
-                    // Return all errors as an array of strings
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(errors);
+                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
                 }
                 string emailExist=await _identity.GetUserByEmailAsync(request.Email.ToUpper().Trim());
                 if (!string.IsNullOrWhiteSpace(emailExist))
                 {
-                    return BadRequest(new {error= $"email : {request.Email} already exist"});
+                    return BadRequest(new ApiErrorResponse($"email : {request.Email} already exist"));
                 }
                 // Force default role for public registration
                 var roles = (request.Roles != null && request.Roles.Any()) ? request.Roles
@@ -65,7 +64,11 @@ namespace CarGalary.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.ToString());
+                if (ex.Message.Contains("already exists", StringComparison.OrdinalIgnoreCase))
+                {
+                    return BadRequest(new ApiErrorResponse(ex.Message));
+                }
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
             }
 
         }
@@ -78,9 +81,8 @@ namespace CarGalary.Api.Controllers
                 var validator = _registerValidator.Validate(request);
                 if (!validator.IsValid)
                 {
-                    // Return all errors as an array of strings
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(errors);
+                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
                 }
                 var user = await _identity.CreateUserAsync(
                     request.UserName.Trim(),
@@ -100,7 +102,7 @@ namespace CarGalary.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.ToString());
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
             }
 
         }
@@ -115,9 +117,8 @@ namespace CarGalary.Api.Controllers
                 var validator = _validator.Validate(request);
                 if (!validator.IsValid)
                 {
-                    // Return all errors as an array of strings
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(errors);
+                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
                 }
                 var user = await _identity.LoginAsync(
                     request.UserName.Trim(),
@@ -127,7 +128,7 @@ namespace CarGalary.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.ToString());
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -140,7 +141,7 @@ namespace CarGalary.Api.Controllers
             var result = await _identity.DeleteUserAsync(userId);
 
             if (!result)
-                return NotFound("User not found");
+                return NotFound(new ApiErrorResponse("User not found", StatusCodes.Status404NotFound));
 
             return NoContent();
         }

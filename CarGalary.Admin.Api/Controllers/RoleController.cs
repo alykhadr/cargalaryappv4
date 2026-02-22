@@ -26,7 +26,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> GetById(string roleId)
         {
             var role = await _identity.GetRoleByIdAsync(roleId);
-            return role == null ? NotFound() : Ok(role);
+            return role == null ? NotFound(new ApiErrorResponse("Role not found", StatusCodes.Status404NotFound)) : Ok(role);
         }
 
         [HttpGet("{roleId}/users")]
@@ -35,7 +35,7 @@ namespace CarGalary.Admin.Api.Controllers
             var role = await _identity.GetRoleByIdAsync(roleId);
             if (role == null)
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse("Role not found", StatusCodes.Status404NotFound));
             }
 
             var users = await _identity.GetUsersByRoleIdAsync(roleId);
@@ -50,13 +50,13 @@ namespace CarGalary.Admin.Api.Controllers
             var validation = validator.Validate(request);
             if (!validation.IsValid)
             {
-                return BadRequest(validation.Errors.Select(e => e.ErrorMessage).ToList());
+                return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, validation.Errors.Select(e => e.ErrorMessage).ToList()));
             }
 
             var roleName = request.Name.Trim();
             if (await _identity.RoleExistsAsync(roleName))
             {
-                return BadRequest(new { error = $"Role '{roleName}' already exists" });
+                return BadRequest(new ApiErrorResponse($"Role '{roleName}' already exists"));
             }
 
             request.Name = roleName;
@@ -73,32 +73,32 @@ namespace CarGalary.Admin.Api.Controllers
             var existing = await _identity.GetRoleByIdAsync(roleId);
             if (existing == null)
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse("Role not found", StatusCodes.Status404NotFound));
             }
 
             var validation = validator.Validate(request);
             if (!validation.IsValid)
             {
-                return BadRequest(validation.Errors.Select(e => e.ErrorMessage).ToList());
+                return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, validation.Errors.Select(e => e.ErrorMessage).ToList()));
             }
 
             var roleName = request.Name.Trim();
             if (!string.Equals(existing.Name, roleName, StringComparison.OrdinalIgnoreCase)
                 && await _identity.RoleExistsAsync(roleName))
             {
-                return BadRequest(new { error = $"Role '{roleName}' already exists" });
+                return BadRequest(new ApiErrorResponse($"Role '{roleName}' already exists"));
             }
 
             request.Name = roleName;
             var updated = await _identity.UpdateRoleAsync(roleId, request);
-            return updated ? Ok() : NotFound();
+            return updated ? Ok() : NotFound(new ApiErrorResponse("Role not found", StatusCodes.Status404NotFound));
         }
 
         [HttpDelete("{roleId}")]
         public async Task<IActionResult> Delete(string roleId)
         {
             var deleted = await _identity.DeleteRoleAsync(roleId);
-            return deleted ? Ok() : NotFound();
+            return deleted ? Ok() : NotFound(new ApiErrorResponse("Role not found", StatusCodes.Status404NotFound));
         }
 
         [HttpDelete("bulk")]
@@ -106,7 +106,7 @@ namespace CarGalary.Admin.Api.Controllers
         {
             if (roleIds == null || roleIds.Count == 0)
             {
-                return BadRequest(new { error = "roleIds is required" });
+                return BadRequest(new ApiErrorResponse("roleIds is required"));
             }
 
             var normalizedIds = roleIds
@@ -117,7 +117,7 @@ namespace CarGalary.Admin.Api.Controllers
 
             if (normalizedIds.Count == 0)
             {
-                return BadRequest(new { error = "roleIds must contain valid values" });
+                return BadRequest(new ApiErrorResponse("roleIds must contain valid values"));
             }
 
             var notFoundIds = new List<string>();
@@ -133,11 +133,7 @@ namespace CarGalary.Admin.Api.Controllers
 
             if (notFoundIds.Count > 0)
             {
-                return NotFound(new
-                {
-                    error = "Some roles were not found",
-                    roleIds = notFoundIds
-                });
+                return NotFound(new ApiErrorResponse("Some roles were not found", StatusCodes.Status404NotFound, notFoundIds));
             }
 
             return Ok();

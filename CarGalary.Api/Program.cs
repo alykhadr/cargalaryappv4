@@ -16,7 +16,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Services
 // =======================
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add<ApiErrorResponseFilter>();
+    })
     .AddFluentValidation(fv =>
     {
         fv.RegisterValidatorsFromAssemblyContaining<CargalaryValidatorClass>();
@@ -83,7 +86,7 @@ var app = builder.Build();
 // =======================
 
 // 1. Global exception handling (FIRST)
-//app.UseCustomExceptionMiddleware();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // 2. HTTPS
 app.UseHttpsRedirection();

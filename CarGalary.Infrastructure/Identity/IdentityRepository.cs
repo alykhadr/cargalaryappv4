@@ -32,10 +32,17 @@ namespace CarGalary.Infrastructure.Identity
 
         public async Task<(ApplicationUser User, string Token)> CreateUserAsync(string userName, string email, string password, string? firstName, string? lastName)
         {
+            var normalizedUserName = userName.Trim().ToUpperInvariant();
+            var userNameExists = await _userManager.Users.AnyAsync(u => u.NormalizedUserName == normalizedUserName);
+            if (userNameExists)
+            {
+                throw new Exception($"Username '{userName.Trim()}' already exists");
+            }
+
             var user = new ApplicationUser
             {
-                UserName = userName,
-                Email = email,
+                UserName = userName.Trim(),
+                Email = email.Trim(),
                 FullNameEn = firstName,
                 FullNameAr = lastName
             };
@@ -66,12 +73,92 @@ namespace CarGalary.Infrastructure.Identity
             return await _userManager.CheckPasswordAsync(user, password);
         }
 
+        public async Task<List<ApplicationUser>> GetUsersAsync()
+        {
+            return await _userManager.Users
+                .OrderByDescending(u => u.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task UpdateUserDetailsAsync(string userId, string userName, string email, string? firstName, string? lastName)
+        {
+            var user = await _userManager.FindByIdAsync(userId)
+                ?? throw new Exception("User not found");
+
+            var normalizedUserName = userName.Trim().ToUpperInvariant();
+            var normalizedEmail = email.Trim().ToUpperInvariant();
+
+            var userNameExists = await _userManager.Users
+                .AnyAsync(u => u.Id != user.Id && u.NormalizedUserName == normalizedUserName);
+            if (userNameExists)
+            {
+                throw new Exception($"Username '{userName.Trim()}' already exists");
+            }
+
+            var emailExists = await _userManager.Users
+                .AnyAsync(u => u.Id != user.Id && u.NormalizedEmail == normalizedEmail);
+            if (emailExists)
+            {
+                throw new Exception($"Email '{email.Trim()}' already exists");
+            }
+
+            user.UserName = userName.Trim();
+            user.Email = email.Trim();
+            user.FullNameEn = firstName?.Trim();
+            user.FullNameAr = lastName?.Trim();
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+
+        public async Task ChangeUserPasswordByAdminAsync(string userId, string newPassword)
+        {
+            var user = await _userManager.FindByIdAsync(userId)
+                ?? throw new Exception("User not found");
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            if (!result.Succeeded)
+            {
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+
         public async Task<IList<string>> GetUserRolesAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId)
                 ?? throw new Exception("User not found");
 
             return await _userManager.GetRolesAsync(user);
+        }
+
+        public async Task<IList<string>> GetUserPermissionsAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId)
+                ?? throw new Exception("User not found");
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var permissions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var roleName in roles)
+            {
+                var role = await _roleManager.FindByNameAsync(roleName);
+                if (role == null)
+                {
+                    continue;
+                }
+
+                var claims = await _roleManager.GetClaimsAsync(role);
+                foreach (var claim in claims.Where(c => c.Type == "permission" && !string.IsNullOrWhiteSpace(c.Value)))
+                {
+                    permissions.Add(claim.Value.Trim());
+                }
+            }
+
+            return permissions.OrderBy(p => p).ToList();
         }
 
         public async Task LockUserAsync(string userId)
@@ -116,6 +203,98 @@ namespace CarGalary.Infrastructure.Identity
             return users
                 .OrderByDescending(user => user.CreatedAt)
                 .ToList();
+        }
+
+        public async Task<IList<string>> GetPermissionsAsync()
+        {
+            var roleIds = await _roleManager.Roles
+                .Select(r => r.Id)
+                .ToListAsync();
+
+            var permissions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var roleId in roleIds)
+            {
+                var role = await _roleManager.FindByIdAsync(roleId.ToString());
+                if (role == null)
+                {
+                    continue;
+                }
+
+                var claims = await _roleManager.GetClaimsAsync(role);
+                foreach (var claim in claims.Where(c => c.Type == "permission" && !string.IsNullOrWhiteSpace(c.Value)))
+                {
+                    permissions.Add(claim.Value.Trim());
+                }
+            }
+
+            return permissions.OrderBy(p => p).ToList();
+        }
+
+        public async Task<IList<string>> GetRolePermissionsAsync(string roleId)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null)
+            {
+                throw new Exception("Role not found");
+            }
+
+            var claims = await _roleManager.GetClaimsAsync(role);
+            return claims
+                .Where(c => c.Type == "permission" && !string.IsNullOrWhiteSpace(c.Value))
+                .Select(c => c.Value.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(c => c)
+                .ToList();
+        }
+
+        public async Task AssignPermissionToRoleAsync(string roleId, string permission)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null)
+            {
+                throw new Exception("Role not found");
+            }
+
+            var normalizedPermission = permission.Trim();
+            if (string.IsNullOrWhiteSpace(normalizedPermission))
+            {
+                throw new Exception("Permission is required");
+            }
+
+            var claims = await _roleManager.GetClaimsAsync(role);
+            if (claims.Any(c => c.Type == "permission" && string.Equals(c.Value, normalizedPermission, StringComparison.OrdinalIgnoreCase)))
+            {
+                return;
+            }
+
+            var result = await _roleManager.AddClaimAsync(role, new Claim("permission", normalizedPermission));
+            if (!result.Succeeded)
+            {
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+
+        public async Task RemovePermissionFromRoleAsync(string roleId, string permission)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null)
+            {
+                throw new Exception("Role not found");
+            }
+
+            var claims = await _roleManager.GetClaimsAsync(role);
+            var toRemove = claims
+                .Where(c => c.Type == "permission" && string.Equals(c.Value, permission, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            foreach (var claim in toRemove)
+            {
+                var result = await _roleManager.RemoveClaimAsync(role, claim);
+                if (!result.Succeeded)
+                {
+                    throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+                }
+            }
         }
 
         public async Task<ApplicationRole> CreateRoleAsync(string roleName, bool isActive)
@@ -218,13 +397,17 @@ namespace CarGalary.Infrastructure.Identity
         private async Task<ApplicationUser> FindByUserNameOrEmailAsync(string userNameOrEmail)
         {
             var normalized = userNameOrEmail.Trim();
-            var user = await _userManager.FindByNameAsync(normalized);
+            var normalizedUpper = normalized.ToUpperInvariant();
+
+            var user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.NormalizedUserName == normalizedUpper);
             if (user != null)
             {
                 return user;
             }
 
-            user = await _userManager.FindByEmailAsync(normalized.ToUpper());
+            user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedUpper);
             if (user == null)
             {
                 throw new UnauthorizedAccessException("Invalid user name or password");
@@ -241,10 +424,27 @@ namespace CarGalary.Infrastructure.Identity
             }
 
             var roles = await _userManager.GetRolesAsync(user);
-            return GenerateJwt(user, roles);
+            var permissions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var roleName in roles)
+            {
+                var role = await _roleManager.FindByNameAsync(roleName);
+                if (role == null)
+                {
+                    continue;
+                }
+
+                var claims = await _roleManager.GetClaimsAsync(role);
+                foreach (var claim in claims.Where(c => c.Type == "permission" && !string.IsNullOrWhiteSpace(c.Value)))
+                {
+                    permissions.Add(claim.Value.Trim());
+                }
+            }
+
+            return GenerateJwt(user, roles, permissions.ToList());
         }
 
-        private string GenerateJwt(ApplicationUser user, IList<string> roles)
+        private string GenerateJwt(ApplicationUser user, IList<string> roles, IList<string> permissions)
         {
             var claims = new List<Claim>
             {
@@ -254,6 +454,7 @@ namespace CarGalary.Infrastructure.Identity
             };
 
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            claims.AddRange(permissions.Select(permission => new Claim("permission", permission)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

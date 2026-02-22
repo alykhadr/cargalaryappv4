@@ -2,7 +2,6 @@
 using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarGalary.Admin.Api.Controllers
@@ -37,14 +36,13 @@ namespace CarGalary.Admin.Api.Controllers
                 var validator = _registerValidator.Validate(request);
                 if (!validator.IsValid)
                 {
-                    // Return all errors as an array of strings
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(errors);
+                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
                 }
                 string emailExist=await _identity.GetUserByEmailAsync(request.Email.ToUpper().Trim());
                 if (!string.IsNullOrWhiteSpace(emailExist))
                 {
-                    return BadRequest(new {error= $"email : {request.Email} already exist"});
+                    return BadRequest(new ApiErrorResponse($"email : {request.Email} already exist"));
                 }
                 // Force default role for public registration
                 var roles = (request.Roles != null && request.Roles.Any()) ? request.Roles
@@ -68,7 +66,11 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.ToString());
+                if (ex.Message.Contains("already exists", StringComparison.OrdinalIgnoreCase))
+                {
+                    return BadRequest(new ApiErrorResponse(ex.Message));
+                }
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
             }
 
         }
@@ -83,9 +85,8 @@ namespace CarGalary.Admin.Api.Controllers
                 var validator = _validator.Validate(request);
                 if (!validator.IsValid)
                 {
-                    // Return all errors as an array of strings
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(errors);
+                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
                 }
                 var user = await _identity.LoginAsync(
                     request.UserName.Trim(),
@@ -103,11 +104,53 @@ namespace CarGalary.Admin.Api.Controllers
 
 
                 
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.ToString());
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
             }
         }
 
         // ================= DELETE USER =================
+
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _identity.GetUsersAsync();
+            return Ok(users);
+        }
+
+        [HttpPut("users/{userId}")]
+        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateAdminUserRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Email))
+            {
+                return BadRequest(new ApiErrorResponse("Username and email are required"));
+            }
+
+            await _identity.UpdateUserDetailsAsync(
+                userId,
+                request.UserName,
+                request.Email,
+                request.FirstName,
+                request.LastName
+            );
+
+            return Ok();
+        }
+
+        [HttpPost("users/{userId}/change-password")]
+        public async Task<IActionResult> ChangeUserPassword(string userId, [FromBody] ChangeUserPasswordByAdminRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                return BadRequest(new ApiErrorResponse("New password is required"));
+            }
+            if (request.NewPassword.Length < 6)
+            {
+                return BadRequest(new ApiErrorResponse("New password must be at least 6 characters"));
+            }
+
+            await _identity.ChangeUserPasswordByAdminAsync(userId, request.NewPassword);
+            return Ok("Password changed successfully");
+        }
 
         //[Authorize(Roles = "Admin")]
         [HttpDelete("users/{userId}")]
@@ -116,7 +159,7 @@ namespace CarGalary.Admin.Api.Controllers
             var result = await _identity.DeleteUserAsync(userId);
 
             if (!result)
-                return NotFound("User not found");
+                return NotFound(new ApiErrorResponse("User not found", StatusCodes.Status404NotFound));
 
             return NoContent();
         }
@@ -149,6 +192,13 @@ namespace CarGalary.Admin.Api.Controllers
         {
             var roles = await _identity.GetUserRolesAsync(userId);
             return Ok(roles);
+        }
+
+        [HttpGet("users/{userId}/permissions")]
+        public async Task<IActionResult> GetUserPermissions(string userId)
+        {
+            var permissions = await _identity.GetUserPermissionsAsync(userId);
+            return Ok(permissions);
         }
 
         // ================= ASSIGN ROLE =================
