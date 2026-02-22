@@ -38,13 +38,21 @@ namespace CarGalary.Admin.Api.Controllers
         [HttpPost("roles/{roleId}")]
         public async Task<IActionResult> AddPermissionToRole(string roleId, [FromBody] AddRolePermissionRequest request)
         {
-            var permission = request?.Permission;
-            if (string.IsNullOrWhiteSpace(permission))
+            var page = request?.Page?.Trim();
+            var action = request?.Action?.Trim();
+
+            if (string.IsNullOrWhiteSpace(page))
             {
-                return BadRequest(new ApiErrorResponse("Permission is required"));
+                return BadRequest(new ApiErrorResponse("Page is required"));
             }
 
-            await _identity.AssignPermissionToRoleAsync(roleId, permission.Trim());
+            if (string.IsNullOrWhiteSpace(action))
+            {
+                return BadRequest(new ApiErrorResponse("Action is required"));
+            }
+
+            var permission = BuildPermission(page, action);
+            await _identity.AssignPermissionToRoleAsync(roleId, permission);
             return Ok();
         }
 
@@ -65,6 +73,11 @@ namespace CarGalary.Admin.Api.Controllers
         {
             var permissions = await _identity.GetUserPermissionsAsync(userId);
             return Ok(permissions);
+        }
+
+        private static string BuildPermission(string page, string action)
+        {
+            return $"{page.Trim()}.{action.Trim()}";
         }
     }
 }

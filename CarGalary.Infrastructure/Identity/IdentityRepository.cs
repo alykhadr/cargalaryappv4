@@ -261,6 +261,14 @@ namespace CarGalary.Infrastructure.Identity
                 throw new Exception("Permission is required");
             }
 
+            var parts = normalizedPermission.Split(".", 2, StringSplitOptions.TrimEntries);
+            if (parts.Length != 2 || string.IsNullOrWhiteSpace(parts[0]) || string.IsNullOrWhiteSpace(parts[1]))
+            {
+                throw new Exception("Permission must be in page.action format");
+            }
+
+            normalizedPermission = string.Concat(parts[0], ".", parts[1]);
+
             var claims = await _roleManager.GetClaimsAsync(role);
             if (claims.Any(c => c.Type == "permission" && string.Equals(c.Value, normalizedPermission, StringComparison.OrdinalIgnoreCase)))
             {

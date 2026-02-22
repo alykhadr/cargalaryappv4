@@ -2,7 +2,8 @@ namespace CarGalary.Application.Dtos.Auth
 {
     public class AddRolePermissionRequest
     {
-        public string Permission { get; set; } = string.Empty;
+        public string Page { get; set; } = string.Empty;
+        public string Action { get; set; } = string.Empty;
     }
 
     public class PermissionDto
