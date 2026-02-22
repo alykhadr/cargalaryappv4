@@ -59,6 +59,41 @@ namespace CarGalary.Application.Services
 
 
 
+        public async Task<BranchResponseDto> GetByIdAsync(int id)
+        {
+            var branch = await _unitOfWork.Branches.GetByIdAsync(id);
+            if (branch == null)
+                throw new Exception("Branch not found");
+            var branchResponseDto = _mapper.Map<BranchResponseDto>(branch);
+            return branchResponseDto;
+        }
+
+        public async Task<bool> UpdateAsync(int id, UpdateBranchRequestDto updateBranchRequestDto)
+        {
+            var branch = await _unitOfWork.Branches.GetByIdAsync(id);
+            if (branch == null)
+                throw new Exception("Branch not found");
+
+            _mapper.Map(updateBranchRequestDto, branch);
+            branch.UpdatedAt = DateTime.UtcNow;
+            branch.UpdatedBy = _currentUserService.UserName;
+
+            await _unitOfWork.Branches.UpdateAsync(branch);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var branch = await _unitOfWork.Branches.GetByIdAsync(id);
+            if (branch == null)
+                throw new Exception("Branch not found");
+
+            await _unitOfWork.Branches.DeleteAsync(branch);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<IEnumerable<BranchResponseDto>> GetAllAsync()
         {
             var branches = await _unitOfWork.Branches.GetAllAsync();

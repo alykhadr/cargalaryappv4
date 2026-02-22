@@ -10,9 +10,10 @@ namespace CarGalary.Application.Interfaces
     public interface IBranchService
     {
         Task<IEnumerable<BranchResponseDto>> GetAllAsync();
-        // Task<Branch> GetByIdAsync(int id);
-         Task<BranchResponseDto> CreateAsync(CreateBrancRequestDto  createBrancRequestDto);
-        // Task<bool> UpdateAsync(Branch branch);
+        Task<BranchResponseDto> GetByIdAsync(int id);
+        Task<BranchResponseDto> CreateAsync(CreateBrancRequestDto  createBrancRequestDto);
+        Task<bool> UpdateAsync(int id, UpdateBranchRequestDto updateBranchRequestDto);
+        Task<bool> DeleteAsync(int id);
         Task<bool> ActiveAsync(UpdateBranchWorkingDayRequestDto updateBranchWorkingDayRequestDto);
 
 

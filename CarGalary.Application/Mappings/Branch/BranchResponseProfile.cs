@@ -17,6 +17,9 @@ namespace CarGalary.Application.Mappings.Branch
                 .ForMember(dest => dest.BranchWorkingDays,
                     opt => opt.MapFrom(src => src.CreateBranchWorkingDaysRequestDto));
 
+            // Update → Entity
+            CreateMap<UpdateBranchRequestDto, Branchs>();
+
             CreateMap<CreateBranchWorkingDaysRequestDto, BranchWorkingDays>();
 
 
