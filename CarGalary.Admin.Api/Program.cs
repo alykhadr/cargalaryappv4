@@ -62,7 +62,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwt.Issuer,
             ValidAudience = jwt.Audience,
             IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key))
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key)),
+            ClockSkew = TimeSpan.Zero
         };
     });
 
@@ -120,11 +121,11 @@ if (app.Environment.IsDevelopment())
 }
 // Test endpoint
 app.MapGet("/api/version", () => Results.Ok(new { vers = "1.0" }));
-// 6. Endpoints
-app.MapControllers();
 // 4. Authentication / Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+// 6. Endpoints
+app.MapControllers();
 
 
 
