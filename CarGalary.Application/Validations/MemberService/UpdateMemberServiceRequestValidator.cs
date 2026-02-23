@@ -5,6 +5,10 @@ namespace CarGalary.Application.Validations.MemberService
 {
     public class UpdateMemberServiceRequestValidator : AbstractValidator<UpdateMemberServiceRequestDto>
     {
-        public UpdateMemberServiceRequestValidator(){RuleFor(x=>x.NameAr).NotEmpty(); RuleFor(x=>x.NameEn).NotEmpty();}
+        public UpdateMemberServiceRequestValidator()
+        {
+            RuleFor(x => x.NameAr).NotEmpty().WithMessage("NameAr is required");
+            RuleFor(x => x.NameEn).NotEmpty().WithMessage("NameEn is required");
+        }
     }
 }

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace CarGalary.Application.Dtos.MemberService.Command
 {
     public class CreateMemberServiceRequestDto
@@ -7,5 +9,6 @@ namespace CarGalary.Application.Dtos.MemberService.Command
         public string? DescriptionAr { get; set; }
         public string? DescriptionEn { get; set; }
         public string? ImageUrl { get; set; }
+        public IFormFile? ImageFile { get; set; }
     }
 }

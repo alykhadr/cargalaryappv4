@@ -22,7 +22,7 @@ namespace CarGalary.Infrastructure.Configuration
 
             builder.Property(x => x.IsAvailable)
             .HasDefaultValue(true);
-
+ //builder.Property(x => x.ImageUrl);
             builder.Property(x => x.CreatedAt)
               .HasDefaultValueSql("GETUTCDATE()");
 
