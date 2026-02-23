@@ -6,7 +6,9 @@ namespace CarGalary.Domain.Entities
     {
 
         public string? ContactValue { get; set; }
-        public bool IsMobileNo { get; set; }=true;
+        // mobile , whatsup , email
+        public int ContactType { get; set; }
+        public string? ContactIconUrl { get; set; }
         public string? CreatedBy { get; set; }
     }
 }
