@@ -121,6 +121,34 @@ namespace CarGalary.Admin.Api.Controllers
             }
         }
 
+        [HttpPost("bulk-delete")]
+        [PermissionAuthorize("brands.delete")]
+        public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteBrandsRequest request)
+        {
+            if (request.BrandIds == null || !request.BrandIds.Any())
+            {
+                return BadRequest("Brand IDs are required");
+            }
+
+            var deletedCount = 0;
+            var failedIds = new List<int>();
+
+            foreach (var brandId in request.BrandIds)
+            {
+                try
+                {
+                    await _brandService.DeleteAsync(brandId);
+                    deletedCount++;
+                }
+                catch
+                {
+                    failedIds.Add(brandId);
+                }
+            }
+
+            return Ok(new { deletedCount, failedIds });
+        }
+
         private void DeleteBrandImageIfExists(string? imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))

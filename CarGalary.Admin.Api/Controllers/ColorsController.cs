@@ -102,5 +102,33 @@ namespace CarGalary.Admin.Api.Controllers
                 return NotFound();
             }
         }
+
+        [HttpPost("bulk-delete")]
+        [PermissionAuthorize("colors.delete")]
+        public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteColorsRequest request)
+        {
+            if (request.ColorIds == null || !request.ColorIds.Any())
+            {
+                return BadRequest("Color IDs are required");
+            }
+
+            var deletedCount = 0;
+            var failedIds = new List<int>();
+
+            foreach (var colorId in request.ColorIds)
+            {
+                try
+                {
+                    await _carColorService.DeleteAsync(colorId);
+                    deletedCount++;
+                }
+                catch
+                {
+                    failedIds.Add(colorId);
+                }
+            }
+
+            return Ok(new { deletedCount, failedIds });
+        }
     }
 }

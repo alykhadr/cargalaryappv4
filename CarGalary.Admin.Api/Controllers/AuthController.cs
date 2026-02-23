@@ -268,6 +268,34 @@ namespace CarGalary.Admin.Api.Controllers
             return NoContent();
         }
 
+        [PermissionAuthorize("users.delete")]
+        [HttpPost("users/bulk-delete")]
+        public async Task<IActionResult> BulkDeleteUsers([FromBody] BulkDeleteUsersRequest request)
+        {
+            if (request.UserIds == null || !request.UserIds.Any())
+            {
+                return BadRequest(new ApiErrorResponse("User IDs are required"));
+            }
+
+            var deletedCount = 0;
+            var failedIds = new List<string>();
+
+            foreach (var userId in request.UserIds)
+            {
+                var result = await _identity.DeleteUserAsync(userId);
+                if (result)
+                {
+                    deletedCount++;
+                }
+                else
+                {
+                    failedIds.Add(userId);
+                }
+            }
+
+            return Ok(new { deletedCount, failedIds });
+        }
+
         [PermissionAuthorize("users.lock")]
         [HttpPost("users/{userId}/lock")]
         public async Task<IActionResult> LockUser(string userId)
