@@ -4,24 +4,26 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using CarGalary.Admin.Api.Security;
 
 namespace CarGalary.Admin.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
-    public class BrandController : ControllerBase
+    [Authorize]
+    public class BrandsController : ControllerBase
     {
         private readonly IBrandService _brandService;
         private readonly IWebHostEnvironment _environment;
 
-        public BrandController(IBrandService brandService, IWebHostEnvironment environment)
+        public BrandsController(IBrandService brandService, IWebHostEnvironment environment)
         {
             _brandService = brandService;
             _environment = environment;
         }
 
         [HttpGet]
+        [PermissionAuthorize("brands.view")]
         public async Task<IActionResult> GetAll()
         {
             var brands = await _brandService.GetAllAsync();
@@ -29,6 +31,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [PermissionAuthorize("brands.view")]
         public async Task<IActionResult> GetById(int id)
         {
             var brand = await _brandService.GetByIdAsync(id);
@@ -41,6 +44,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPost]
+        [PermissionAuthorize("brands.create")]
         public async Task<IActionResult> Create(
             [FromForm] CreateBrandRequestDto createBrandRequestDto,
             [FromServices] IValidator<CreateBrandRequestDto> validator)
@@ -62,6 +66,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [PermissionAuthorize("brands.edit")]
         public async Task<IActionResult> Update(
             int id,
             [FromForm] UpdateBrandRequestDto updateBrandRequestDto,
@@ -85,6 +90,10 @@ namespace CarGalary.Admin.Api.Controllers
                 DeleteBrandImageIfExists(existingBrand.ImageUrl);
                 updateBrandRequestDto.ImageUrl = await SaveBrandImageAsync(updateBrandRequestDto.ImageFile);
             }
+            else
+            {
+                updateBrandRequestDto.ImageUrl = existingBrand.ImageUrl;
+            }
 
             try
             {
@@ -98,6 +107,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [PermissionAuthorize("brands.delete")]
         public async Task<IActionResult> Delete(int id)
         {
             try
