@@ -18,7 +18,7 @@ namespace CarGalary.Infrastructure.Configuration
                    .HasDefaultValueSql("GETUTCDATE()");
 
             builder.Property(e => e.IsMobileNo).HasDefaultValue(true);
-
+ builder.Property(e => e.CreatedBy);
             builder.Property(e => e.IsAvailable)
                    .HasDefaultValue(true);
 
