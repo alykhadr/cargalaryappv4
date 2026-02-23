@@ -33,20 +33,16 @@ namespace CarGalary.Admin.Api
             services.AddScoped<ICompanyInformationRepository, CompanyInformationRepository>();
             services.AddScoped<IContactSalesOfficerRepository, ContactSalesOfficerRepository>();
             services.AddScoped<IContactUsRepository, ContactUsRepository>();
-            services.AddScoped<IEaseAndComfortRepository, EaseAndComfortRepository>();
-            services.AddScoped<IEngineSpecificationRepository, EngineSpecificationRepository>();
-            services.AddScoped<IExteriorRepository, ExteriorRepository>();
-            services.AddScoped<IExtraFeatureRepository, ExtraFeatureRepository>();
+ 
             services.AddScoped<IFAQRepository, FAQRepository>();
             services.AddScoped<IFavoritesRepository, FavoritesRepository>();
-            services.AddScoped<IMeasurementsRepository, MeasurementsRepository>();
+      
             services.AddScoped<IMemberServiceRepository, MemberServiceRepository>();
             services.AddScoped<IOfferRepository, OfferRepository>();
-            services.AddScoped<ISafetyRepository, SafetyRepository>();
-            services.AddScoped<ISeatingRepository, SeatingRepository>();
+
             services.AddScoped<IServicesRepository, ServicesRepository>();
             services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
-            services.AddScoped<ITransmissionRepository, TransmissionRepository>();
+  
 
             services.AddScoped<IIdentityRepository, IdentityRepository>();
             return services;
@@ -76,20 +72,16 @@ namespace CarGalary.Admin.Api
             services.AddScoped<ICompanyInformationService, CompanyInformationService>();
             services.AddScoped<IContactSalesOfficerService, ContactSalesOfficerService>();
             services.AddScoped<IContactUsService, ContactUsService>();
-            services.AddScoped<IEaseAndComfortService, EaseAndComfortService>();
-            services.AddScoped<IEngineSpecificationService, EngineSpecificationService>();
-            services.AddScoped<IExteriorService, ExteriorService>();
-            services.AddScoped<IExtraFeatureService, ExtraFeatureService>();
+
             services.AddScoped<IFAQService, FAQService>();
             services.AddScoped<IFavoritesService, FavoritesService>();
-            services.AddScoped<IMeasurementsService, MeasurementsService>();
+
             services.AddScoped<IMemberServiceService, MemberServiceService>();
             services.AddScoped<IOfferService, OfferService>();
-            services.AddScoped<ISafetyService, SafetyService>();
-            services.AddScoped<ISeatingService, SeatingService>();
+
             services.AddScoped<IServicesService, ServicesService>();
             services.AddScoped<IServiceTypeService, ServiceTypeService>();
-            services.AddScoped<ITransmissionService, TransmissionService>();
+
             services.AddScoped<ICarExtraDetailsService, CarExtraDetailsService>();
             services.AddScoped<ICarColorService, CarColorService>();
             services.AddScoped<ICarCarColorService, CarCarColorService>();

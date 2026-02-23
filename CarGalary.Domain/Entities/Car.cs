@@ -35,17 +35,9 @@ public class Car:BaseEntity
      // Images
     public ICollection<CarGalleryImage> CarImages { get; set; } = new List<CarGalleryImage>();
 
-    // Navigation property
-        public ICollection<EngineSpecification> EngineSpecifications { get; set; }= new List<EngineSpecification>();
+    
 
-        // Navigation property
-        public ICollection<Transmission>  Transmissions { get; set; }=new List<Transmission>();
-         public ICollection<Measurements>   Measurements { get; set; }=new List<Measurements>();
-         public ICollection<ExtraFeature>    ExtraFeatures { get; set; }=new List<ExtraFeature>();
            public ICollection<CarExtraDetails>    CarExtraDetails { get; set; }=new List<CarExtraDetails>();
-           public ICollection<EaseAndComfort>    EaseAndComforts { get; set; }=new List<EaseAndComfort>();
-          public ICollection<Exterior>     Exteriors { get; set; }=new List<Exterior>();
-          public ICollection<Safety>     Safeties { get; set; }=new List<Safety>();
-           public ICollection<Seating>     Seatings { get; set; }=new List<Seating>();
+
 }
 }

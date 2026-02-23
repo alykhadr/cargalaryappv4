@@ -19,20 +19,16 @@ namespace CarGalary.Domain.UnitOfWork
         public ICompanyInformationRepository CompanyInformations { get; }
         public IContactSalesOfficerRepository ContactSalesOfficers { get; }
         public IContactUsRepository ContactUs { get; }
-        public IEaseAndComfortRepository EaseAndComforts { get; }
-        public IEngineSpecificationRepository EngineSpecifications { get; }
-        public IExteriorRepository Exteriors { get; }
-        public IExtraFeatureRepository ExtraFeatures { get; }
+       
         public IFAQRepository FAQs { get; }
         public IFavoritesRepository Favorites { get; }
-        public IMeasurementsRepository Measurements { get; }
+      
         public IMemberServiceRepository MemberServices { get; }
         public IOfferRepository Offers { get; }
-        public ISafetyRepository Safeties { get; }
-        public ISeatingRepository Seatings { get; }
+       
         public IServicesRepository Services { get; }
         public IServiceTypeRepository ServiceTypes { get; }
-        public ITransmissionRepository Transmissions { get; }
+
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

@@ -1,7 +1,7 @@
-using CarGalary.Application.Dtos.AudioAndCommunicationSystem.Command;
+using CarGalary.Application.Dtos.CarExtraDetails.Command;
 using FluentValidation;
 
-namespace CarGalary.Application.Validations.AudioAndCommunicationSystem
+namespace CarGalary.Application.Validations.CarExtraDetails
 {
     public class CreateCarExtraDetailsequestValidator : AbstractValidator<CreateCarExtraDetailsRequestDto>
     {

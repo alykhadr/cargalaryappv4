@@ -1,7 +1,7 @@
 
 using CarGalary.Domain.Entities;
 using CarGalary.Infrastructure.Configuration;
-using CarGalary.Infrastructure.Identity;
+
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,14 +27,9 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<Color> Colors { get; set; }
     public DbSet<CarColor> CarColors { get; set; }
     public DbSet<CarGalleryImage> CarGalleryImages { get; set; }
-    public DbSet<EngineSpecification> EngineSpecifications { get; set; }
-    public DbSet<Transmission> Transmissions { get; set; }
-    public DbSet<ExtraFeature> ExtraFeatures { get; set; }
-    public DbSet<EaseAndComfort> EaseAndComforts { get; set; }
+
     public DbSet<CarExtraDetails> CarExtraDetails { get; set; }
-    public DbSet<Exterior> Exteriors { get; set; }
-    public DbSet<Safety> Safeties { get; set; }
-    public DbSet<Seating> Seatings { get; set; }
+
     public DbSet<CarModel> CarModels { get; set; }
     public DbSet<Branchs> Branches { get; set; }
     public DbSet<CompanyInformation> CompanyInformations { get; set; }
@@ -48,7 +43,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<Services> Services { get; set; }
     public DbSet<MemberService>  MemberServices { get; set; }
        public DbSet<FAQ>   FAQs { get; set; }
-       public DbSet<Measurements>    Measurements { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -64,14 +59,9 @@ namespace CarGalary.Infrastructure.Context;
         modelBuilder.ApplyConfiguration(new CarColorConfiguration());
         modelBuilder.ApplyConfiguration(new CarCarColorConfiguration());
         modelBuilder.ApplyConfiguration(new CarGalleryImageConfiguration());
-        modelBuilder.ApplyConfiguration(new EngineSpecificationConfiguration());
-        modelBuilder.ApplyConfiguration(new TransmissionConfiguration());
-        modelBuilder.ApplyConfiguration(new ExtraFeatureConfiguration());
+
         modelBuilder.ApplyConfiguration(new CarExtraDetailsConfiguration());
-        modelBuilder.ApplyConfiguration(new EaseAndComfortConfiguration());
-        modelBuilder.ApplyConfiguration(new ExteriorConfiguration());
-        modelBuilder.ApplyConfiguration(new SafetyConfiguration());
-        modelBuilder.ApplyConfiguration(new SeatingConfiguration());
+
         modelBuilder.ApplyConfiguration(new CarModelConfiguration());
         modelBuilder.ApplyConfiguration(new BranchConfiguration());
         modelBuilder.ApplyConfiguration(new CompanyInformationConfiguration());
@@ -83,7 +73,6 @@ namespace CarGalary.Infrastructure.Context;
 
         modelBuilder.ApplyConfiguration(new ServicesConfiguration());
           modelBuilder.ApplyConfiguration(new MemberServiceConfiguration());
-          modelBuilder.ApplyConfiguration(new MeasurementConfiguration());
 
               modelBuilder.ApplyConfiguration(new FAQConfiguration());
 

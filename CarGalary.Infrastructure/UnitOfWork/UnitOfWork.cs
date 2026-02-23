@@ -22,20 +22,16 @@ namespace CarGalary.Infrastructure.UnitOfWork
         public ICompanyInformationRepository CompanyInformations { get; }
         public IContactSalesOfficerRepository ContactSalesOfficers { get; }
         public IContactUsRepository ContactUs { get; }
-        public IEaseAndComfortRepository EaseAndComforts { get; }
-        public IEngineSpecificationRepository EngineSpecifications { get; }
-        public IExteriorRepository Exteriors { get; }
-        public IExtraFeatureRepository ExtraFeatures { get; }
+
         public IFAQRepository FAQs { get; }
         public IFavoritesRepository Favorites { get; }
-        public IMeasurementsRepository Measurements { get; }
+
         public IMemberServiceRepository MemberServices { get; }
         public IOfferRepository Offers { get; }
-        public ISafetyRepository Safeties { get; }
-        public ISeatingRepository Seatings { get; }
+
         public IServicesRepository Services { get; }
         public IServiceTypeRepository ServiceTypes { get; }
-        public ITransmissionRepository Transmissions { get; }
+
 
 
         public IIdentityRepository identities {get;}
@@ -56,20 +52,12 @@ namespace CarGalary.Infrastructure.UnitOfWork
             ICompanyInformationRepository companyInformationRepository,
             IContactSalesOfficerRepository contactSalesOfficerRepository,
             IContactUsRepository contactUsRepository,
-            IEaseAndComfortRepository easeAndComfortRepository,
-            IEngineSpecificationRepository engineSpecificationRepository,
-            IExteriorRepository exteriorRepository,
-            IExtraFeatureRepository extraFeatureRepository,
             IFAQRepository fAQRepository,
             IFavoritesRepository favoritesRepository,
-            IMeasurementsRepository measurementsRepository,
             IMemberServiceRepository memberServiceRepository,
             IOfferRepository offerRepository,
-            ISafetyRepository safetyRepository,
-            ISeatingRepository seatingRepository,
             IServicesRepository servicesRepository,
-             IServiceTypeRepository serviceTypeRepository,
-             ITransmissionRepository transmissionRepository)
+             IServiceTypeRepository serviceTypeRepository)
         {
             _context = context;
             CarColors = carColorRepository;
@@ -85,19 +73,15 @@ namespace CarGalary.Infrastructure.UnitOfWork
             CompanyInformations=companyInformationRepository;
             ContactSalesOfficers=contactSalesOfficerRepository;
             ContactUs=contactUsRepository;
-            EaseAndComforts=easeAndComfortRepository;
-            EngineSpecifications=engineSpecificationRepository;
-            Exteriors=exteriorRepository;
-            ExtraFeatures=extraFeatureRepository;
+
             FAQs=fAQRepository;
             Favorites=favoritesRepository;
-            Measurements=measurementsRepository;
+
             Offers= offerRepository;
-            Safeties=safetyRepository;
-            Seatings=seatingRepository;
+
             Services=servicesRepository;
             ServiceTypes=serviceTypeRepository;
-            Transmissions=transmissionRepository;
+
             MemberServices=memberServiceRepository;
 
             identities=identityRepository;

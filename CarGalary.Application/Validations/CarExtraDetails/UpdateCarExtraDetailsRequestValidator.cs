@@ -1,4 +1,5 @@
-using CarGalary.Application.Dtos.AudioAndCommunicationSystem.Command;
+
+using CarGalary.Application.Dtos.CarExtraDetails.Command;
 using FluentValidation;
 
 namespace CarGalary.Application.Validations.AudioAndCommunicationSystem

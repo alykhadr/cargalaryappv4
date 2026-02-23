@@ -1,4 +1,4 @@
-namespace CarGalary.Application.Dtos.AudioAndCommunicationSystem.Command
+namespace CarGalary.Application.Dtos.CarExtraDetails.Command
 {
     public class UpdateCarExtraDetailsRequestDto
     {

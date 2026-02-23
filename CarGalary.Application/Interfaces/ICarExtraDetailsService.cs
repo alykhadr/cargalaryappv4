@@ -1,5 +1,6 @@
-using CarGalary.Application.Dtos.AudioAndCommunicationSystem.Command;
+
 using CarGalary.Application.Dtos.AudioAndCommunicationSystem.Query;
+using CarGalary.Application.Dtos.CarExtraDetails.Command;
 
 namespace CarGalary.Application.Interfaces
 {
