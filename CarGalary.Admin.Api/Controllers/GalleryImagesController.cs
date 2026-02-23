@@ -1,6 +1,9 @@
+using CarGalary.Admin.Api.Security;
 using CarGalary.Application.Dtos.CarGalleryImage.Command;
 using CarGalary.Application.Interfaces;
+
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 
@@ -8,18 +11,28 @@ namespace CarGalary.Admin.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CarGalleryImageController : ControllerBase
+    [Authorize]
+    public class GalleryImagesController : ControllerBase
     {
         private readonly ICarGalleryImageService _service;
         private readonly IWebHostEnvironment _environment;
 
-        public CarGalleryImageController(ICarGalleryImageService service, IWebHostEnvironment environment)
+        public GalleryImagesController(ICarGalleryImageService service, IWebHostEnvironment environment)
         {
             _service = service;
             _environment = environment;
         }
 
+        [HttpGet]
+        [PermissionAuthorize("galleryimages.view")]
+        public async Task<IActionResult> GetAll()
+        {
+            var images = await _service.GetAllAsync();
+            return Ok(images);
+        }
+
         [HttpGet("{id:int}")]
+        [PermissionAuthorize("galleryimages.view")]
         public async Task<IActionResult> GetById(int id)
         {
             var image = await _service.GetByIdAsync(id);
@@ -28,6 +41,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet("by-car/{carId:int}")]
+        [PermissionAuthorize("galleryimages.view")]
         public async Task<IActionResult> GetByCarId(int carId)
         {
             var images = await _service.GetByCarIdAsync(carId);
@@ -35,6 +49,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPost]
+        [PermissionAuthorize("galleryimages.create")]
         public async Task<IActionResult> Create(
             [FromForm] CreateCarGalleryImageRequestDto dto,
             [FromServices] IValidator<CreateCarGalleryImageRequestDto> validator)
@@ -63,6 +78,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [PermissionAuthorize("galleryimages.edit")]
         public async Task<IActionResult> Update(
             int id,
             [FromForm] UpdateCarGalleryImageRequestDto dto,
@@ -100,6 +116,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [PermissionAuthorize("galleryimages.delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var existing = await _service.GetByIdAsync(id);

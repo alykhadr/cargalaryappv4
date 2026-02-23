@@ -15,6 +15,11 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         _context = context;
     }
 
+    public async Task<IEnumerable<CarGalleryImage>> GetAllImagesAsync()
+    {
+        return await _context.CarGalleryImages.ToListAsync();
+    }
+
     public async Task AddImageAsync(CarGalleryImage image)
     {
         _context.CarGalleryImages.Add(image);

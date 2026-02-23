@@ -10,8 +10,15 @@ namespace CarGalary.Application.Mappings
         public CarGalleryImageProfile()
         {
             CreateMap<CarGalleryImage, CarGalleryImageResponseDto>();
-            CreateMap<CreateCarGalleryImageRequestDto, CarGalleryImage>();
-            CreateMap<UpdateCarGalleryImageRequestDto, CarGalleryImage>();
+            
+            CreateMap<CreateCarGalleryImageRequestDto, CarGalleryImage>()
+                .ForMember(dest => dest.ImageType, opt => opt.MapFrom(src => src.ImageType))
+                .ForMember(dest => dest.IsPrimary, opt => opt.MapFrom(src => src.IsPrimary));
+            
+            CreateMap<UpdateCarGalleryImageRequestDto, CarGalleryImage>()
+                .ForMember(dest => dest.ImageType, opt => opt.MapFrom(src => src.ImageType))
+                .ForMember(dest => dest.IsPrimary, opt => opt.MapFrom(src => src.IsPrimary))
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null || opts.DestinationMember.Name == "IsPrimary" || opts.DestinationMember.Name == "ImageType"));
         }
     }
 }

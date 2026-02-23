@@ -20,6 +20,12 @@ namespace CarGalary.Application.Services
             _currentUserService = currentUserService;
         }
 
+        public async Task<List<CarGalleryImageResponseDto>> GetAllAsync()
+        {
+            var images = await _unitOfWork.CarGalleryImages.GetAllImagesAsync();
+            return _mapper.Map<List<CarGalleryImageResponseDto>>(images);
+        }
+
         public async Task<CarGalleryImageResponseDto?> GetByIdAsync(int id)
         {
             var image = await _unitOfWork.CarGalleryImages.GetImageByIdAsync(id);
@@ -67,21 +73,6 @@ namespace CarGalary.Application.Services
             if (string.IsNullOrWhiteSpace(dto.ImageUrl))
             {
                 dto.ImageUrl = existing.ImageUrl;
-            }
-
-            if (dto.ImageType == null)
-            {
-                dto.ImageType = existing.ImageType;
-            }
-
-            if (dto.IsPrimary == null)
-            {
-                dto.IsPrimary = existing.IsPrimary;
-            }
-
-            if (dto.IsAvailable == null)
-            {
-                dto.IsAvailable = existing.IsAvailable;
             }
 
             _mapper.Map(dto, existing);

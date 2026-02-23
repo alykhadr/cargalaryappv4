@@ -5,6 +5,7 @@ namespace CarGalary.Domain.RepositoryInterfaces
 {
     public interface ICarGalleryImageRepository
     {
+        Task<IEnumerable<CarGalleryImage>> GetAllImagesAsync();
         Task AddImageAsync(CarGalleryImage image);
         Task<CarGalleryImage> GetImageByIdAsync(int imageId);
         Task<IEnumerable<CarGalleryImage>> GetImagesByCarAsync(int carId);

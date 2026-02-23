@@ -6,14 +6,11 @@ namespace CarGalary.Domain.Entities
 {
    
     public int CarId { get; set; }
+    public Car? Car { get; set; }
     public string ImageUrl { get; set; } = string.Empty;
     public int? ImageType { get; set; }
     public bool IsPrimary { get; set; } = false;
 
     public string? CreatedBy { get; set; }
-    
-
-    // Navigation
-    public Car Car { get; set; } = null!;
 }
 }
