@@ -27,7 +27,7 @@ namespace CarGalary.Domain.UnitOfWork
         public IOfferRepository Offers { get; }
        
         public IServicesRepository Services { get; }
-        public IServiceTypeRepository ServiceTypes { get; }
+        
 
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

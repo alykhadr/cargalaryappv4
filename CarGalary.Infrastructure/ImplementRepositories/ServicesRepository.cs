@@ -18,14 +18,12 @@ namespace CarGalary.Infrastructure.ImplementRepositories
     public async Task<IEnumerable<Services>> GetAllAsync()
     {
         return await _context.Services
-            .Include(x => x.ServiceType)
             .ToListAsync();
     }
 
     public async Task<Services> GetByIdAsync(int id)
     {
         return await _context.Services
-            .Include(x => x.ServiceType)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 

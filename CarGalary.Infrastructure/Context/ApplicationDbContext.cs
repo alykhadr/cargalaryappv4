@@ -39,7 +39,6 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<Offer> Offers { get; set; }
     public DbSet<ContactSalesOfficer> ContactSalesOfficers { get; set; }
 
-    public DbSet<ServiceType> ServiceTypes { get; set; }
     public DbSet<Services> Services { get; set; }
     public DbSet<MemberService>  MemberServices { get; set; }
        public DbSet<FAQ>   FAQs { get; set; }
@@ -69,7 +68,6 @@ namespace CarGalary.Infrastructure.Context;
         modelBuilder.ApplyConfiguration(new ContactUsConfiguration());
         modelBuilder.ApplyConfiguration(new OfferConfiguration());
         modelBuilder.ApplyConfiguration(new ContactSalesOfficerConfiguration());
-        modelBuilder.ApplyConfiguration(new ServiceTypeConfiguration());
 
         modelBuilder.ApplyConfiguration(new ServicesConfiguration());
           modelBuilder.ApplyConfiguration(new MemberServiceConfiguration());

@@ -30,7 +30,6 @@ namespace CarGalary.Infrastructure.UnitOfWork
         public IOfferRepository Offers { get; }
 
         public IServicesRepository Services { get; }
-        public IServiceTypeRepository ServiceTypes { get; }
 
 
 
@@ -56,8 +55,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             IFavoritesRepository favoritesRepository,
             IMemberServiceRepository memberServiceRepository,
             IOfferRepository offerRepository,
-            IServicesRepository servicesRepository,
-             IServiceTypeRepository serviceTypeRepository)
+            IServicesRepository servicesRepository)
         {
             _context = context;
             CarColors = carColorRepository;
@@ -80,7 +78,6 @@ namespace CarGalary.Infrastructure.UnitOfWork
             Offers= offerRepository;
 
             Services=servicesRepository;
-            ServiceTypes=serviceTypeRepository;
 
             MemberServices=memberServiceRepository;
 

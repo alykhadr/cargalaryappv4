@@ -48,7 +48,7 @@ namespace CarGalary.Application.Services
                 throw new Exception("ContactUs not found");
             }
 
-            if (dto.IsAvailable == null)
+            if (!dto.IsAvailable)
             {
                 dto.IsAvailable = existing.IsAvailable;
             }
