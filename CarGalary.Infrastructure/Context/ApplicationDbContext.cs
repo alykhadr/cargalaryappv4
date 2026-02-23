@@ -24,7 +24,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<UserFavorite> UserFavorites { get; set; }
     public DbSet<CarFeature> CarFeatures { get; set; }
     public DbSet<CarCarFeature> CarCarFeatures { get; set; }
-    public DbSet<CarColor> CarColors { get; set; }
+    public DbSet<Color> Colors { get; set; }
     public DbSet<CarCarColor> CarCarColors { get; set; }
     public DbSet<CarGalleryImage> CarGalleryImages { get; set; }
     public DbSet<EngineSpecification> EngineSpecifications { get; set; }

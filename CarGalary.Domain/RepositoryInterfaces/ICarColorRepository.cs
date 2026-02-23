@@ -9,10 +9,10 @@ namespace CarGalary.Domain.RepositoryInterfaces
 {
     public interface ICarColorRepository
 {
-     Task AddCarColorAsync(CarColor carColor);
-    Task<CarColor> GetCarColorByIdAsync(int id);
-    Task<IEnumerable<CarColor>> GetAllCarColorsAsync();
-    Task UpdateCarColorAsync(CarColor carColor);
-    Task DeleteCarColorAsync(CarColor carColor);
+     Task AddCarColorAsync(Color carColor);
+    Task<Color> GetCarColorByIdAsync(int id);
+    Task<IEnumerable<Color>> GetAllCarColorsAsync();
+    Task UpdateCarColorAsync(Color carColor);
+    Task DeleteCarColorAsync(Color carColor);
 }
 }

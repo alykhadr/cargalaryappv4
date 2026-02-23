@@ -36,7 +36,7 @@ namespace CarGalary.Application.Services
 
         public async Task<CarColorResponseDto> CreateAsync(CreateCarColorRequestDto dto)
         {
-            var entity = _mapper.Map<CarColor>(dto);
+            var entity = _mapper.Map<Color>(dto);
             entity.CreatedAt = DateTime.UtcNow;
             entity.CreatedBy = _currentUserService.UserName;
 

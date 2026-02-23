@@ -7,7 +7,7 @@ namespace CarGalary.Domain.Entities
         public int CarId { get; set; }
          public Car Car { get; set; } = null!;
         public int ColorId { get; set; }
-         public CarColor CarColor { get; set; } = null!;
+         public Color CarColor { get; set; } = null!;
 
         public int? StockQuantity { get; set; }
         public string? ColorImageUrl { get; set; }

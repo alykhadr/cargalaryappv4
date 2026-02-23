@@ -2,7 +2,7 @@
 
 namespace CarGalary.Domain.Entities
 {
-    public class CarColor:BaseEntity
+    public class Color:BaseEntity
     {
 
         public string? ColorNameAr { get; set; }

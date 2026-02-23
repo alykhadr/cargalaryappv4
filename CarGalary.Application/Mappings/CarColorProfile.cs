@@ -9,9 +9,9 @@ namespace CarGalary.Application.Mappings
     {
         public CarColorProfile()
         {
-            CreateMap<CarColor, CarColorResponseDto>();
-            CreateMap<CreateCarColorRequestDto, CarColor>();
-            CreateMap<UpdateCarColorRequestDto, CarColor>();
+            CreateMap<Color, CarColorResponseDto>();
+            CreateMap<CreateCarColorRequestDto, Color>();
+            CreateMap<UpdateCarColorRequestDto, Color>();
         }
     }
 }

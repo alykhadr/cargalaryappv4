@@ -15,32 +15,32 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             _context = context;
         }
 
-        public async Task AddCarColorAsync(CarColor carColor)
+        public async Task AddCarColorAsync(Color carColor)
         {
            
-            _context.CarColors.Add(carColor);
+            _context.Colors.Add(carColor);
         }
 
-        public async Task<CarColor> GetCarColorByIdAsync(int id)
+        public async Task<Color> GetCarColorByIdAsync(int id)
         {
-            return await _context.CarColors.FindAsync(id);
+            return await _context.Colors.FindAsync(id);
         }
 
-        public async Task<IEnumerable<CarColor>> GetAllCarColorsAsync()
+        public async Task<IEnumerable<Color>> GetAllCarColorsAsync()
         {
-            return await _context.CarColors.ToListAsync();
+            return await _context.Colors.ToListAsync();
         }
 
-        public async Task UpdateCarColorAsync(CarColor carColor)
+        public async Task UpdateCarColorAsync(Color carColor)
         {
 
             _context.Entry(carColor).State = EntityState.Modified;
 
         }
 
-        public async Task DeleteCarColorAsync(CarColor carColor)
+        public async Task DeleteCarColorAsync(Color carColor)
         {
-            _context.CarColors.Remove(carColor);
+            _context.Colors.Remove(carColor);
 
         }
     }

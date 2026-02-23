@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CarGalary.Infrastructure.Configuration
 {
-    public class CarColorConfiguration : IEntityTypeConfiguration<CarColor>
+    public class CarColorConfiguration : IEntityTypeConfiguration<Color>
 {
-    public void Configure(EntityTypeBuilder<CarColor> builder)
+    public void Configure(EntityTypeBuilder<Color> builder)
     {
         // Table name (optional, defaults to DbSet name)
 
