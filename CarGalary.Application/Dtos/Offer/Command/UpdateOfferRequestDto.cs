@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace CarGalary.Application.Dtos.Offer.Command
 {
     public class UpdateOfferRequestDto
@@ -9,5 +11,6 @@ namespace CarGalary.Application.Dtos.Offer.Command
         public string? DescriptionEn { get; set; }
         public DateTime? ExpiredAt { get; set; }
         public bool? IsAvailable { get; set; }
+        public IFormFile? ImageFile { get; set; }
     }
 }
