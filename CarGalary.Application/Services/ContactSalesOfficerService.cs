@@ -48,12 +48,6 @@ namespace CarGalary.Application.Services
             {
                 throw new Exception("ContactSalesOfficer not found");
             }
-
-            if (dto.IsAvailable == null)
-            {
-                dto.IsAvailable = existing.IsAvailable;
-            }
-
             _mapper.Map(dto, existing);
             await _unitOfWork.ContactSalesOfficers.UpdateAsync(existing);
             await _unitOfWork.SaveChangesAsync();

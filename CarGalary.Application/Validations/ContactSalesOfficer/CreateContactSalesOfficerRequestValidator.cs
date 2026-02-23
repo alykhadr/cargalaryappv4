@@ -10,6 +10,8 @@ namespace CarGalary.Application.Validations.ContactSalesOfficer
             RuleFor(x => x.ContactValue)
                 .NotEmpty().WithMessage("ContactValue is required")
                 .MaximumLength(100);
+            RuleFor(x => x.ContactType)
+                .NotEmpty().WithMessage("ContactType is required");
         }
     }
 }
