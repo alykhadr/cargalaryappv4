@@ -7,12 +7,17 @@ namespace CarGalary.Application.Validations.ContactUs
     {
         public UpdateContactUsRequestValidator()
         {
-            RuleFor(x => x.NameAr).NotEmpty().WithMessage("NameAr is required").MaximumLength(100);
-            RuleFor(x => x.NameEn).NotEmpty().WithMessage("NameEn is required").MaximumLength(100);
-            RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required").EmailAddress().WithMessage("Email is not valid");
-            RuleFor(x => x.MobileNo).NotEmpty().WithMessage("MobileNo is required").MaximumLength(30);
-            RuleFor(x => x.MessageAr).NotEmpty().WithMessage("MessageAr is required");
-            RuleFor(x => x.MessageEn).NotEmpty().WithMessage("MessageEn is required");
+            RuleFor(x => x.ContactValue)
+                .NotEmpty().WithMessage("ContactValue is required")
+                .MaximumLength(100);
+            RuleFor(x => x.ContactType)
+                .NotEmpty().WithMessage("ContactType is required");
+            RuleFor(x => x.MessageAr)
+                .NotEmpty().WithMessage("MessageAr is required")
+                .MaximumLength(500);
+            RuleFor(x => x.MessageEn)
+                .NotEmpty().WithMessage("MessageEn is required")
+                .MaximumLength(500);
         }
     }
 }
