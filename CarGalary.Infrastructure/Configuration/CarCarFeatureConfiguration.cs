@@ -4,19 +4,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CarGalary.Infrastructure.Configuration
 {
-    public class CarCarFeatureConfiguration : IEntityTypeConfiguration<CarCarFeature>
+    public class CarCarFeatureConfiguration : IEntityTypeConfiguration<CarFeature>
     {
-        public void Configure(EntityTypeBuilder<CarCarFeature> builder)
+        public void Configure(EntityTypeBuilder<CarFeature> builder)
         {
 
             builder.HasKey(x => new { x.CarId, x.FeatureId });
 
             builder.HasOne(x => x.Car)
-                   .WithMany(c => c.CarCarFeatures)
+                   .WithMany(c => c.CarFeatures)
                    .HasForeignKey(x => x.CarId);
 
             builder.HasOne(x => x.Feature)
-                   .WithMany(f => f.CarCarFeatures)
+                   .WithMany(f => f.CarFeatures)
                    .HasForeignKey(x => x.FeatureId);
             builder.Property(x => x.IsAvailable)
         .HasDefaultValue(true);

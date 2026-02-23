@@ -51,15 +51,15 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         
 
         // Remove old features
-        var existing = _context.CarCarFeatures
+        var existing = _context.CarFeatures
             .Where(x => x.CarId == carId);
 
-        _context.CarCarFeatures.RemoveRange(existing);
+        _context.CarFeatures.RemoveRange(existing);
 
         // Add new features
         foreach (var featureId in featureIds.Distinct())
         {
-            _context.CarCarFeatures.Add(new CarCarFeature
+            _context.CarFeatures.Add(new CarFeature
             {
                 CarId = carId,
                 FeatureId = featureId

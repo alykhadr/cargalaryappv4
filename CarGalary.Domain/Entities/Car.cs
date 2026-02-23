@@ -25,8 +25,8 @@ public class Car:BaseEntity
     public ICollection<UserFavorite> FavoritedBy { get; set; }
         = new List<UserFavorite>();
 
-        public ICollection<CarCarFeature> CarCarFeatures { get; set; }
-        = new List<CarCarFeature>();
+        public ICollection<CarFeature> CarFeatures { get; set; }
+        = new List<CarFeature>();
 
 
         // Navigation property for many-to-many

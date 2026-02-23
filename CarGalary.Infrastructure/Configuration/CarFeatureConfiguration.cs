@@ -33,7 +33,7 @@ namespace CarGalary.Infrastructure.Configuration
             .IsUnique();
 
             // Relationship
-            builder.HasMany(x => x.CarCarFeatures)
+            builder.HasMany(x => x.CarFeatures)
                    .WithOne(x => x.Feature)
                    .HasForeignKey(x => x.FeatureId)
                    .OnDelete(DeleteBehavior.Cascade);

@@ -11,7 +11,7 @@ using CarGalary.Domain.Entities;
 ///
 /// Summary (Plain English)
 /// 
-public class CarCarFeature
+public class CarFeature
 {
     public int CarId { get; set; }
     public Car Car { get; set; } = null!;
