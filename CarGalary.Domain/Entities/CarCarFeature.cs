@@ -16,8 +16,8 @@ public class CarCarFeature
     public int CarId { get; set; }
     public Car Car { get; set; } = null!;
 
-    public int CarFeatureId { get; set; }
-    public CarFeature CarFeature { get; set; } = null!;
+    public int FeatureId { get; set; }
+    public Feature Feature { get; set; } = null!;
     public bool   IsAvailable { get; set; }
     public string? CreatedBy { get; set; }
     public DateTime? CreatedAt { get; set; }

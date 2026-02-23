@@ -22,7 +22,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<ApplicationRole> Roles { get; set; }
  
     public DbSet<UserFavorite> UserFavorites { get; set; }
-    public DbSet<CarFeature> CarFeatures { get; set; }
+    public DbSet<Feature> Features { get; set; }
     public DbSet<CarCarFeature> CarCarFeatures { get; set; }
     public DbSet<Color> Colors { get; set; }
     public DbSet<CarColor> CarColors { get; set; }

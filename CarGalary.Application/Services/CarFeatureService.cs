@@ -31,7 +31,7 @@ namespace CarGalary.Application.Services
 
         public async Task<CarFeatureResponseDto> CreateAsync(CreateCarFeatureRequestDto dto)
         {
-            var entity = _mapper.Map<CarFeature>(dto);
+            var entity = _mapper.Map<Feature>(dto);
             entity.CreatedAt = DateTime.UtcNow;
 
             await _unitOfWork.CarFeatures.CreateAsync(entity);

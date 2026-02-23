@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace CarGalary.Infrastructure.Configuration
 {
     public class CarFeatureConfiguration
-    : IEntityTypeConfiguration<CarFeature>
+    : IEntityTypeConfiguration<Feature>
     {
-        public void Configure(EntityTypeBuilder<CarFeature> builder)
+        public void Configure(EntityTypeBuilder<Feature> builder)
         {
 
             // Primary key
@@ -34,8 +34,8 @@ namespace CarGalary.Infrastructure.Configuration
 
             // Relationship
             builder.HasMany(x => x.CarCarFeatures)
-                   .WithOne(x => x.CarFeature)
-                   .HasForeignKey(x => x.CarFeatureId)
+                   .WithOne(x => x.Feature)
+                   .HasForeignKey(x => x.FeatureId)
                    .OnDelete(DeleteBehavior.Cascade);
         }
     }

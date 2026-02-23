@@ -7,11 +7,11 @@ namespace CarGalary.Domain.RepositoryInterfaces
 {
     public interface ICarFeatureRepository
     {
-        Task<List<CarFeature>> GetAllAsync();
-        Task<CarFeature> GetByIdAsync(int id);
-        Task CreateAsync(CarFeature carFeature);
-        Task UpdateAsync(CarFeature carFeature);
-        Task DeleteAsync(CarFeature carFeature);
+        Task<List<Feature>> GetAllAsync();
+        Task<Feature> GetByIdAsync(int id);
+        Task CreateAsync(Feature carFeature);
+        Task UpdateAsync(Feature carFeature);
+        Task DeleteAsync(Feature carFeature);
         Task AssignFeaturesToCarAsync(int carId, List<int> featureIds);
     }
 }

@@ -8,9 +8,9 @@ namespace CarGalary.Application.Mappings
     {
         public CarFeatureProfile()
         {
-            CreateMap<CarFeature, CarFeatureResponseDto>();
-            CreateMap<CreateCarFeatureRequestDto, CarFeature>();
-            CreateMap<UpdateCarFeatureRequestDto, CarFeature>();
+            CreateMap<Feature, CarFeatureResponseDto>();
+            CreateMap<CreateCarFeatureRequestDto, Feature>();
+            CreateMap<UpdateCarFeatureRequestDto, Feature>();
         }
     }
 }

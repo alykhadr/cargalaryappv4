@@ -5,7 +5,7 @@
 
 using CarGalary.Domain.Entities;
 
-public class CarFeature:BaseEntity
+public class Feature:BaseEntity
 {
      public string? NameAr { get; set; }
      public string? NameEn { get; set; }

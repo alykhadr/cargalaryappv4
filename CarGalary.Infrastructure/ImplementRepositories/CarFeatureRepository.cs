@@ -15,32 +15,32 @@ namespace CarGalary.Infrastructure.ImplementRepositories
     }
 
 
-    public async Task<List<CarFeature>> GetAllAsync()
+    public async Task<List<Feature>> GetAllAsync()
     {
-        return await _context.CarFeatures
+        return await _context.Features
            
             .ToListAsync();
     }
     
-    public async Task<CarFeature> GetByIdAsync(int id)
+    public async Task<Feature> GetByIdAsync(int id)
     {
-        return await _context.CarFeatures.FirstOrDefaultAsync(x => x.Id == id);
+        return await _context.Features.FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public async Task CreateAsync(CarFeature carFeature)
+    public async Task CreateAsync(Feature carFeature)
     {
         
-        _context.CarFeatures.Add(carFeature);
+        _context.Features.Add(carFeature);
     }
 
-    public async Task UpdateAsync(CarFeature carFeature)
+    public async Task UpdateAsync(Feature carFeature)
     {
         _context.Entry(carFeature).State = EntityState.Modified;
     }
 
-    public async Task DeleteAsync(CarFeature carFeature)
+    public async Task DeleteAsync(Feature carFeature)
     {
-        _context.CarFeatures.Remove(carFeature);
+        _context.Features.Remove(carFeature);
     }
 
     public async Task AssignFeaturesToCarAsync(
@@ -62,7 +62,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             _context.CarCarFeatures.Add(new CarCarFeature
             {
                 CarId = carId,
-                CarFeatureId = featureId
+                FeatureId = featureId
             });
         }
 
