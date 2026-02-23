@@ -1,6 +1,8 @@
+using CarGalary.Admin.Api.Security;
 using CarGalary.Application.Dtos.CompanyInformation.Command;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 
@@ -8,18 +10,20 @@ namespace CarGalary.Admin.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CompanyInformationController : ControllerBase
+    [Authorize]
+    public class CompanyInformationsController : ControllerBase
     {
         private readonly ICompanyInformationService _service;
         private readonly IWebHostEnvironment _environment;
 
-        public CompanyInformationController(ICompanyInformationService service, IWebHostEnvironment environment)
+        public CompanyInformationsController(ICompanyInformationService service, IWebHostEnvironment environment)
         {
             _service = service;
             _environment = environment;
         }
 
         [HttpGet]
+        [PermissionAuthorize("companyinfo.view")]
         public async Task<IActionResult> GetAll()
         {
             var items = await _service.GetAllAsync();
@@ -27,6 +31,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [PermissionAuthorize("companyinfo.view")]
         public async Task<IActionResult> GetById(int id)
         {
             var item = await _service.GetByIdAsync(id);
@@ -35,6 +40,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPost]
+        [PermissionAuthorize("companyinfo.create")]
         public async Task<IActionResult> Create(
             [FromForm] CreateCompanyInformationRequestDto dto,
             [FromServices] IValidator<CreateCompanyInformationRequestDto> validator)
@@ -56,6 +62,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [PermissionAuthorize("companyinfo.edit")]
         public async Task<IActionResult> Update(
             int id,
             [FromForm] UpdateCompanyInformationRequestDto dto,
@@ -94,6 +101,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [PermissionAuthorize("companyinfo.delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var existing = await _service.GetByIdAsync(id);
