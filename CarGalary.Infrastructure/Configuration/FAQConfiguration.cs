@@ -20,8 +20,10 @@ public class FAQConfiguration : IEntityTypeConfiguration<FAQ>
                .IsRequired();
 
         builder.Property(x => x.DescriptionAr)
+               .HasColumnType("nvarchar(max)")
                .IsRequired();
                  builder.Property(x => x.DescriptionEn)
+               .HasColumnType("nvarchar(max)")
                .IsRequired();
 
         builder.Property(x => x.Order)
