@@ -11,14 +11,13 @@ namespace CarGalary.Infrastructure.Configuration
         {
             builder.HasKey(c => c.Id);
 
-            builder.Property(c => c.UserId);
 
-            builder.Property(c => c.NameAr);
-            builder.Property(c => c.NameEn);
+            builder.Property(c => c.ContactIconUrl);
+            builder.Property(c => c.CreatedBy);
 
-            builder.Property(c => c.Email);
+            builder.Property(c => c.ContactType);
 
-            builder.Property(c => c.MobileNo);
+            builder.Property(c => c.ContactValue);
 
             builder.Property(c => c.MessageAr);
             builder.Property(c => c.MessageEn);
