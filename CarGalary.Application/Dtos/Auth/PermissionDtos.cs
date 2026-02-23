@@ -20,5 +20,7 @@ namespace CarGalary.Application.Dtos.Auth
         public string LastName { get; set; } = string.Empty;
         public bool IsLocked { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int BranchId { get; set; }
+        public string? ProfileImageUrl { get; set; }
     }
 }

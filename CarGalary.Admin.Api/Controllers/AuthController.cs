@@ -41,7 +41,7 @@ namespace CarGalary.Admin.Api.Controllers
 
         [PermissionAuthorize("users.create")]
         [HttpPost("register/admin")]
-        public async Task<IActionResult> RegisterByAdmin(RegisterRequest request)
+        public async Task<IActionResult> RegisterByAdmin([FromForm] RegisterRequest request)
         {
             try
             {
@@ -58,12 +58,20 @@ namespace CarGalary.Admin.Api.Controllers
                     return BadRequest(new ApiErrorResponse($"email : {request.Email} already exist"));
                 }
 
+                string? profileImageUrl = null;
+                if (request.ProfileImage != null)
+                {
+                    profileImageUrl = await SaveProfileImageAsync(request.ProfileImage);
+                }
+
                 var user = await _identity.CreateUserAsync(
                     request.UserName.Trim(),
                     request.Email.ToUpper().Trim(),
                     request.Password,
                     request.FirstName?.Trim(),
-                    request.LastName?.Trim());
+                    request.LastName?.Trim(),
+                    request.BranchId,
+                    profileImageUrl);
 
                 var userRoles = request.Roles ?? new List<string>();
 
@@ -200,11 +208,22 @@ namespace CarGalary.Admin.Api.Controllers
 
         [PermissionAuthorize("users.edit")]
         [HttpPut("users/{userId}")]
-        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateAdminUserRequest request)
+        public async Task<IActionResult> UpdateUser(string userId, [FromForm] UpdateAdminUserRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Email))
             {
                 return BadRequest(new ApiErrorResponse("Username and email are required"));
+            }
+
+            string? profileImageUrl = null;
+            if (request.ProfileImage != null)
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user != null && !string.IsNullOrWhiteSpace(user.ProfileImageUrl))
+                {
+                    DeleteProfileImage(user.ProfileImageUrl);
+                }
+                profileImageUrl = await SaveProfileImageAsync(request.ProfileImage);
             }
 
             await _identity.UpdateUserDetailsAsync(
@@ -212,7 +231,9 @@ namespace CarGalary.Admin.Api.Controllers
                 request.UserName,
                 request.Email,
                 request.FirstName,
-                request.LastName
+                request.LastName,
+                request.BranchId,
+                profileImageUrl
             );
 
             return Ok();
@@ -354,6 +375,33 @@ namespace CarGalary.Admin.Api.Controllers
             }
 
             await smtpClient.SendMailAsync(message);
+        }
+
+        private async Task<string> SaveProfileImageAsync(IFormFile file)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            return $"/uploads/profiles/{uniqueFileName}";
+        }
+
+        private void DeleteProfileImage(string imageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl)) return;
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imageUrl.TrimStart('/'));
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
         }
     }
 }

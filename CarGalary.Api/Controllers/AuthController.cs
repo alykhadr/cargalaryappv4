@@ -64,7 +64,9 @@ namespace CarGalary.Api.Controllers
                     request.Email.ToUpper().Trim(),
                     request.Password,
                     request.FirstName?.Trim(),
-                    request.LastName?.Trim());
+                    request.LastName?.Trim(),
+                    0,
+                    null);
 
                 foreach (var role in roles)
                 {
@@ -101,7 +103,9 @@ namespace CarGalary.Api.Controllers
                    request.Email.ToUpper().Trim(),
                     request.Password,
                     request.FirstName?.Trim(),
-                    request.LastName?.Trim());
+                    request.LastName?.Trim(),
+                    0,
+                    null);
 
                 var roles = request.Roles ?? new List<string>();
 

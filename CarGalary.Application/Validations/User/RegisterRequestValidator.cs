@@ -27,6 +27,9 @@ namespace arGalary.Application.Validations.CarFeature
                 .NotEmpty().WithMessage("Password is required")
                 .MinimumLength(6).WithMessage("Password must be at least 6 characters");
 
+            RuleFor(x => x.BranchId)
+                .GreaterThan(0).WithMessage("Branch is required");
+
             // RuleFor(x => x.Roles)
             //     .NotEmpty().WithMessage("At least one role must be selected")
             //     .Must(roles => roles.All(r => !string.IsNullOrWhiteSpace(r)))

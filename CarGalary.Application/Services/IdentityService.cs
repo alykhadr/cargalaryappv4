@@ -69,9 +69,9 @@ namespace CarGalary.Application.Services
             return users.Select(ToUserListItemDto).ToList();
         }
 
-        public async Task UpdateUserDetailsAsync(string userId, string userName, string email, string? firstName, string? lastName)
+        public async Task UpdateUserDetailsAsync(string userId, string userName, string email, string? firstName, string? lastName, int branchId, string? profileImageUrl)
         {
-            await _unitOfWork.identities.UpdateUserDetailsAsync(userId, userName, email, firstName, lastName);
+            await _unitOfWork.identities.UpdateUserDetailsAsync(userId, userName, email, firstName, lastName, branchId, profileImageUrl);
         }
 
         public async Task ChangeUserPasswordByAdminAsync(string userId, string newPassword)
@@ -84,9 +84,9 @@ namespace CarGalary.Application.Services
             await _unitOfWork.identities.CreateRoleAsync(roleName);
         }
 
-        public async Task<UserDto> CreateUserAsync(string userName, string email, string password, string? firstName, string? lastName)
+        public async Task<UserDto> CreateUserAsync(string userName, string email, string password, string? firstName, string? lastName, int branchId, string? profileImageUrl)
         {
-            var result = await _unitOfWork.identities.CreateUserAsync(userName, email, password, firstName, lastName);
+            var result = await _unitOfWork.identities.CreateUserAsync(userName, email, password, firstName, lastName, branchId, profileImageUrl);
             return ToUserDto(result.User, result.Token);
         }
 
@@ -213,7 +213,9 @@ namespace CarGalary.Application.Services
                 FirstName = user.FullNameEn ?? string.Empty,
                 LastName = user.FullNameAr ?? string.Empty,
                 CreatedAt = user.CreatedAt,
-                IsLocked = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow
+                IsLocked = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow,
+                BranchId = user.BranchId,
+                ProfileImageUrl = user.ProfileImageUrl
             };
         }
     }

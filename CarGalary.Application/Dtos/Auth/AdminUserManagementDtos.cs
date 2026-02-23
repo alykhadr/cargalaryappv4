@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace CarGalary.Application.Dtos.Auth
 {
     public class UpdateAdminUserRequest
@@ -6,6 +8,8 @@ namespace CarGalary.Application.Dtos.Auth
         public string Email { get; set; } = string.Empty;
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+        public int BranchId { get; set; }
+        public IFormFile? ProfileImage { get; set; }
     }
 
     public class ChangeUserPasswordByAdminRequest
