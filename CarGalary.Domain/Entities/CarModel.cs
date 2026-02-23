@@ -14,7 +14,7 @@ namespace CarGalary.Domain.Entities
 
 
         public int BrandId { get; set; }
-        public CarBrand Brand { get; set; } = null!;
+        public Brand Brand { get; set; } = null!;
 
         public ICollection<Car> Cars { get; set; } = new List<Car>();
     }

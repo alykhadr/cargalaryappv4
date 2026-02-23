@@ -10,13 +10,13 @@ namespace CarGalary.Application.Mappings
     {
         public BrandProfile()
         {
-            CreateMap<CarBrand, BrandDto>();
+            CreateMap<Brand, BrandDto>();
 
-            CreateMap<CarBrand, BrandResponseDto>();
+            CreateMap<Brand, BrandResponseDto>();
 
-            CreateMap<BrandDto, CarBrand>();
-            CreateMap<CreateBrandRequestDto, CarBrand>();
-            CreateMap<UpdateBrandRequestDto, CarBrand>();
+            CreateMap<BrandDto, Brand>();
+            CreateMap<CreateBrandRequestDto, Brand>();
+            CreateMap<UpdateBrandRequestDto, Brand>();
 
         }
     }

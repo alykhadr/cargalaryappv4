@@ -1,7 +1,7 @@
 using CarGalary.Domain.Entities;
 
 
-public class CarBrand:BaseEntity
+public class Brand:BaseEntity
 {
    
     public string? NameAr { get; set; } 

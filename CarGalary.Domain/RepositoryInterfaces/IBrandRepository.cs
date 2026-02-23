@@ -4,14 +4,14 @@ namespace CarGalary.Domain.RepositoryInterfaces
 {
     public interface IBrandRepository
     {
-        Task<List<CarBrand>> GetBrands();
-        Task<CarBrand?> GetBrandById(int id);
+        Task<List<Brand>> GetBrands();
+        Task<Brand?> GetBrandById(int id);
 
-        Task CreateBrand(CarBrand brand);
+        Task CreateBrand(Brand brand);
 
-        Task UpdateBrand(CarBrand brand);
-        Task<CarBrand?> BrandExists(int id);
+        Task UpdateBrand(Brand brand);
+        Task<Brand?> BrandExists(int id);
 
-        Task DeleteBrandById(CarBrand brand);
+        Task DeleteBrandById(Brand brand);
     }
 }

@@ -37,7 +37,7 @@ namespace CarGalary.Application.Services
 
         public async Task<BrandResponseDto> CreateAsync(CreateBrandRequestDto dto)
         {
-            var brand = _mapper.Map<CarBrand>(dto);
+            var brand = _mapper.Map<Brand>(dto);
             brand.CreatedAt=DateTime.UtcNow;
             brand.CreatedBy=_currentUserService.UserName;
             await _unitOfWork.Brands.CreateBrand(brand);

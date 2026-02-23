@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class CarBrandConfiguration : IEntityTypeConfiguration<CarBrand>
+public class CarBrandConfiguration : IEntityTypeConfiguration<Brand>
 {
-    public void Configure(EntityTypeBuilder<CarBrand> builder)
+    public void Configure(EntityTypeBuilder<Brand> builder)
     {
         builder.HasKey(b => b.Id);
         builder.Property(u => u.Id)

@@ -15,7 +15,7 @@ namespace CarGalary.Infrastructure.Context;
 
     public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
     public DbSet<Car> Cars => Set<Car>();
-    public DbSet<CarBrand> CarBrands => Set<CarBrand>();
+    public DbSet<Brand> Brands => Set<Brand>();
     public DbSet<CarType> CarTypes => Set<CarType>();
 
 
