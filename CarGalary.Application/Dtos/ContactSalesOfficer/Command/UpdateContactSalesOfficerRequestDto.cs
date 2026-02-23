@@ -9,5 +9,6 @@ namespace CarGalary.Application.Dtos.ContactSalesOfficer.Command
         public IFormFile? IconFile { get; set; }
         public string? ContactIconUrl { get; set; }
         public bool IsAvailable { get; set; }
+        public int BranchId { get; set; }
     }
 }

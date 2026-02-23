@@ -10,5 +10,8 @@ namespace CarGalary.Domain.Entities
         public int ContactType { get; set; }
         public string? ContactIconUrl { get; set; }
         public string? CreatedBy { get; set; }
+
+        public int BranchId { get; set; }
+        public Branchs?  Branchs { get; set; }
     }
 }

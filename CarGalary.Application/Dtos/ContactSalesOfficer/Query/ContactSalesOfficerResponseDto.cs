@@ -9,5 +9,6 @@ namespace CarGalary.Application.Dtos.ContactSalesOfficer.Query
         public string? CreatedBy { get; set; }
         public bool IsAvailable { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int BranchId { get; set; }
     }
 }
