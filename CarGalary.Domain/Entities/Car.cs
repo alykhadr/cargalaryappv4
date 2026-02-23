@@ -30,7 +30,7 @@ public class Car:BaseEntity
 
 
         // Navigation property for many-to-many
-    public ICollection<CarCarColor> CarColors { get; set; } = new List<CarCarColor>();
+    public ICollection<CarColor> CarColors { get; set; } = new List<CarColor>();
 
      // Images
     public ICollection<CarGalleryImage> CarImages { get; set; } = new List<CarGalleryImage>();

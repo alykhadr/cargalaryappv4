@@ -4,13 +4,13 @@ namespace CarGalary.Domain.RepositoryInterfaces
 {
     public interface ICarCarColorRepository
     {
-        Task<List<CarCarColor>> GetAllAsync();
-        Task<CarCarColor?> GetByIdAsync(int carId, int colorId);
-        Task<List<CarCarColor>> GetByCarIdAsync(int carId);
+        Task<List<CarColor>> GetAllAsync();
+        Task<CarColor?> GetByIdAsync(int carId, int colorId);
+        Task<List<CarColor>> GetByCarIdAsync(int carId);
 
-        Task CreateAsync(CarCarColor entity);
-        Task UpdateAsync(CarCarColor entity);
-        Task DeleteAsync(CarCarColor entity);
+        Task CreateAsync(CarColor entity);
+        Task UpdateAsync(CarColor entity);
+        Task DeleteAsync(CarColor entity);
     }
 }
 

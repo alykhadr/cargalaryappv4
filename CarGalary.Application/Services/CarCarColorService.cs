@@ -56,7 +56,7 @@ namespace CarGalary.Application.Services
                 throw new Exception("CarCarColor already exists");
             }
 
-            var entity = _mapper.Map<CarCarColor>(dto);
+            var entity = _mapper.Map<CarColor>(dto);
             entity.CreatedAt = DateTime.UtcNow;
             entity.IsAvailable = true;
 

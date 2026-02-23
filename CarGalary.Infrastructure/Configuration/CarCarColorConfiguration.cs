@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CarGalary.Infrastructure.Configuration
 {
-    public class CarCarColorConfiguration : IEntityTypeConfiguration<CarCarColor>
+    public class CarCarColorConfiguration : IEntityTypeConfiguration<CarColor>
     {
-        public void Configure(EntityTypeBuilder<CarCarColor> builder)
+        public void Configure(EntityTypeBuilder<CarColor> builder)
         {
             // Composite Key
             builder.HasKey(cc => new { cc.CarId, cc.ColorId });
@@ -20,18 +20,21 @@ namespace CarGalary.Infrastructure.Configuration
             // Relationships
             builder.HasOne(cc => cc.Car)
                 .WithMany(c => c.CarColors)
-                .HasForeignKey(cc => cc.CarId);
+                .HasForeignKey(cc => cc.CarId)
+                  .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(cc => cc.CarColor)
-                .WithMany(c => c.Cars)
-                .HasForeignKey(cc => cc.ColorId);
+            builder.HasOne(cc => cc.Color)
+                .WithMany(c => c.CarColors)
+                .HasForeignKey(cc => cc.ColorId)
+                  .OnDelete(DeleteBehavior.Cascade);
 
 
             // prop
             builder.Property(cc => cc.StockQuantity);
 
             builder.Property(cc => cc.ColorImageUrl);
-            builder.Property(c => c.PricingPerColor);
+            builder.Property(c => c.PricingPerColor)
+            .HasColumnType("decimal(18,2)");
             builder.Property(b => b.CreatedAt)
            .HasDefaultValueSql("GETUTCDATE()");
             builder.Property(c => c.IsAvailable).HasDefaultValue(true);

@@ -14,41 +14,41 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             _context = context;
         }
 
-        public async Task<List<CarCarColor>> GetAllAsync()
+        public async Task<List<CarColor>> GetAllAsync()
         {
-            return await _context.CarCarColors
+            return await _context.CarColors
                 .Where(x => x.IsAvailable)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<CarCarColor?> GetByIdAsync(int carId, int colorId)
+        public async Task<CarColor?> GetByIdAsync(int carId, int colorId)
         {
-            var entity = await _context.CarCarColors.FindAsync(carId, colorId);
+            var entity = await _context.CarColors.FindAsync(carId, colorId);
             return entity != null && entity.IsAvailable ? entity : null;
         }
 
-        public async Task<List<CarCarColor>> GetByCarIdAsync(int carId)
+        public async Task<List<CarColor>> GetByCarIdAsync(int carId)
         {
-            return await _context.CarCarColors
+            return await _context.CarColors
                 .Where(x => x.IsAvailable && x.CarId == carId)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public Task CreateAsync(CarCarColor entity)
+        public Task CreateAsync(CarColor entity)
         {
-            _context.CarCarColors.Add(entity);
+            _context.CarColors.Add(entity);
             return Task.CompletedTask;
         }
 
-        public Task UpdateAsync(CarCarColor entity)
+        public Task UpdateAsync(CarColor entity)
         {
             _context.Entry(entity).State = EntityState.Modified;
             return Task.CompletedTask;
         }
 
-        public Task DeleteAsync(CarCarColor entity)
+        public Task DeleteAsync(CarColor entity)
         {
             entity.IsAvailable = false;
             _context.Entry(entity).State = EntityState.Modified;

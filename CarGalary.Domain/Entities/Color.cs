@@ -11,6 +11,6 @@ namespace CarGalary.Domain.Entities
        
         public string? CreatedBy { get; set; }
         
-    public ICollection<CarCarColor> Cars { get; set; } = new List<CarCarColor>();
+    public ICollection<CarColor> CarColors { get; set; } = new List<CarColor>();
     }
 }
