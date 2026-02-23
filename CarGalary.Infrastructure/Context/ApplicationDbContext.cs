@@ -31,7 +31,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<Transmission> Transmissions { get; set; }
     public DbSet<ExtraFeature> ExtraFeatures { get; set; }
     public DbSet<EaseAndComfort> EaseAndComforts { get; set; }
-    public DbSet<AudioAndCommunicationSystem> AudioAndCommunicationSystems { get; set; }
+    public DbSet<CarExtraDetails> CarExtraDetails { get; set; }
     public DbSet<Exterior> Exteriors { get; set; }
     public DbSet<Safety> Safeties { get; set; }
     public DbSet<Seating> Seatings { get; set; }
@@ -67,7 +67,7 @@ namespace CarGalary.Infrastructure.Context;
         modelBuilder.ApplyConfiguration(new EngineSpecificationConfiguration());
         modelBuilder.ApplyConfiguration(new TransmissionConfiguration());
         modelBuilder.ApplyConfiguration(new ExtraFeatureConfiguration());
-        modelBuilder.ApplyConfiguration(new AudioAndCommunicationSystemConfiguration());
+        modelBuilder.ApplyConfiguration(new CarExtraDetailsConfiguration());
         modelBuilder.ApplyConfiguration(new EaseAndComfortConfiguration());
         modelBuilder.ApplyConfiguration(new ExteriorConfiguration());
         modelBuilder.ApplyConfiguration(new SafetyConfiguration());

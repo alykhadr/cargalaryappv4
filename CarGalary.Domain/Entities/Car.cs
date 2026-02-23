@@ -42,7 +42,7 @@ public class Car:BaseEntity
         public ICollection<Transmission>  Transmissions { get; set; }=new List<Transmission>();
          public ICollection<Measurements>   Measurements { get; set; }=new List<Measurements>();
          public ICollection<ExtraFeature>    ExtraFeatures { get; set; }=new List<ExtraFeature>();
-           public ICollection<AudioAndCommunicationSystem>    AudioAndCommunicationSystems { get; set; }=new List<AudioAndCommunicationSystem>();
+           public ICollection<CarExtraDetails>    CarExtraDetails { get; set; }=new List<CarExtraDetails>();
            public ICollection<EaseAndComfort>    EaseAndComforts { get; set; }=new List<EaseAndComfort>();
           public ICollection<Exterior>     Exteriors { get; set; }=new List<Exterior>();
           public ICollection<Safety>     Safeties { get; set; }=new List<Safety>();

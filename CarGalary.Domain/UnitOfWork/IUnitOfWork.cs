@@ -14,7 +14,7 @@ namespace CarGalary.Domain.UnitOfWork
         public ICarGalleryImageRepository CarGalleryImages { get; }
         public ICarRepository Cars { get; }
         public ICarTypeRepository CarTypes { get; }
-        public IAudioAndCommunicationSystemRepository AudioAndCommunicationSystems { get; }
+        public ICarExtraDetailsRepository  CarExtraDetails { get; }
         public ICarCarColorRepository CarCarColors { get; }
         public ICompanyInformationRepository CompanyInformations { get; }
         public IContactSalesOfficerRepository ContactSalesOfficers { get; }

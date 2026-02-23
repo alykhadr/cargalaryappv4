@@ -7,11 +7,11 @@ namespace CarGalary.Admin.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AudioAndCommunicationSystemController : ControllerBase
+    public class CarExtraDetailsController : ControllerBase
     {
-        private readonly IAudioAndCommunicationSystemService _service;
+        private readonly ICarExtraDetailsService _service;
 
-        public AudioAndCommunicationSystemController(IAudioAndCommunicationSystemService service)
+        public CarExtraDetailsController(ICarExtraDetailsService service)
         {
             _service = service;
         }
@@ -40,8 +40,8 @@ namespace CarGalary.Admin.Api.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Create(
-            [FromBody] CreateAudioAndCommunicationSystemRequestDto dto,
-            [FromServices] IValidator<CreateAudioAndCommunicationSystemRequestDto> validator)
+            [FromBody] CreateCarExtraDetailsRequestDto dto,
+            [FromServices] IValidator<CreateCarExtraDetailsRequestDto> validator)
         {
             var validationResult = validator.Validate(dto);
             if (!validationResult.IsValid)
@@ -64,8 +64,8 @@ namespace CarGalary.Admin.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(
             int id,
-            [FromBody] UpdateAudioAndCommunicationSystemRequestDto dto,
-            [FromServices] IValidator<UpdateAudioAndCommunicationSystemRequestDto> validator)
+            [FromBody] UpdateCarExtraDetailsRequestDto dto,
+            [FromServices] IValidator<UpdateCarExtraDetailsRequestDto> validator)
         {
             var existing = await _service.GetByIdAsync(id);
             if (existing == null) return NotFound();

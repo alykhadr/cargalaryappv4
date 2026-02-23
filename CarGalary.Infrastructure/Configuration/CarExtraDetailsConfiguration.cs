@@ -7,9 +7,9 @@ namespace CarGalary.Infrastructure.Configuration
 {
   
 
-    public class AudioAndCommunicationSystemConfiguration : IEntityTypeConfiguration<AudioAndCommunicationSystem>
+    public class CarExtraDetailsConfiguration : IEntityTypeConfiguration<CarExtraDetails>
     {
-        public void Configure(EntityTypeBuilder<AudioAndCommunicationSystem> builder)
+        public void Configure(EntityTypeBuilder<CarExtraDetails> builder)
         {
             builder.HasKey(e => e.Id);
 
@@ -22,12 +22,13 @@ namespace CarGalary.Infrastructure.Configuration
                builder.Property(e => e.DescriptionAr);
 
             builder.Property(e => e.CreatedBy);
+            builder.Property(e => e.CarExtraDetailsType);
 
             builder.Property(e => e.IsAvailable)
                    .HasDefaultValue(true);
 
             builder.HasOne(e => e.Car)
-                   .WithMany(c => c.AudioAndCommunicationSystems)
+                   .WithMany(c => c.CarExtraDetails)
                    .HasForeignKey(e => e.CarId)
                    .OnDelete(DeleteBehavior.Cascade);
         }

@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace CarGalary.Application.Validations.AudioAndCommunicationSystem
 {
-    public class UpdateAudioAndCommunicationSystemRequestValidator : AbstractValidator<UpdateAudioAndCommunicationSystemRequestDto>
+    public class CreateCarExtraDetailsequestValidator : AbstractValidator<CreateCarExtraDetailsRequestDto>
     {
-        public UpdateAudioAndCommunicationSystemRequestValidator()
+        public CreateCarExtraDetailsequestValidator()
         {
             RuleFor(x => x.NameEn)
                 .NotEmpty().WithMessage("English name is required")

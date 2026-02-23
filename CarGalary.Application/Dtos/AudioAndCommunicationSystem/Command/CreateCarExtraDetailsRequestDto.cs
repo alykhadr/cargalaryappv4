@@ -1,6 +1,6 @@
 namespace CarGalary.Application.Dtos.AudioAndCommunicationSystem.Command
 {
-    public class CreateAudioAndCommunicationSystemRequestDto
+    public class CreateCarExtraDetailsRequestDto
     {
         public string? NameAr { get; set; }
         public string? NameEn { get; set; }
