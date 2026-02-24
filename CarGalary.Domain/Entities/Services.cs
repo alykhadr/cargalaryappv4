@@ -1,5 +1,3 @@
-
-
 namespace CarGalary.Domain.Entities
 {
     public class Services:BaseEntity
@@ -9,12 +7,9 @@ namespace CarGalary.Domain.Entities
         public string? NameEn { get; set; }
         public string? DescriptionAr { get; set; }
          public string? DescriptionEn { get; set; }
-        public decimal? Discount { get; set; }
+        public decimal Discount { get; set; } = 0;
         public bool IsPercentage { get; set; } = true;
         public string? ServiceImageUrl { get; set; }
-       
-
-        public int ServiceTypeId { get; set; }
        
     }
 }

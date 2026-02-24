@@ -5,6 +5,13 @@ namespace CarGalary.Application.Validations.Services
 {
     public class UpdateServicesRequestValidator : AbstractValidator<UpdateServicesRequestDto>
     {
-        public UpdateServicesRequestValidator(){RuleFor(x=>x.NameAr).NotEmpty(); RuleFor(x=>x.NameEn).NotEmpty(); RuleFor(x=>x.ServiceTypeId).GreaterThan(0);} 
+        public UpdateServicesRequestValidator()
+        {
+            RuleFor(x => x.NameAr).NotEmpty().MaximumLength(200);
+            RuleFor(x => x.NameEn).NotEmpty().MaximumLength(200);
+            RuleFor(x => x.DescriptionAr).NotEmpty();
+            RuleFor(x => x.DescriptionEn).NotEmpty();
+            RuleFor(x => x.Discount).GreaterThanOrEqualTo(0);
+        }
     }
 }

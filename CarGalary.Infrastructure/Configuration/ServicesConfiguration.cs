@@ -22,12 +22,14 @@ namespace CarGalary.Infrastructure.Configuration
             builder.Property(e => e.DescriptionAr);
             builder.Property(e => e.DescriptionEn);
 
-            builder.Property(x => x.ServiceTypeId);
+            
 
              builder.Property(x => x.IsPercentage).HasDefaultValue(true);
 
             builder.Property(x => x.Discount)
-                   .HasPrecision(5, 2);
+                   .IsRequired()
+                   .HasDefaultValue(0)
+                   .HasPrecision(18, 2);
 
             builder.Property(x => x.ServiceImageUrl);
 

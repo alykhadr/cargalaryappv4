@@ -30,7 +30,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
     public async Task<IEnumerable<Services>> GetByServiceTypeIdAsync(int serviceTypeId)
     {
         return await _context.Services
-            .Where(x => x.ServiceTypeId == serviceTypeId)
+        
             .ToListAsync();
     }
 

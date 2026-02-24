@@ -10,5 +10,6 @@ namespace CarGalary.Application.Interfaces
         Task<ServicesResponseDto> CreateAsync(CreateServicesRequestDto dto);
         Task UpdateAsync(int id, UpdateServicesRequestDto dto);
         Task DeleteAsync(int id);
+        Task<BulkDeleteServicesResponseDto> BulkDeleteAsync(List<int> serviceIds);
    }
 }
