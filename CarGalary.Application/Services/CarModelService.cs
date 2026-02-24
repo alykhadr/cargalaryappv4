@@ -90,5 +90,23 @@ namespace CarGalary.Application.Services
             await _unitOfWork.CarModels.DeleteAsync(existing);
             await _unitOfWork.SaveChangesAsync();
         }
+
+        public async Task<BulkDeleteCarModelResponseDto> BulkDeleteAsync(List<int> modelIds)
+        {
+            var response = new BulkDeleteCarModelResponseDto();
+            foreach (var id in modelIds)
+            {
+                try
+                {
+                    await DeleteAsync(id);
+                    response.DeletedCount++;
+                }
+                catch
+                {
+                    response.FailedIds.Add(id);
+                }
+            }
+            return response;
+        }
     }
 }

@@ -1,6 +1,9 @@
+
+using CarGalary.Admin.Api.Security;
 using CarGalary.Application.Dtos.CarModel.Command;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 
@@ -8,6 +11,7 @@ namespace CarGalary.Admin.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ModelController : ControllerBase
     {
         private readonly ICarModelService _service;
@@ -20,6 +24,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet]
+        [PermissionAuthorize("models.view")]
         public async Task<IActionResult> GetAll()
         {
             var models = await _service.GetAllAsync();
@@ -27,6 +32,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [PermissionAuthorize("models.view")]
         public async Task<IActionResult> GetById(int id)
         {
             var model = await _service.GetByIdAsync(id);
@@ -35,6 +41,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPost]
+        [PermissionAuthorize("models.create")]
         public async Task<IActionResult> Create(
             [FromForm] CreateCarModelRequestDto dto,
             [FromServices] IValidator<CreateCarModelRequestDto> validator)
@@ -63,6 +70,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [PermissionAuthorize("models.edit")]
         public async Task<IActionResult> Update(
             int id,
             [FromForm] UpdateCarModelRequestDto dto,
@@ -103,6 +111,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [PermissionAuthorize("models.delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var existing = await _service.GetByIdAsync(id);
@@ -122,6 +131,14 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return NotFound();
             }
+        }
+
+        [HttpPost("bulk-delete")]
+        [PermissionAuthorize("models.delete")]
+        public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteCarModelRequestDto dto)
+        {
+            var result = await _service.BulkDeleteAsync(dto.ModelIds);
+            return Ok(result);
         }
 
         private async Task<string> SaveModelImageAsync(IFormFile file)

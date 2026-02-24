@@ -43,6 +43,14 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(brand);
         }
 
+        [HttpGet("{brandId:int}/models")]
+        [PermissionAuthorize("brands.view")]
+        public async Task<IActionResult> GetCarModelsByBrand(int brandId)
+        {
+            var models = await _brandService.GetCarModelsByBrandAsync(brandId);
+            return Ok(models);
+        }
+
         [HttpPost]
         [PermissionAuthorize("brands.create")]
         public async Task<IActionResult> Create(

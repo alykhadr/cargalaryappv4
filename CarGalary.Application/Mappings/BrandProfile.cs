@@ -3,6 +3,8 @@ using AutoMapper;
 using CarGalary.Application.Dtos.Brand;
 using CarGalary.Application.Dtos.Brand.Command;
 using CarGalary.Application.Dtos.Brand.Query;
+using CarGalary.Application.Dtos.CarModel.Query;
+using CarGalary.Domain.Entities;
 
 namespace CarGalary.Application.Mappings
 {
@@ -18,6 +20,7 @@ namespace CarGalary.Application.Mappings
             CreateMap<CreateBrandRequestDto, Brand>();
             CreateMap<UpdateBrandRequestDto, Brand>();
 
+            CreateMap<CarModel, CarModelByBrandResponseDto>();
         }
     }
 }

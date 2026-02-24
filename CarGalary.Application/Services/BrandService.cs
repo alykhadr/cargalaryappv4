@@ -3,6 +3,7 @@ using AutoMapper;
 using CarGalary.Application.Dtos.Brand;
 using CarGalary.Application.Dtos.Brand.Command;
 using CarGalary.Application.Dtos.Brand.Query;
+using CarGalary.Application.Dtos.CarModel.Query;
 using CarGalary.Application.Interfaces;
 using CarGalary.Domain.UnitOfWork;
 
@@ -31,6 +32,12 @@ namespace CarGalary.Application.Services
         {
             var brand = await _unitOfWork.Brands.GetBrandById(id);
             return brand == null ? null : _mapper.Map<BrandResponseDto>(brand);
+        }
+
+        public async Task<List<CarModelByBrandResponseDto>> GetCarModelsByBrandAsync(int brandId)
+        {
+            var models = await _unitOfWork.Brands.GetCarModelsByBrandAsync(brandId);
+            return _mapper.Map<List<CarModelByBrandResponseDto>>(models);
         }
 
       

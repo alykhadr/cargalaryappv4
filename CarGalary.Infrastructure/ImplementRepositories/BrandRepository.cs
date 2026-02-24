@@ -1,6 +1,7 @@
 
 
 
+using CarGalary.Domain.Entities;
 using CarGalary.Domain.RepositoryInterfaces;
 using CarGalary.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,14 @@ namespace CarGalary.Infrastructure.Repositories
             return await _context.Brands.Where(c => c.IsAvailable)
                                   .Include(b => b.CarModels) // Include related cars
                                   .ToListAsync();
+        }
+
+        public async Task<List<CarModel>> GetCarModelsByBrandAsync(int brandId)
+        {
+            return await _context.CarModels
+                .Where(m => m.BrandId == brandId && m.IsAvailable)
+                .OrderByDescending(m => m.CreatedAt)
+                .ToListAsync();
         }
 
         public Task UpdateBrand(Brand brand)
