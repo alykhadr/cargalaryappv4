@@ -38,6 +38,13 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(cars);
         }
 
+        [HttpGet("by-model/{modelId:int}")]
+        public async Task<IActionResult> GetCarsByModel(int modelId)
+        {
+            var cars = await _service.FilterAsync(modelId: modelId);
+            return Ok(cars);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(
             [FromBody] CreateCarRequestDto dto,

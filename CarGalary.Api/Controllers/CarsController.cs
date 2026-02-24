@@ -1,66 +1,73 @@
 
 
-// using CarGalary.Application.Interfaces;
-// using CarGalary.Domain.Entities;
-// using Microsoft.AspNetCore.Authorization;
-// using Microsoft.AspNetCore.Mvc;
+using CarGalary.Application.Dtos.Car.Command;
+using CarGalary.Application.Dtos.Car.Query;
+using CarGalary.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-// namespace CarGalary.Api.Controllers
-// {
-//     [ApiController]
-//     [Route("api/[controller]")]
-//     public class CarsController : ControllerBase
-//     {
-//         private readonly ICarService _carService;
+namespace CarGalary.Api.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CarsController : ControllerBase
+    {
+        private readonly ICarService _carService;
 
-//         public CarsController(ICarService carService)
-//         {
-//             _carService = carService;
-//         }
+        public CarsController(ICarService carService)
+        {
+            _carService = carService;
+        }
 
-//         [HttpGet]
-//         public async Task<ActionResult<IEnumerable<Car>>> GetCars()
-//         {
-//             var cars = await _carService.GetAllAsync();
-//             return Ok(cars);
-//         }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CarResponseDto>>> GetCars()
+        {
+            var cars = await _carService.GetAllAsync();
+            return Ok(cars);
+        }
 
-//         [HttpGet("{id}")]
-//         public async Task<ActionResult<Car>> GetCar(int id)
-//         {
-//             var car = await _carService.GetByIdAsync(id);
-//             if (car == null) return NotFound();
-//             return Ok(car);
-//         }
-//          [Authorize(Roles="Admin,Manager")]
-//         [HttpPost]
-//         public async Task<ActionResult<Car>> CreateCar(Car car)
-//         {
-//             var createdCar = await _carService.CreateAsync(car);
-//             return CreatedAtAction(nameof(GetCar), new { id = createdCar.Id }, createdCar);
-//         }
-//          [Authorize(Roles="Admin,Manager")]
-//         [HttpPut("{id}")]
-//         public async Task<IActionResult> UpdateCar(int id, Car car)
-//         {
-//             var result = await _carService.UpdateAsync(id, car);
-//             if (!result) return BadRequest();
-//             return NoContent();
-//         }
-//          [Authorize(Roles="Admin,Manager")]
-//         [HttpDelete("{id}")]
-//         public async Task<IActionResult> DeleteCar(int id)
-//         {
-//             var result = await _carService.DeleteAsync(id);
-//             if (!result) return NotFound();
-//             return NoContent();
-//         }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CarResponseDto>> GetCar(int id)
+        {
+            var car = await _carService.GetByIdAsync(id);
+            if (car == null) return NotFound();
+            return Ok(car);
+        }
 
-//         [HttpGet("filter")]
-//         public async Task<ActionResult<IEnumerable<Car>>> FilterCars([FromQuery] int? brandId, [FromQuery] int? typeId, [FromQuery] bool? isAvailable)
-//         {
-//             var cars = await _carService.FilterAsync(brandId, typeId, isAvailable);
-//             return Ok(cars);
-//         }
-//     }
-// }
+        [HttpGet("by-model/{modelId:int}")]
+        public async Task<ActionResult<IEnumerable<CarResponseDto>>> GetCarsByModel(int modelId)
+        {
+            var cars = await _carService.FilterAsync(modelId: modelId);
+            return Ok(cars);
+        }
+
+         [Authorize(Roles="Admin,Manager")]
+        [HttpPost]
+        public async Task<ActionResult<CarResponseDto>> CreateCar(CreateCarRequestDto car)
+        {
+            var createdCar = await _carService.CreateAsync(car);
+            return CreatedAtAction(nameof(GetCar), new { id = createdCar.Id }, createdCar);
+        }
+         [Authorize(Roles="Admin,Manager")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCar(int id, UpdateCarRequestDto car)
+        {
+            await _carService.UpdateAsync(id, car);
+            return NoContent();
+        }
+         [Authorize(Roles="Admin,Manager")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCar(int id)
+        {
+            await _carService.DeleteAsync(id);
+            return NoContent();
+        }
+
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<CarResponseDto>>> FilterCars([FromQuery] int? modelId, [FromQuery] int? typeId, [FromQuery] bool? isAvailable)
+        {
+            var cars = await _carService.FilterAsync(modelId, typeId, isAvailable);
+            return Ok(cars);
+        }
+    }
+}
