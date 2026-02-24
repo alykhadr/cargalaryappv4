@@ -1,4 +1,4 @@
-namespace CarGalary.Application.Dtos.AudioAndCommunicationSystem.Query
+namespace CarGalary.Application.Dtos.CarExtraDetails.Query
 {
     public class CarExtraDetailsResponseDto
     {

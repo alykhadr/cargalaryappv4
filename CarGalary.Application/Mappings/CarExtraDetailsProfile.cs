@@ -1,5 +1,5 @@
 using AutoMapper;
-using CarGalary.Application.Dtos.AudioAndCommunicationSystem.Query;
+using CarGalary.Application.Dtos.CarExtraDetails.Query;
 using CarGalary.Application.Dtos.CarExtraDetails.Command;
 using CarGalary.Domain.Entities;
 

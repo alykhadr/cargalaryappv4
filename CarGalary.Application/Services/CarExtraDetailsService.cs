@@ -1,6 +1,6 @@
 using AutoMapper;
 
-using CarGalary.Application.Dtos.AudioAndCommunicationSystem.Query;
+using CarGalary.Application.Dtos.CarExtraDetails.Query;
 using CarGalary.Application.Dtos.CarExtraDetails.Command;
 using CarGalary.Application.Interfaces;
 using CarGalary.Domain.Entities;
@@ -65,7 +65,7 @@ namespace CarGalary.Application.Services
             var existing = await _unitOfWork.CarExtraDetails.GetByIdAsync(id);
             if (existing == null)
             {
-                throw new Exception("AudioAndCommunicationSystem not found");
+                throw new Exception("CarExtraDetails not found");
             }
 
             var car = await _unitOfWork.Cars.CarExistsAsync(dto.CarId);
@@ -89,7 +89,7 @@ namespace CarGalary.Application.Services
             var existing = await _unitOfWork.CarExtraDetails.GetByIdAsync(id);
             if (existing == null)
             {
-                throw new Exception("AudioAndCommunicationSystem not found");
+                throw new Exception("CarExtraDetails not found");
             }
 
             await _unitOfWork.CarExtraDetails.DeleteAsync(existing);
