@@ -206,6 +206,14 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(users);
         }
 
+        [PermissionAuthorize("users.view")]
+        [HttpGet("users/branch/{branchId}")]
+        public async Task<IActionResult> GetUsersByBranch(int branchId)
+        {
+            var users = await _identity.GetUsersByBranchAsync(branchId);
+            return Ok(users);
+        }
+
         [PermissionAuthorize("users.edit")]
         [HttpPut("users/{userId}")]
         public async Task<IActionResult> UpdateUser(string userId, [FromForm] UpdateAdminUserRequest request)

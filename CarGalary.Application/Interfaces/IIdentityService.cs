@@ -1,4 +1,5 @@
 using CarGalary.Application.Dtos.Auth;
+using CarGalary.Application.Dtos.User.Query;
 
 namespace CarGalary.Application.Interfaces
 {
@@ -9,6 +10,7 @@ namespace CarGalary.Application.Interfaces
         Task<bool> DeleteUserAsync(string userId);
         Task<bool> CheckPasswordAsync(string userName, string password);
         Task<List<UserListItemDto>> GetUsersAsync();
+        Task<List<UserByBranchResponseDto>> GetUsersByBranchAsync(int branchId);
         Task UpdateUserDetailsAsync(string userId, string userName, string email, string? firstName, string? lastName, int branchId, string? profileImageUrl);
         Task ChangeUserPasswordByAdminAsync(string userId, string newPassword);
         Task<IList<string>> GetUserRolesAsync(string userId);

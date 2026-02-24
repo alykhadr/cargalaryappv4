@@ -82,6 +82,14 @@ namespace CarGalary.Infrastructure.Identity
                 .ToListAsync();
         }
 
+        public async Task<List<ApplicationUser>> GetUsersByBranchAsync(int branchId)
+        {
+            return await _userManager.Users
+                .Where(u => u.BranchId == branchId)
+                .OrderByDescending(u => u.CreatedAt)
+                .ToListAsync();
+        }
+
         public async Task UpdateUserDetailsAsync(string userId, string userName, string email, string? firstName, string? lastName, int branchId, string? profileImageUrl)
         {
             var user = await _userManager.FindByIdAsync(userId)

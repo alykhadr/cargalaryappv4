@@ -1,4 +1,5 @@
 using CarGalary.Application.Dtos.Auth;
+using CarGalary.Application.Dtos.User.Query;
 using CarGalary.Application.Interfaces;
 using CarGalary.Domain.Entities;
 using CarGalary.Domain.UnitOfWork;
@@ -67,6 +68,12 @@ namespace CarGalary.Application.Services
         {
             var users = await _unitOfWork.identities.GetUsersAsync();
             return users.Select(ToUserListItemDto).ToList();
+        }
+
+        public async Task<List<UserByBranchResponseDto>> GetUsersByBranchAsync(int branchId)
+        {
+            var users = await _unitOfWork.identities.GetUsersByBranchAsync(branchId);
+            return users.Select(ToUserByBranchDto).ToList();
         }
 
         public async Task UpdateUserDetailsAsync(string userId, string userName, string email, string? firstName, string? lastName, int branchId, string? profileImageUrl)
@@ -216,6 +223,21 @@ namespace CarGalary.Application.Services
                 IsLocked = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow,
                 BranchId = user.BranchId,
                 ProfileImageUrl = user.ProfileImageUrl
+            };
+        }
+
+        private static UserByBranchResponseDto ToUserByBranchDto(ApplicationUser user)
+        {
+            return new UserByBranchResponseDto
+            {
+                Id = user.Id.ToString(),
+                UserName = user.UserName,
+                Email = user.Email,
+                FirstName = user.FullNameEn,
+                LastName = user.FullNameAr,
+                BranchId = user.BranchId,
+                ProfileImageUrl = user.ProfileImageUrl,
+                LockoutEnd = user.LockoutEnd
             };
         }
     }
