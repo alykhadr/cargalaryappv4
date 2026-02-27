@@ -1,8 +1,10 @@
 using CarGalary.Application.Dtos.Quotation.Command;
 using CarGalary.Application.Interfaces;
+using CarGalary.Admin.Api.Hubs;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CarGalary.Admin.Api.Controllers
 {
@@ -12,10 +14,12 @@ namespace CarGalary.Admin.Api.Controllers
     public class QuotationsController : ControllerBase
     {
         private readonly IQuotationService _quotationService;
+        private readonly IHubContext<QuotationHub> _hubContext;
 
-        public QuotationsController(IQuotationService quotationService)
+        public QuotationsController(IQuotationService quotationService, IHubContext<QuotationHub> hubContext)
         {
             _quotationService = quotationService;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
@@ -38,6 +42,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
 
             var created = await _quotationService.CreateAsync(dto);
+            await _hubContext.Clients.All.SendAsync("quotationCreated", created);
             return Ok(created);
         }
     }
