@@ -20,6 +20,7 @@ namespace CarGalary.Application.Services
             var employeeNo = string.IsNullOrWhiteSpace(request.EmployeeNo)
                 ? $"EMP-{Guid.NewGuid():N}".ToUpperInvariant()
                 : request.EmployeeNo.Trim();
+            var employmentStatusCode = NormalizeEmploymentStatusCode(request.EmploymentStatus);
 
             var employee = new Employee
             {
@@ -31,7 +32,7 @@ namespace CarGalary.Application.Services
                 DepartmentId = request.DepartmentId,
                 HireDate = request.HireDate ?? DateTime.UtcNow,
                 TerminationDate = request.TerminationDate,
-                EmploymentStatus = string.IsNullOrWhiteSpace(request.EmploymentStatus) ? "Active" : request.EmploymentStatus.Trim(),
+                EmploymentStatus = employmentStatusCode,
                 WorkEmail = request.WorkEmail?.Trim(),
                 WorkPhone = request.WorkPhone?.Trim(),
                 Extension = request.Extension?.Trim(),
@@ -86,15 +87,6 @@ namespace CarGalary.Application.Services
                 throw new Exception("Department not found");
             }
 
-            if (!string.IsNullOrWhiteSpace(request.EmploymentStatus))
-            {
-                var statusLookup = await _unitOfWork.LookupDetails.GetByMasterAndDetailAsync("EMPLOYMENT_STATUS", request.EmploymentStatus);
-                if (statusLookup == null)
-                {
-                    throw new Exception("Invalid Employment Status");
-                }
-            }
-
             if (!string.IsNullOrWhiteSpace(request.Nationality))
             {
                 var countryLookup = await _unitOfWork.LookupDetails.GetByMasterAndDetailAsync("COUNTRY", request.Nationality.Trim());
@@ -113,12 +105,13 @@ namespace CarGalary.Application.Services
             employee.TerminationDate = request.TerminationDate;
             if (!string.IsNullOrWhiteSpace(request.EmploymentStatus))
             {
-                var statusLookup = await _unitOfWork.LookupDetails.GetByMasterAndDetailAsync("EMPLOYMENT_STATUS", request.EmploymentStatus);
+                var employmentStatusCode = NormalizeEmploymentStatusCode(request.EmploymentStatus);
+                var statusLookup = await _unitOfWork.LookupDetails.GetByMasterAndDetailAsync("EMPLOYMENT_STATUS", employmentStatusCode);
                 if (statusLookup == null)
                 {
                     throw new Exception("Invalid Employment Status");
                 }
-                employee.EmploymentStatus = request.EmploymentStatus.Trim();
+                employee.EmploymentStatus = employmentStatusCode;
             }
             employee.WorkEmail = request.WorkEmail?.Trim();
             employee.WorkPhone = request.WorkPhone?.Trim();
@@ -174,6 +167,31 @@ namespace CarGalary.Application.Services
                     throw new Exception("Invalid Nationality");
                 }
             }
+
+            var employmentStatusCode = NormalizeEmploymentStatusCode(request.EmploymentStatus);
+            var statusLookup = await _unitOfWork.LookupDetails.GetByMasterAndDetailAsync("EMPLOYMENT_STATUS", employmentStatusCode);
+            if (statusLookup == null)
+            {
+                throw new Exception("Invalid Employment Status");
+            }
+        }
+
+        private static string NormalizeEmploymentStatusCode(string? employmentStatus)
+        {
+            if (string.IsNullOrWhiteSpace(employmentStatus))
+            {
+                return "1";
+            }
+
+            var value = employmentStatus.Trim();
+            return value.ToLowerInvariant() switch
+            {
+                "active" => "1",
+                "onleave" => "2",
+                "on leave" => "2",
+                "terminated" => "3",
+                _ => value
+            };
         }
 
         private static UserListItemDto MapToListItem(Employee employee)

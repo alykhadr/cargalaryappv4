@@ -16,7 +16,7 @@ namespace CarGalary.Domain.Entities
         public Department Department { get; set; } = default!;
         public DateTime HireDate { get; set; }
         public DateTime? TerminationDate { get; set; }
-        public string EmploymentStatus { get; set; } = "Active";
+        public string EmploymentStatus { get; set; } = "1";
 
         public string? WorkEmail { get; set; }
         public string? WorkPhone { get; set; }
