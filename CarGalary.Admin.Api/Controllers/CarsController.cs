@@ -1,127 +1,448 @@
+using CarGalary.Admin.Api.Security;
+using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Dtos.Car.Command;
+using CarGalary.Application.Dtos.CarGalleryImage.Command;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text.Json;
 
 namespace CarGalary.Admin.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CarsController : ControllerBase
     {
-        private readonly ICarService _service;
+        private readonly ICarService _carService;
+        private readonly ICarGalleryImageService _carImageService;
+        private readonly IWebHostEnvironment _environment;
 
-        public CarsController(ICarService service)
+        public CarsController(
+            ICarService carService,
+            ICarGalleryImageService carImageService,
+            IWebHostEnvironment environment)
         {
-            _service = service;
+            _carService = carService;
+            _carImageService = carImageService;
+            _environment = environment;
         }
 
         [HttpGet]
+        [PermissionAuthorize("cars.view")]
         public async Task<IActionResult> GetAll()
         {
-            var cars = await _service.GetAllAsync();
-            return Ok(cars);
+            try
+            {
+                var cars = await _carService.GetAllAsync();
+                return Ok(cars);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
         }
 
         [HttpGet("{id:int}")]
+        [PermissionAuthorize("cars.view")]
         public async Task<IActionResult> GetById(int id)
         {
-            var car = await _service.GetByIdAsync(id);
-            if (car == null) return NotFound();
-            return Ok(car);
+            try
+            {
+                var car = await _carService.GetByIdAsync(id);
+                if (car == null)
+                {
+                    return NotFound(new ApiErrorResponse("Car not found", StatusCodes.Status404NotFound));
+                }
+                return Ok(car);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
         }
 
         [HttpGet("filter")]
+        [PermissionAuthorize("cars.view")]
         public async Task<IActionResult> Filter([FromQuery] int? modelId, [FromQuery] int? typeId, [FromQuery] bool? isAvailable)
         {
-            var cars = await _service.FilterAsync(modelId, typeId, isAvailable);
-            return Ok(cars);
+            try
+            {
+                var cars = await _carService.FilterAsync(modelId, typeId, isAvailable);
+                return Ok(cars);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
         }
 
         [HttpGet("by-model/{modelId:int}")]
+        [PermissionAuthorize("cars.view")]
         public async Task<IActionResult> GetCarsByModel(int modelId)
         {
-            var cars = await _service.FilterAsync(modelId: modelId);
-            return Ok(cars);
+            try
+            {
+                var cars = await _carService.FilterAsync(modelId, null, null);
+                return Ok(cars);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
         }
 
         [HttpPost]
+        [PermissionAuthorize("cars.create")]
         public async Task<IActionResult> Create(
             [FromBody] CreateCarRequestDto dto,
             [FromServices] IValidator<CreateCarRequestDto> validator)
         {
-            var validationResult = validator.Validate(dto);
-            if (!validationResult.IsValid)
-            {
-                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
-            }
-
             try
             {
-                var created = await _service.CreateAsync(dto);
+                var validationResult = validator.Validate(dto);
+                if (!validationResult.IsValid)
+                {
+                    var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                }
+
+                var created = await _carService.CreateAsync(dto);
                 return Ok(created);
             }
             catch (Exception ex) when (ex.Message == "CarModel not found")
             {
-                return BadRequest(new[] { "ModelId is not valid" });
+                return BadRequest(new ApiErrorResponse("Model ID is not valid", StatusCodes.Status400BadRequest));
             }
             catch (Exception ex) when (ex.Message == "CarType not found")
             {
-                return BadRequest(new[] { "TypeId is not valid" });
+                return BadRequest(new ApiErrorResponse("Type ID is not valid", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex) when (ex.Message == "Branch not found")
+            {
+                return BadRequest(new ApiErrorResponse("Branch ID is not valid", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
             }
         }
 
         [HttpPut("{id:int}")]
+        [PermissionAuthorize("cars.edit")]
         public async Task<IActionResult> Update(
             int id,
             [FromBody] UpdateCarRequestDto dto,
             [FromServices] IValidator<UpdateCarRequestDto> validator)
         {
-            var existing = await _service.GetByIdAsync(id);
-            if (existing == null) return NotFound();
-
-            var validationResult = validator.Validate(dto);
-            if (!validationResult.IsValid)
-            {
-                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
-            }
-
             try
             {
-                await _service.UpdateAsync(id, dto);
+                var existing = await _carService.GetByIdAsync(id);
+                if (existing == null)
+                {
+                    return NotFound(new ApiErrorResponse("Car not found", StatusCodes.Status404NotFound));
+                }
+
+                var validationResult = validator.Validate(dto);
+                if (!validationResult.IsValid)
+                {
+                    var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                }
+
+                await _carService.UpdateAsync(id, dto);
                 return Ok();
             }
             catch (Exception ex) when (ex.Message == "Car not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse("Car not found", StatusCodes.Status404NotFound));
             }
             catch (Exception ex) when (ex.Message == "CarModel not found")
             {
-                return BadRequest(new[] { "ModelId is not valid" });
+                return BadRequest(new ApiErrorResponse("Model ID is not valid", StatusCodes.Status400BadRequest));
             }
             catch (Exception ex) when (ex.Message == "CarType not found")
             {
-                return BadRequest(new[] { "TypeId is not valid" });
+                return BadRequest(new ApiErrorResponse("Type ID is not valid", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex) when (ex.Message == "Branch not found")
+            {
+                return BadRequest(new ApiErrorResponse("Branch ID is not valid", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
             }
         }
 
         [HttpDelete("{id:int}")]
+        [PermissionAuthorize("cars.delete")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _service.GetByIdAsync(id);
-            if (existing == null) return NotFound();
-
             try
             {
-                await _service.DeleteAsync(id);
+                var existing = await _carService.GetByIdAsync(id);
+                if (existing == null)
+                {
+                    return NotFound(new ApiErrorResponse("Car not found", StatusCodes.Status404NotFound));
+                }
+
+                await _carService.DeleteAsync(id);
                 return Ok();
             }
             catch (Exception ex) when (ex.Message == "Car not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse("Car not found", StatusCodes.Status404NotFound));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
             }
         }
+
+        [HttpPost("bulk-delete")]
+        [PermissionAuthorize("cars.delete")]
+        public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteCarsRequest request)
+        {
+            try
+            {
+                if (request.CarIds == null || !request.CarIds.Any())
+                {
+                    return BadRequest(new ApiErrorResponse("Car IDs are required", StatusCodes.Status400BadRequest));
+                }
+
+                var result = await _carService.BulkDeleteAsync(request.CarIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
+        }
+
+        [HttpPost("save-all")]
+        [PermissionAuthorize("cars.create")]
+        [RequestFormLimits(MultipartBodyLengthLimit = 104_857_600)]
+        [RequestSizeLimit(104_857_600)]
+        public async Task<IActionResult> SaveAll(
+            [FromForm] CreateCarWithDetailsRequestDto dto,
+            [FromServices] IValidator<CreateCarRequestDto> validator,
+            [FromServices] IValidator<CreateCarWithDetailsFeatureItemDto> featureItemValidator,
+            [FromServices] IValidator<CreateCarWithDetailsColorItemDto> colorItemValidator,
+            [FromServices] IValidator<CreateCarWithDetailsExtraDetailItemDto> extraDetailItemValidator,
+            [FromServices] IValidator<CreateCarWithDetailsGalleryImageMetaItemDto> galleryMetaItemValidator,
+            [FromServices] IValidator<CreateCarWithDetailsCarColorImageMetaItemDto> carColorImageMetaItemValidator)
+        {
+            try
+            {
+                var baseCarDto = new CreateCarRequestDto
+                {
+                    NameAr = dto.NameAr,
+                    NameEn = dto.NameEn,
+                    ModelId = dto.ModelId,
+                    TypeId = dto.TypeId,
+                    BranchId = dto.BranchId,
+                    Year = dto.Year,
+                    Mileage = dto.Mileage,
+                    DescriptionAr = dto.DescriptionAr,
+                    DescriptionEn = dto.DescriptionEn
+                };
+
+                var validationResult = validator.Validate(baseCarDto);
+                if (!validationResult.IsValid)
+                {
+                    var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                }
+
+                var features = ParseJson<List<CreateCarWithDetailsFeatureItemDto>>(dto.FeaturesJson) ?? new();
+                var carColors = ParseJson<List<CreateCarWithDetailsColorItemDto>>(dto.CarColorsJson) ?? new();
+                var extraDetails = ParseJson<List<CreateCarWithDetailsExtraDetailItemDto>>(dto.ExtraDetailsJson) ?? new();
+                var galleryMeta = ParseJson<List<CreateCarWithDetailsGalleryImageMetaItemDto>>(dto.GalleryImagesMetaJson) ?? new();
+                var carColorImagesMeta = ParseJson<List<CreateCarWithDetailsCarColorImageMetaItemDto>>(dto.CarColorImagesMetaJson) ?? new();
+
+                var nestedErrors = new List<string>();
+                nestedErrors.AddRange(ValidateItems(features, featureItemValidator, "features"));
+                nestedErrors.AddRange(ValidateItems(carColors, colorItemValidator, "carColors"));
+                nestedErrors.AddRange(ValidateItems(extraDetails, extraDetailItemValidator, "extraDetails"));
+                nestedErrors.AddRange(ValidateItems(galleryMeta, galleryMetaItemValidator, "galleryImagesMeta"));
+                nestedErrors.AddRange(ValidateItems(carColorImagesMeta, carColorImageMetaItemValidator, "carColorImagesMeta"));
+
+                if (nestedErrors.Count > 0)
+                {
+                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, nestedErrors));
+                }
+
+                var createdCar = await _carService.CreateWithDetailsAsync(dto);
+                return Ok(createdCar);
+            }
+            catch (JsonException ex)
+            {
+                return BadRequest(new ApiErrorResponse($"Invalid JSON payload: {ex.Message}", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex) when (ex.Message == "CarModel not found")
+            {
+                return BadRequest(new ApiErrorResponse("Model ID is not valid", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex) when (ex.Message == "CarType not found")
+            {
+                return BadRequest(new ApiErrorResponse("Type ID is not valid", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex) when (ex.Message == "Branch not found")
+            {
+                return BadRequest(new ApiErrorResponse("Branch ID is not valid", StatusCodes.Status400BadRequest));
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(new ApiErrorResponse($"Save failed: {ex.GetBaseException().Message}", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
+        }
+
+        // Car Images Endpoints
+        [HttpGet("{carId:int}/images")]
+        [PermissionAuthorize("cars.view")]
+        public async Task<IActionResult> GetCarImages(int carId)
+        {
+            try
+            {
+                var images = await _carImageService.GetByCarIdAsync(carId);
+                return Ok(images);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
+        }
+
+        [HttpPost("{carId:int}/images")]
+        [PermissionAuthorize("cars.edit")]
+        public async Task<IActionResult> UploadCarImage(int carId, IFormFile imageFile, [FromQuery] bool isPrimary = false, [FromQuery] int? imageType = null)
+        {
+            try
+            {
+                if (imageFile == null || imageFile.Length == 0)
+                {
+                    return BadRequest(new ApiErrorResponse("Image file is required", StatusCodes.Status400BadRequest));
+                }
+
+                var fileName = await SaveCarImageAsync(imageFile);
+                var imageUrl = $"/uploads/cars/{fileName}";
+
+                var dto = new CreateCarGalleryImageRequestDto
+                {
+                    CarId = carId,
+                    ImageUrl = imageUrl,
+                    IsPrimary = isPrimary,
+                    ImageType = imageType
+                };
+
+                var created = await _carImageService.CreateAsync(dto);
+                return Ok(created);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
+        }
+
+        [HttpDelete("images/{imageId:int}")]
+        [PermissionAuthorize("cars.edit")]
+        public async Task<IActionResult> DeleteCarImage(int imageId)
+        {
+            try
+            {
+                await _carImageService.DeleteAsync(imageId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
+        }
+
+        [HttpPut("images/{imageId:int}/primary")]
+        [PermissionAuthorize("cars.edit")]
+        public async Task<IActionResult> SetPrimaryImage(int imageId, [FromBody] UpdateCarGalleryImageRequestDto dto)
+        {
+            try
+            {
+                await _carImageService.UpdateAsync(imageId, dto);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
+        }
+
+        private async Task<string> SaveCarImageAsync(IFormFile file)
+        {
+            var rootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+            var uploadPath = Path.Combine(rootPath, "uploads", "cars");
+            Directory.CreateDirectory(uploadPath);
+
+            var extension = Path.GetExtension(file.FileName);
+            var fileName = string.Create(
+                CultureInfo.InvariantCulture,
+                $"{Guid.NewGuid():N}{extension}");
+            var filePath = Path.Combine(uploadPath, fileName);
+
+            await using var stream = new FileStream(filePath, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            return fileName;
+        }
+
+        private static List<string> ValidateItems<T>(
+            IReadOnlyList<T> items,
+            IValidator<T> validator,
+            string fieldName)
+        {
+            var errors = new List<string>();
+            for (var i = 0; i < items.Count; i++)
+            {
+                var result = validator.Validate(items[i]);
+                if (!result.IsValid)
+                {
+                    errors.AddRange(result.Errors.Select(e => $"{fieldName}[{i}].{e.ErrorMessage}"));
+                }
+            }
+
+            return errors;
+        }
+
+        private static T? ParseJson<T>(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return default;
+            }
+
+            return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+
     }
 }

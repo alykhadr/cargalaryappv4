@@ -8,6 +8,7 @@ namespace CarGalary.Domain.Entities
     public int CarId { get; set; }
     public Car? Car { get; set; }
     public string ImageUrl { get; set; } = string.Empty;
+    // external, internal, front, back, side, interior
     public int? ImageType { get; set; }
     public bool IsPrimary { get; set; } = false;
 

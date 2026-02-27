@@ -68,5 +68,37 @@ namespace CarGalary.Infrastructure.ImplementRepositories
 
         
     }
+
+    public Task AddCarFeatureAssignmentAsync(CarFeature carFeature)
+    {
+        _context.CarFeatures.Add(carFeature);
+        return Task.CompletedTask;
+    }
+
+    public async Task<List<CarFeature>> GetCarFeatureAssignmentsByCarIdAsync(int carId)
+    {
+        return await _context.CarFeatures
+            .AsNoTracking()
+            .Where(x => x.CarId == carId)
+            .OrderBy(x => x.FeatureId)
+            .ToListAsync();
+    }
+
+    public async Task<CarFeature?> GetCarFeatureAssignmentAsync(int carId, int featureId)
+    {
+        return await _context.CarFeatures.FindAsync(carId, featureId);
+    }
+
+    public Task UpdateCarFeatureAssignmentAsync(CarFeature carFeature)
+    {
+        _context.Entry(carFeature).State = EntityState.Modified;
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteCarFeatureAssignmentAsync(CarFeature carFeature)
+    {
+        _context.CarFeatures.Remove(carFeature);
+        return Task.CompletedTask;
+    }
 }
 }

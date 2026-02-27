@@ -1,0 +1,67 @@
+using Microsoft.AspNetCore.Http;
+
+namespace CarGalary.Application.Dtos.Car.Command
+{
+    public class CreateCarWithDetailsRequestDto
+    {
+        // Car base fields
+        public string? NameAr { get; set; }
+        public string? NameEn { get; set; }
+        public int ModelId { get; set; }
+        public int TypeId { get; set; }
+        public int BranchId { get; set; }
+        public int Year { get; set; }
+        public int Mileage { get; set; }
+        public string? DescriptionAr { get; set; }
+        public string? DescriptionEn { get; set; }
+
+        // JSON payloads (multipart/form-data friendly)
+        public string? FeaturesJson { get; set; }
+        public string? CarColorsJson { get; set; }
+        public string? ExtraDetailsJson { get; set; }
+        public string? GalleryImagesMetaJson { get; set; }
+        public string? CarColorImagesMetaJson { get; set; }
+
+        // Files
+        public List<IFormFile>? GalleryImageFiles { get; set; }
+        public List<IFormFile>? CarColorImageFiles { get; set; }
+    }
+
+    public class CreateCarWithDetailsFeatureItemDto
+    {
+        public int FeatureId { get; set; }
+        public bool IsAvailable { get; set; } = true;
+    }
+
+    public class CreateCarWithDetailsColorItemDto
+    {
+        public int ColorId { get; set; }
+        public int? StockQuantity { get; set; }
+        public string? ColorImageUrl { get; set; }
+        public decimal? PricingPerColor { get; set; }
+        public bool IsAvailable { get; set; } = true;
+    }
+
+    public class CreateCarWithDetailsExtraDetailItemDto
+    {
+        public string? NameAr { get; set; }
+        public string? NameEn { get; set; }
+        public string? DescriptionEn { get; set; }
+        public string? DescriptionAr { get; set; }
+        public int CarExtraDetailsType { get; set; }
+        public bool IsAvailable { get; set; } = true;
+    }
+
+    public class CreateCarWithDetailsGalleryImageMetaItemDto
+    {
+        public string? FileName { get; set; }
+        public int? ImageType { get; set; }
+        public bool IsPrimary { get; set; }
+    }
+
+    public class CreateCarWithDetailsCarColorImageMetaItemDto
+    {
+        public int ColorId { get; set; }
+        public string? FileName { get; set; }
+    }
+}

@@ -6,8 +6,8 @@ namespace CarGalary.Application.Dtos.CarExtraDetails.Command
         public string? NameEn { get; set; }
         public string? DescriptionEn { get; set; }
         public string? DescriptionAr { get; set; }
+        public int? CarExtraDetailsType { get; set; }
         public int CarId { get; set; }
         public bool? IsAvailable { get; set; }
     }
 }
-

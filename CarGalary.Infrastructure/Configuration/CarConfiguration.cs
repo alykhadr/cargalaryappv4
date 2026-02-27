@@ -10,21 +10,23 @@ public class CarConfiguration : IEntityTypeConfiguration<Car>
        builder.Property(u => u.Id)
             .ValueGeneratedOnAdd();
 
-        builder.Property(c => c.Color);
-          builder.Property(c => c.Mileage);
-            builder.Property(c => c.CreatedBy);
-          
-
-        builder.Property(c => c.Price)
-            .HasColumnType("decimal(18,2)");
+        builder.Property(c => c.Mileage);
+        builder.Property(c => c.CreatedBy);
 
         builder.Property(c => c.DescriptionAr);
         builder.Property(c => c.DescriptionEn);
+        builder.Property(c => c.NameAr).IsRequired();
+        builder.Property(c => c.NameEn).IsRequired();
 
         builder.Property(c => c.IsAvailable)
             .HasDefaultValue(true);
 
         builder.Property(c => c.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.HasOne(c => c.Branchs)
+            .WithMany(b => b.Cars)
+            .HasForeignKey(c => c.BranchId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

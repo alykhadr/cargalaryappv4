@@ -7,9 +7,9 @@ namespace CarGalary.Application.Dtos.CarExtraDetails.Query
         public string? NameEn { get; set; }
         public string? DescriptionEn { get; set; }
         public string? DescriptionAr { get; set; }
+        public int CarExtraDetailsType { get; set; }
         public string? CreatedBy { get; set; }
         public bool IsAvailable { get; set; }
         public int CarId { get; set; }
     }
 }
-

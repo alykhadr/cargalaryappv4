@@ -9,8 +9,10 @@ namespace CarGalary.Application.Interfaces
         Task<List<CarResponseDto>> GetAllAsync();
         Task<CarResponseDto?> GetByIdAsync(int id);
         Task<CarResponseDto> CreateAsync(CreateCarRequestDto dto);
+        Task<CarResponseDto> CreateWithDetailsAsync(CreateCarWithDetailsRequestDto dto);
         Task UpdateAsync(int id, UpdateCarRequestDto dto);
         Task DeleteAsync(int id);
+        Task<BulkDeleteCarsResponseDto> BulkDeleteAsync(List<int> carIds);
         Task<List<CarResponseDto>> FilterAsync(int? modelId = null, int? typeId = null, bool? isAvailable = null);
     }
 }

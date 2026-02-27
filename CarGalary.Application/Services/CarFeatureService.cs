@@ -10,11 +10,13 @@ namespace CarGalary.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public CarFeatureService(IUnitOfWork unitOfWork, IMapper mapper)
+        public CarFeatureService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<List<CarFeatureResponseDto>> GetAllAsync()
@@ -67,6 +69,91 @@ namespace CarGalary.Application.Services
             }
 
             await _unitOfWork.CarFeatures.DeleteAsync(existing);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<List<CarFeatureAssignmentResponseDto>> GetAssignmentsByCarIdAsync(int carId)
+        {
+            var items = await _unitOfWork.CarFeatures.GetCarFeatureAssignmentsByCarIdAsync(carId);
+            return items.Select(x => new CarFeatureAssignmentResponseDto
+            {
+                CarId = x.CarId,
+                FeatureId = x.FeatureId,
+                IsAvailable = x.IsAvailable,
+                CreatedBy = x.CreatedBy,
+                CreatedAt = x.CreatedAt
+            }).ToList();
+        }
+
+        public async Task<CarFeatureAssignmentResponseDto> CreateAssignmentAsync(int carId, CreateCarFeatureAssignmentRequestDto dto)
+        {
+            if (dto == null || dto.FeatureId <= 0)
+            {
+                throw new Exception("FeatureId is required");
+            }
+
+            var carExists = await _unitOfWork.Cars.GetByIdAsync(carId);
+            if (carExists == null)
+            {
+                throw new Exception("CarId is not valid");
+            }
+
+            var featureExists = await _unitOfWork.CarFeatures.GetByIdAsync(dto.FeatureId);
+            if (featureExists == null)
+            {
+                throw new Exception("FeatureId is not valid");
+            }
+
+            var existing = await _unitOfWork.CarFeatures.GetCarFeatureAssignmentAsync(carId, dto.FeatureId);
+            if (existing != null)
+            {
+                throw new Exception("Feature already assigned to this car");
+            }
+
+            var entity = new CarFeature
+            {
+                CarId = carId,
+                FeatureId = dto.FeatureId,
+                IsAvailable = dto.IsAvailable,
+                CreatedBy = _currentUserService.UserName,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.CarFeatures.AddCarFeatureAssignmentAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new CarFeatureAssignmentResponseDto
+            {
+                CarId = entity.CarId,
+                FeatureId = entity.FeatureId,
+                IsAvailable = entity.IsAvailable,
+                CreatedBy = entity.CreatedBy,
+                CreatedAt = entity.CreatedAt
+            };
+        }
+
+        public async Task UpdateAssignmentAsync(int carId, int featureId, UpdateCarFeatureAssignmentRequestDto dto)
+        {
+            var existing = await _unitOfWork.CarFeatures.GetCarFeatureAssignmentAsync(carId, featureId);
+            if (existing == null)
+            {
+                throw new Exception("Car feature assignment not found");
+            }
+
+            existing.IsAvailable = dto.IsAvailable;
+            await _unitOfWork.CarFeatures.UpdateCarFeatureAssignmentAsync(existing);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteAssignmentAsync(int carId, int featureId)
+        {
+            var existing = await _unitOfWork.CarFeatures.GetCarFeatureAssignmentAsync(carId, featureId);
+            if (existing == null)
+            {
+                throw new Exception("Car feature assignment not found");
+            }
+
+            await _unitOfWork.CarFeatures.DeleteCarFeatureAssignmentAsync(existing);
             await _unitOfWork.SaveChangesAsync();
         }
     }

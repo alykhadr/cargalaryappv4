@@ -5,6 +5,8 @@ namespace CarGalary.Domain.Entities
 
 public class Car:BaseEntity
 {
+    public string NameAr { get; set; } = string.Empty;
+    public string NameEn { get; set; } = string.Empty;
 
     public int ModelId { get; set; }
     public CarModel? CarModel { get; set; } 
@@ -12,8 +14,7 @@ public class Car:BaseEntity
     public int TypeId { get; set; }
     public CarType? Type { get; set; }
     public int Year { get; set; }
-    public string? Color { get; set; }
-    public decimal Price { get; set; }
+
     public int Mileage { get; set; }
     public string? DescriptionAr { get; set; }
      public string? DescriptionEn { get; set; }
