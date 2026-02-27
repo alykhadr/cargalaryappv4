@@ -15,7 +15,13 @@ namespace CarGalary.Admin.Api.Security
 
         public Task<AuthorizationPolicy> GetDefaultPolicyAsync()
         {
-            return _fallbackPolicyProvider.GetDefaultPolicyAsync();
+            // Force JWT bearer for plain [Authorize] so Identity cookie defaults
+            // do not trigger login redirects for API endpoints.
+            var policy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                .RequireAuthenticatedUser()
+                .Build();
+
+            return Task.FromResult(policy);
         }
 
         public Task<AuthorizationPolicy?> GetFallbackPolicyAsync()

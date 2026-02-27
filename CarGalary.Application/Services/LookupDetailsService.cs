@@ -22,7 +22,8 @@ namespace CarGalary.Application.Services
                 MasterCode = x.MasterCode,
                 DetailCode = x.DetailCode,
                 NameAr = x.NameAr,
-                NameEn = x.NameEn
+                NameEn = x.NameEn,
+                MappedCode = x.MappedCode
             }).ToList();
         }
     }

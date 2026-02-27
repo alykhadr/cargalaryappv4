@@ -7,6 +7,7 @@ namespace CarGalary.Application.Dtos.Lookup
         public string DetailCode { get; set; } = string.Empty;
         public string NameAr { get; set; } = string.Empty;
         public string NameEn { get; set; } = string.Empty;
+        public string? MappedCode { get; set; }
         public string DisplayName => $"{NameAr} - {NameEn}";
     }
 }
