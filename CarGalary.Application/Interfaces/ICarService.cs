@@ -10,6 +10,7 @@ namespace CarGalary.Application.Interfaces
         Task<CarResponseDto?> GetByIdAsync(int id);
         Task<CarResponseDto> CreateAsync(CreateCarRequestDto dto);
         Task<CarResponseDto> CreateWithDetailsAsync(CreateCarWithDetailsRequestDto dto);
+        Task<CarResponseDto> CopyAsync(int id);
         Task UpdateAsync(int id, UpdateCarRequestDto dto);
         Task SetAvailabilityAsync(int id, bool isAvailable);
         Task DeleteAsync(int id);

@@ -266,6 +266,27 @@ namespace CarGalary.Admin.Api.Controllers
             }
         }
 
+        [HttpPost("{id:int}/copy")]
+        [PermissionAuthorize("cars.create")]
+        public async Task<IActionResult> Copy(int id)
+        {
+            try
+            {
+                var created = await _carService.CopyAsync(id);
+                await _hubContext.Clients.All.SendAsync("carCreated", created);
+                return Ok(created);
+            }
+            catch (Exception ex) when (ex.Message == "Car not found")
+            {
+                return NotFound(new ApiErrorResponse("Car not found", StatusCodes.Status404NotFound));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
+        }
+
         [HttpPost("bulk-delete")]
         [PermissionAuthorize("cars.delete")]
         public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteCarsRequest request)

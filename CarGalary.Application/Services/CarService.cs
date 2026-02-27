@@ -174,6 +174,120 @@ namespace CarGalary.Application.Services
             });
         }
 
+        public async Task<CarResponseDto> CopyAsync(int id)
+        {
+            return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                var existing = await _unitOfWork.Cars.GetByIdAsync(id);
+                if (existing == null)
+                {
+                    throw new Exception("Car not found");
+                }
+
+                var copy = new Car
+                {
+                    NameAr = string.IsNullOrWhiteSpace(existing.NameAr) ? "Copy" : $"{existing.NameAr} (Copy)",
+                    NameEn = string.IsNullOrWhiteSpace(existing.NameEn) ? "Copy" : $"{existing.NameEn} (Copy)",
+                    ModelId = existing.ModelId,
+                    TypeId = existing.TypeId,
+                    BranchId = existing.BranchId,
+                    Year = existing.Year,
+                    Mileage = existing.Mileage,
+                    Vat = existing.Vat,
+                    ConditionId = existing.ConditionId,
+                    SeatingCapacity = existing.SeatingCapacity,
+                    WeelSizeInch = existing.WeelSizeInch,
+                    FuelTankCapacityLiter = existing.FuelTankCapacityLiter,
+                    TrimLevel = existing.TrimLevel,
+                    VehicleClass = existing.VehicleClass,
+                    PlateNumberAr = existing.PlateNumberAr,
+                    PlateNumberEn = existing.PlateNumberEn,
+                    TransmisionType = existing.TransmisionType,
+                    Drivetrain = existing.Drivetrain,
+                    Cylenders = existing.Cylenders,
+                    FuelType = existing.FuelType,
+                    ManufactureCountryId = existing.ManufactureCountryId,
+                    EnginNumber = existing.EnginNumber,
+                    DescriptionAr = existing.DescriptionAr,
+                    DescriptionEn = existing.DescriptionEn,
+                    IsAvailable = true,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = _currentUserService.UserName
+                };
+
+                await _unitOfWork.Cars.CreateAsync(copy);
+                await _unitOfWork.SaveChangesAsync();
+
+                var sourceFeatures = await _unitOfWork.CarFeatures.GetCarFeatureAssignmentsByCarIdAsync(id);
+                foreach (var item in sourceFeatures)
+                {
+                    await _unitOfWork.CarFeatures.AddCarFeatureAssignmentAsync(new CarFeature
+                    {
+                        CarId = copy.Id,
+                        FeatureId = item.FeatureId,
+                        IsAvailable = item.IsAvailable,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = _currentUserService.UserName
+                    });
+                }
+
+                var sourceColors = await _unitOfWork.CarCarColors.GetByCarIdAsync(id);
+                foreach (var item in sourceColors)
+                {
+                    await _unitOfWork.CarCarColors.CreateAsync(new CarColor
+                    {
+                        CarId = copy.Id,
+                        ColorId = item.ColorId,
+                        StockQuantity = item.StockQuantity,
+                        ColorImageUrl = item.ColorImageUrl,
+                        PricingPerColor = item.PricingPerColor,
+                        PricePefore = item.PricePefore,
+                        VatAmount = item.VatAmount,
+                        Discount = item.Discount,
+                        DiscountType = item.DiscountType,
+                        TotalPrice = item.TotalPrice,
+                        IsAvailable = item.IsAvailable,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                var sourceExtraDetails = await _unitOfWork.CarExtraDetails.GetByCarIdAsync(id);
+                foreach (var item in sourceExtraDetails)
+                {
+                    await _unitOfWork.CarExtraDetails.CreateAsync(new CarExtraDetails
+                    {
+                        CarId = copy.Id,
+                        NameAr = item.NameAr,
+                        NameEn = item.NameEn,
+                        DescriptionAr = item.DescriptionAr,
+                        DescriptionEn = item.DescriptionEn,
+                        CarExtraDetailsType = item.CarExtraDetailsType,
+                        IsAvailable = item.IsAvailable,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = _currentUserService.UserName
+                    });
+                }
+
+                var sourceImages = await _unitOfWork.CarGalleryImages.GetImagesByCarAsync(id);
+                foreach (var item in sourceImages)
+                {
+                    await _unitOfWork.CarGalleryImages.AddImageAsync(new CarGalleryImage
+                    {
+                        CarId = copy.Id,
+                        ImageUrl = item.ImageUrl,
+                        ImageType = item.ImageType,
+                        IsPrimary = item.IsPrimary,
+                        IsAvailable = item.IsAvailable,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = _currentUserService.UserName
+                    });
+                }
+
+                await _unitOfWork.SaveChangesAsync();
+                return _mapper.Map<CarResponseDto>(copy);
+            });
+        }
+
         public async Task UpdateAsync(int id, UpdateCarRequestDto dto)
         {
             var existing = await _unitOfWork.Cars.GetByIdAsync(id);
