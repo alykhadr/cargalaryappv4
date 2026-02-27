@@ -19,7 +19,8 @@ namespace CarGalary.Application.Dtos.Car.Command
         public decimal? FuelTankCapacityLiter { get; set; }
         public int? TrimLevel { get; set; }
         public int? VehicleClass { get; set; }
-        public string? PlateNumber { get; set; }
+        public string? PlateNumberAr { get; set; }
+        public string? PlateNumberEn { get; set; }
         public int? TransmisionType { get; set; }
         public int? Drivetrain { get; set; }
         public int? Cylenders { get; set; }

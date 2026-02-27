@@ -46,7 +46,8 @@ public class Car:BaseEntity
 // Pickup	بيك أب
     public int?  VehicleClass { get; set; }
 
-    public string?  PlateNumber { get; set; }
+    public string?  PlateNumberAr { get; set; }
+     public string?  PlateNumberEn{ get; set; }
    // (AT/MT/CVT/DCT)
     public int? TransmisionType { get; set; }
     //DRIVETRAIN (FWD/RWD/AWD/4WD)
