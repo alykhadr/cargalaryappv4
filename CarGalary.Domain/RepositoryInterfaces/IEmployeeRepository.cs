@@ -8,6 +8,7 @@ namespace CarGalary.Domain.RepositoryInterfaces
         Task<Employee?> GetByUserIdAsync(Guid userId);
         Task<List<Employee>> GetAllWithDetailsAsync();
         Task<List<Employee>> GetByBranchIdWithDetailsAsync(int branchId);
+        Task<List<Employee>> GetByDepartmentIdWithDetailsAsync(int departmentId);
         Task DeleteAsync(Employee employee);
     }
 }

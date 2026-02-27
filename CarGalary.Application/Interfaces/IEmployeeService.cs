@@ -7,6 +7,7 @@ namespace CarGalary.Application.Interfaces
         Task CreateEmployeeAsync(RegisterRequest request, Guid userId);
         Task<List<UserListItemDto>> GetEmployeesAsync();
         Task<List<UserListItemDto>> GetEmployeesByBranchAsync(int branchId);
+        Task<List<UserListItemDto>> GetEmployeesByDepartmentAsync(int departmentId);
         Task UpdateEmployeeAsync(Guid userId, UpdateAdminUserRequest request);
         Task DeleteEmployeeAsync(Guid userId);
     }

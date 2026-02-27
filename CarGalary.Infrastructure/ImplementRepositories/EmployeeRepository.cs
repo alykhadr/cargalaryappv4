@@ -30,6 +30,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
                 .AsNoTracking()
                 .Include(e => e.User)
                 .Include(e => e.Branch)
+                .Include(e => e.Department)
                 .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync();
         }
@@ -40,7 +41,20 @@ namespace CarGalary.Infrastructure.ImplementRepositories
                 .AsNoTracking()
                 .Include(e => e.User)
                 .Include(e => e.Branch)
+                .Include(e => e.Department)
                 .Where(e => e.BranchId == branchId)
+                .OrderByDescending(e => e.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<List<Employee>> GetByDepartmentIdWithDetailsAsync(int departmentId)
+        {
+            return await _context.Employees
+                .AsNoTracking()
+                .Include(e => e.User)
+                .Include(e => e.Branch)
+                .Include(e => e.Department)
+                .Where(e => e.DepartmentId == departmentId)
                 .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync();
         }

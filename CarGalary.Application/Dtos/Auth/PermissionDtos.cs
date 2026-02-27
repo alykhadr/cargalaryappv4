@@ -28,7 +28,8 @@ namespace CarGalary.Application.Dtos.Auth
         public string EmployeeNo { get; set; } = string.Empty;
         public string NationalId { get; set; } = string.Empty;
         public string JobTitle { get; set; } = string.Empty;
-        public string Department { get; set; } = string.Empty;
+        public int DepartmentId { get; set; }
+        public string DepartmentName { get; set; } = string.Empty;
         public DateTime HireDate { get; set; }
         public DateTime? TerminationDate { get; set; }
         public string EmploymentStatus { get; set; } = string.Empty;

@@ -114,6 +114,14 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(employees);
         }
 
+        [PermissionAuthorize("employees.view")]
+        [HttpGet("department/{departmentId}")]
+        public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
+        {
+            var employees = await _employeeService.GetEmployeesByDepartmentAsync(departmentId);
+            return Ok(employees);
+        }
+
         [PermissionAuthorize("employees.edit")]
         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateEmployee(string userId, [FromForm] UpdateAdminUserRequest request)

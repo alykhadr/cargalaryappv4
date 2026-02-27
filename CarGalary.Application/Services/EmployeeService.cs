@@ -16,7 +16,7 @@ namespace CarGalary.Application.Services
 
         public async Task CreateEmployeeAsync(RegisterRequest request, Guid userId)
         {
-            ValidateCreateRequest(request);
+            await ValidateCreateRequestAsync(request);
             var employeeNo = string.IsNullOrWhiteSpace(request.EmployeeNo)
                 ? $"EMP-{Guid.NewGuid():N}".ToUpperInvariant()
                 : request.EmployeeNo.Trim();
@@ -28,7 +28,7 @@ namespace CarGalary.Application.Services
                 EmployeeNo = employeeNo,
                 NationalId = request.NationalId!.Trim(),
                 JobTitle = request.JobTitle?.Trim() ?? string.Empty,
-                Department = request.Department!.Trim(),
+                DepartmentId = request.DepartmentId,
                 HireDate = request.HireDate ?? DateTime.UtcNow,
                 TerminationDate = request.TerminationDate,
                 EmploymentStatus = string.IsNullOrWhiteSpace(request.EmploymentStatus) ? "Active" : request.EmploymentStatus.Trim(),
@@ -61,6 +61,12 @@ namespace CarGalary.Application.Services
             return employees.Select(MapToListItem).ToList();
         }
 
+        public async Task<List<UserListItemDto>> GetEmployeesByDepartmentAsync(int departmentId)
+        {
+            var employees = await _unitOfWork.Employees.GetByDepartmentIdWithDetailsAsync(departmentId);
+            return employees.Select(MapToListItem).ToList();
+        }
+
         public async Task UpdateEmployeeAsync(Guid userId, UpdateAdminUserRequest request)
         {
             var employee = await _unitOfWork.Employees.GetByUserIdAsync(userId);
@@ -69,11 +75,22 @@ namespace CarGalary.Application.Services
                 throw new Exception("Employee not found");
             }
 
+            if (request.DepartmentId <= 0)
+            {
+                throw new Exception("Department is required");
+            }
+
+            var department = await _unitOfWork.Departments.GetByIdAsync(request.DepartmentId);
+            if (department == null)
+            {
+                throw new Exception("Department not found");
+            }
+
             employee.BranchId = request.BranchId;
+            employee.DepartmentId = request.DepartmentId;
             if (!string.IsNullOrWhiteSpace(request.EmployeeNo)) employee.EmployeeNo = request.EmployeeNo.Trim();
             if (!string.IsNullOrWhiteSpace(request.NationalId)) employee.NationalId = request.NationalId.Trim();
             if (!string.IsNullOrWhiteSpace(request.JobTitle)) employee.JobTitle = request.JobTitle.Trim();
-            if (!string.IsNullOrWhiteSpace(request.Department)) employee.Department = request.Department.Trim();
             if (request.HireDate.HasValue) employee.HireDate = request.HireDate.Value;
             employee.TerminationDate = request.TerminationDate;
             if (!string.IsNullOrWhiteSpace(request.EmploymentStatus)) employee.EmploymentStatus = request.EmploymentStatus.Trim();
@@ -105,16 +122,22 @@ namespace CarGalary.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        private static void ValidateCreateRequest(RegisterRequest request)
+        private async Task ValidateCreateRequestAsync(RegisterRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.NationalId))
             {
                 throw new Exception("National ID is required");
             }
 
-            if (string.IsNullOrWhiteSpace(request.Department))
+            if (request.DepartmentId <= 0)
             {
                 throw new Exception("Department is required");
+            }
+
+            var department = await _unitOfWork.Departments.GetByIdAsync(request.DepartmentId);
+            if (department == null)
+            {
+                throw new Exception("Department not found");
             }
         }
 
@@ -137,7 +160,8 @@ namespace CarGalary.Application.Services
                 EmployeeNo = employee.EmployeeNo,
                 NationalId = employee.NationalId,
                 JobTitle = employee.JobTitle,
-                Department = employee.Department,
+                DepartmentId = employee.DepartmentId,
+                DepartmentName = employee.Department?.NameEn ?? employee.Department?.NameAr ?? string.Empty,
                 HireDate = employee.HireDate,
                 TerminationDate = employee.TerminationDate,
                 EmploymentStatus = employee.EmploymentStatus,
