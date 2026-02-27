@@ -220,6 +220,45 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return NotFound(new ApiErrorResponse("Car not found", StatusCodes.Status404NotFound));
             }
+            catch (Exception ex) when (ex.Message == "Cannot delete car because it is referenced by quotations")
+            {
+                return BadRequest(new ApiErrorResponse("Cannot delete this car because it is linked to quotation records.", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex) when (ex.Message == "Cannot delete car because it is referenced by related data")
+            {
+                return BadRequest(new ApiErrorResponse("Cannot delete this car because it is linked to related records.", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+            }
+        }
+
+        [HttpPut("{id:int}/availability")]
+        [PermissionAuthorize("cars.edit")]
+        public async Task<IActionResult> UpdateAvailability(int id, [FromBody] UpdateCarAvailabilityRequestDto dto)
+        {
+            try
+            {
+                var existing = await _carService.GetByIdAsync(id);
+                if (existing == null)
+                {
+                    return NotFound(new ApiErrorResponse("Car not found", StatusCodes.Status404NotFound));
+                }
+
+                await _carService.SetAvailabilityAsync(id, dto.IsAvailable);
+                var updated = await _carService.GetByIdAsync(id);
+                if (updated != null)
+                {
+                    await _hubContext.Clients.All.SendAsync("carUpdated", updated);
+                }
+                return Ok();
+            }
+            catch (Exception ex) when (ex.Message == "Car not found")
+            {
+                return NotFound(new ApiErrorResponse("Car not found", StatusCodes.Status404NotFound));
+            }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,

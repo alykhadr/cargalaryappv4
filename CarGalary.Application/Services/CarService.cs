@@ -6,6 +6,7 @@ using CarGalary.Domain.Entities;
 using CarGalary.Domain.UnitOfWork;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text.Json;
 
@@ -301,7 +302,34 @@ namespace CarGalary.Application.Services
                 throw new Exception("Car not found");
             }
 
-            await _unitOfWork.Cars.DeleteAsync(existing);
+            var hasQuotations = (await _unitOfWork.Quotations.GetAllAsync())
+                .Any(q => q.CarId == id && q.IsAvailable);
+            if (hasQuotations)
+            {
+                throw new Exception("Cannot delete car because it is referenced by quotations");
+            }
+
+            try
+            {
+                await _unitOfWork.Cars.DeleteAsync(existing);
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                throw new Exception("Cannot delete car because it is referenced by related data");
+            }
+        }
+
+        public async Task SetAvailabilityAsync(int id, bool isAvailable)
+        {
+            var existing = await _unitOfWork.Cars.GetByIdAsync(id);
+            if (existing == null)
+            {
+                throw new Exception("Car not found");
+            }
+
+            existing.IsAvailable = isAvailable;
+            await _unitOfWork.Cars.UpdateAsync(existing);
             await _unitOfWork.SaveChangesAsync();
         }
 

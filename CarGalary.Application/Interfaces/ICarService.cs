@@ -11,6 +11,7 @@ namespace CarGalary.Application.Interfaces
         Task<CarResponseDto> CreateAsync(CreateCarRequestDto dto);
         Task<CarResponseDto> CreateWithDetailsAsync(CreateCarWithDetailsRequestDto dto);
         Task UpdateAsync(int id, UpdateCarRequestDto dto);
+        Task SetAvailabilityAsync(int id, bool isAvailable);
         Task DeleteAsync(int id);
         Task<BulkDeleteCarsResponseDto> BulkDeleteAsync(List<int> carIds);
         Task<List<CarResponseDto>> FilterAsync(int? modelId = null, int? typeId = null, bool? isAvailable = null);
