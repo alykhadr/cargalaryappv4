@@ -27,6 +27,7 @@ namespace CarGalary.Application.Dtos.Car.Query
         public string? EnginNumber { get; set; }
         public string? DescriptionAr { get; set; }
         public string? DescriptionEn { get; set; }
+        public DateTime CreatedAt { get; set; }
         public string? CreatedBy { get; set; }
         public bool IsAvailable { get; set; }
     }

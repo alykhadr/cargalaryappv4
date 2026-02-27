@@ -80,7 +80,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 var accessToken = context.Request.Query["access_token"];
                 var path = context.HttpContext.Request.Path;
                 if (!string.IsNullOrEmpty(accessToken) &&
-                    path.StartsWithSegments("/hubs/quotations"))
+                    (path.StartsWithSegments("/hubs/quotations") ||
+                     path.StartsWithSegments("/hubs/cars")))
                 {
                     context.Token = accessToken;
                 }
@@ -150,6 +151,7 @@ app.UseAuthorization();
 // 6. Endpoints
 app.MapControllers();
 app.MapHub<QuotationHub>("/hubs/quotations");
+app.MapHub<CarHub>("/hubs/cars");
 
 
 

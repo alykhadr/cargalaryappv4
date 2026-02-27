@@ -1,4 +1,5 @@
 using CarGalary.Admin.Api.Security;
+using CarGalary.Admin.Api.Hubs;
 using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Dtos.Car.Command;
 using CarGalary.Application.Dtos.CarGalleryImage.Command;
@@ -6,6 +7,7 @@ using CarGalary.Application.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text.Json;
@@ -20,15 +22,18 @@ namespace CarGalary.Admin.Api.Controllers
         private readonly ICarService _carService;
         private readonly ICarGalleryImageService _carImageService;
         private readonly IWebHostEnvironment _environment;
+        private readonly IHubContext<CarHub> _hubContext;
 
         public CarsController(
             ICarService carService,
             ICarGalleryImageService carImageService,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            IHubContext<CarHub> hubContext)
         {
             _carService = carService;
             _carImageService = carImageService;
             _environment = environment;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
@@ -115,6 +120,7 @@ namespace CarGalary.Admin.Api.Controllers
                 }
 
                 var created = await _carService.CreateAsync(dto);
+                await _hubContext.Clients.All.SendAsync("carCreated", created);
                 return Ok(created);
             }
             catch (Exception ex) when (ex.Message == "CarModel not found")
@@ -159,6 +165,11 @@ namespace CarGalary.Admin.Api.Controllers
                 }
 
                 await _carService.UpdateAsync(id, dto);
+                var updated = await _carService.GetByIdAsync(id);
+                if (updated != null)
+                {
+                    await _hubContext.Clients.All.SendAsync("carUpdated", updated);
+                }
                 return Ok();
             }
             catch (Exception ex) when (ex.Message == "Car not found")
@@ -197,6 +208,12 @@ namespace CarGalary.Admin.Api.Controllers
                 }
 
                 await _carService.DeleteAsync(id);
+                await _hubContext.Clients.All.SendAsync("carDeleted", new
+                {
+                    existing.Id,
+                    existing.NameEn,
+                    existing.NameAr
+                });
                 return Ok();
             }
             catch (Exception ex) when (ex.Message == "Car not found")
@@ -222,6 +239,23 @@ namespace CarGalary.Admin.Api.Controllers
                 }
 
                 var result = await _carService.BulkDeleteAsync(request.CarIds);
+                var deletedIds = request.CarIds
+                    .Except(result.FailedIds ?? new List<int>())
+                    .Distinct()
+                    .ToList();
+
+                if (deletedIds.Count > 0)
+                {
+                    foreach (var deletedId in deletedIds)
+                    {
+                        await _hubContext.Clients.All.SendAsync("carDeleted", new
+                        {
+                            Id = deletedId,
+                            NameEn = string.Empty,
+                            NameAr = string.Empty
+                        });
+                    }
+                }
                 return Ok(result);
             }
             catch (Exception ex)
@@ -300,6 +334,7 @@ namespace CarGalary.Admin.Api.Controllers
                 }
 
                 var createdCar = await _carService.CreateWithDetailsAsync(dto);
+                await _hubContext.Clients.All.SendAsync("carCreated", createdCar);
                 return Ok(createdCar);
             }
             catch (JsonException ex)

@@ -20,6 +20,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             return await _context.Cars
                 .Include(c => c.CarModel)
                 .Include(c => c.Type)
+                .OrderByDescending(c => c.Id)
                 .ToListAsync();
         }
 
