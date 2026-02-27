@@ -20,5 +20,7 @@ namespace CarGalary.Domain.Entities
 
         public ICollection<UserFavorite> Favorites { get; set; }
            = new List<UserFavorite>();
+
+        public Employee? Employee { get; set; }
     }
 }

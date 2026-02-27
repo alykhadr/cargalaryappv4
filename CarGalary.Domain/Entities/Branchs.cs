@@ -20,5 +20,6 @@ namespace CarGalary.Domain.Entities
         public ICollection<Car>   Cars    { get; set; }=new List<Car>();
           public ICollection<ContactSalesOfficer>    ContactSalesOfficers    { get; set; }=new List<ContactSalesOfficer>();
                 public ICollection<ApplicationUser>    ApplicationUsers    { get; set; }=new List<ApplicationUser>();
+        public ICollection<Employee> Employees { get; set; } = new List<Employee>();
     }
 }
