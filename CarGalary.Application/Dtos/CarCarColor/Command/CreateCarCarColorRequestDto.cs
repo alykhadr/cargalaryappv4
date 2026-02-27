@@ -10,5 +10,8 @@ namespace CarGalary.Application.Dtos.CarCarColor.Command
         public string? ColorImageUrl { get; set; }
         public IFormFile? ColorImageFile { get; set; }
         public decimal? PricingPerColor { get; set; }
+        public decimal? PricePefore { get; set; }
+        public decimal? Discount { get; set; }
+        public int? DiscountType { get; set; }
     }
 }

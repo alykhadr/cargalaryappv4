@@ -18,8 +18,11 @@ namespace CarGalary.Application.Validations.Branch
             .MaximumLength(100);
 
         RuleFor(x => x.Email)
-            .EmailAddress()
-            .When(x => !string.IsNullOrWhiteSpace(x.Email));
+            .NotEmpty().WithMessage("Email is required")
+            .EmailAddress().WithMessage("Email format is invalid");
+
+        RuleFor(x => x.WhatsUpNo)
+            .NotEmpty().WithMessage("WhatsApp number is required");
 
         RuleFor(x => x.MobileNo)
             .NotEmpty().WithMessage("Mobile number is required")

@@ -4,6 +4,7 @@ using CarGalary.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarGalary.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260227100415_AddCarColorPricingRequiredFields")]
+    partial class AddCarColorPricingRequiredFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -363,9 +366,6 @@ namespace CarGalary.Infrastructure.Migrations
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ConditionId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -379,9 +379,6 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.Property<string>("DescriptionEn")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("FuelTankCapacityLiter")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsAvailable")
                         .ValueGeneratedOnAdd()
@@ -402,12 +399,6 @@ namespace CarGalary.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SeatingCapacity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TrimLevel")
-                        .HasColumnType("int");
-
                     b.Property<int>("TypeId")
                         .HasColumnType("int");
 
@@ -415,16 +406,6 @@ namespace CarGalary.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Vat")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("VehicleClass")
-                        .HasColumnType("int");
-
-                    b.Property<string>("WeelSizeInch")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Year")
@@ -481,11 +462,8 @@ namespace CarGalary.Infrastructure.Migrations
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal>("Vat")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("VatAmount")
                         .HasColumnType("decimal(18,2)");

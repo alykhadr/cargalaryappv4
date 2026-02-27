@@ -59,6 +59,12 @@ namespace CarGalary.Application.Services
             var entity = _mapper.Map<CarColor>(dto);
             entity.CreatedAt = DateTime.UtcNow;
             entity.IsAvailable = true;
+            entity.ApplyPricing(
+                dto.PricingPerColor ?? 0m,
+                dto.PricePefore ?? dto.PricingPerColor ?? 0m,
+                car.Vat ?? 0m,
+                dto.Discount ?? 0m,
+                dto.DiscountType ?? CarColor.DiscountTypePercentage);
 
             await _unitOfWork.CarCarColors.CreateAsync(entity);
             await _unitOfWork.SaveChangesAsync();
@@ -90,12 +96,40 @@ namespace CarGalary.Application.Services
                 dto.PricingPerColor = existing.PricingPerColor;
             }
 
+            if (dto.PricePefore == null)
+            {
+                dto.PricePefore = existing.PricePefore;
+            }
+
+            if (dto.Discount == null)
+            {
+                dto.Discount = existing.Discount;
+            }
+
+            if (dto.DiscountType == null)
+            {
+                dto.DiscountType = existing.DiscountType;
+            }
+
             if (string.IsNullOrWhiteSpace(dto.ColorImageUrl))
             {
                 dto.ColorImageUrl = existing.ColorImageUrl;
             }
 
+            var car = await _unitOfWork.Cars.CarExistsAsync(carId);
+            if (car == null)
+            {
+                throw new Exception("Car not found");
+            }
+
             _mapper.Map(dto, existing);
+            existing.UpdatedAt = DateTime.UtcNow;
+            existing.ApplyPricing(
+                dto.PricingPerColor ?? 0m,
+                dto.PricePefore ?? dto.PricingPerColor ?? 0m,
+                car.Vat ?? 0m,
+                dto.Discount ?? 0m,
+                dto.DiscountType ?? CarColor.DiscountTypePercentage);
             await _unitOfWork.CarCarColors.UpdateAsync(existing);
             await _unitOfWork.SaveChangesAsync();
         }
@@ -108,6 +142,7 @@ namespace CarGalary.Application.Services
                 throw new Exception("CarCarColor not found");
             }
 
+            existing.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.CarCarColors.DeleteAsync(existing);
             await _unitOfWork.SaveChangesAsync();
         }

@@ -80,7 +80,7 @@ namespace CarGalary.Application.Services
                 var payload = BuildCreateWithDetailsPayload(dto);
 
                 await SaveFeatureAssignmentsAsync(createdCar.Id, payload.Features, payload.UserName);
-                await SaveCarColorsAsync(createdCar.Id, payload.CarColors, payload.CarColorFileByColorId);
+                await SaveCarColorsAsync(createdCar.Id, payload.CarColors, payload.CarColorFileByColorId, dto.Vat ?? 0m);
                 await SaveExtraDetailsAsync(createdCar.Id, payload.ExtraDetails, payload.UserName);
                 await SaveGalleryImagesAsync(createdCar.Id, payload.GalleryMeta, payload.GalleryFiles, payload.UserName);
 
@@ -173,6 +173,13 @@ namespace CarGalary.Application.Services
                 BranchId = dto.BranchId,
                 Year = dto.Year,
                 Mileage = dto.Mileage,
+                Vat = dto.Vat,
+                ConditionId = dto.ConditionId,
+                SeatingCapacity = dto.SeatingCapacity,
+                WeelSizeInch = dto.WeelSizeInch,
+                FuelTankCapacityLiter = dto.FuelTankCapacityLiter,
+                TrimLevel = dto.TrimLevel,
+                VehicleClass = dto.VehicleClass,
                 DescriptionAr = dto.DescriptionAr,
                 DescriptionEn = dto.DescriptionEn
             };
@@ -249,7 +256,8 @@ namespace CarGalary.Application.Services
         private async Task SaveCarColorsAsync(
             int carId,
             IReadOnlyList<CreateCarWithDetailsColorItemDto> carColors,
-            IReadOnlyDictionary<int, IFormFile> carColorFileByColorId)
+            IReadOnlyDictionary<int, IFormFile> carColorFileByColorId,
+            decimal carVat)
         {
             var uniqueColors = carColors
                 .Where(x => x.ColorId > 0)
@@ -265,16 +273,24 @@ namespace CarGalary.Application.Services
                     colorImageUrl = $"/uploads/cars/{savedName}";
                 }
 
-                await _unitOfWork.CarCarColors.CreateAsync(new CarColor
+                var carColor = new CarColor
                 {
                     CarId = carId,
                     ColorId = color.ColorId,
                     StockQuantity = color.StockQuantity,
                     ColorImageUrl = colorImageUrl,
-                    PricingPerColor = color.PricingPerColor,
                     IsAvailable = color.IsAvailable,
                     CreatedAt = DateTime.UtcNow
-                });
+                };
+
+                carColor.ApplyPricing(
+                    color.PricingPerColor ?? 0m,
+                    color.PricePefore ?? color.PricingPerColor ?? 0m,
+                    carVat,
+                    color.Discount ?? 0m,
+                    color.DiscountType ?? CarColor.DiscountTypePercentage);
+
+                await _unitOfWork.CarCarColors.CreateAsync(carColor);
             }
         }
 

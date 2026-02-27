@@ -12,6 +12,13 @@ namespace CarGalary.Application.Dtos.Car.Command
         public int BranchId { get; set; }
         public int Year { get; set; }
         public int Mileage { get; set; }
+        public decimal? Vat { get; set; }
+        public int? ConditionId { get; set; }
+        public int? SeatingCapacity { get; set; }
+        public string? WeelSizeInch { get; set; }
+        public decimal? FuelTankCapacityLiter { get; set; }
+        public int? TrimLevel { get; set; }
+        public int? VehicleClass { get; set; }
         public string? DescriptionAr { get; set; }
         public string? DescriptionEn { get; set; }
 
@@ -39,6 +46,9 @@ namespace CarGalary.Application.Dtos.Car.Command
         public int? StockQuantity { get; set; }
         public string? ColorImageUrl { get; set; }
         public decimal? PricingPerColor { get; set; }
+        public decimal? PricePefore { get; set; }
+        public decimal? Discount { get; set; }
+        public int? DiscountType { get; set; }
         public bool IsAvailable { get; set; } = true;
     }
 

@@ -12,6 +12,9 @@ namespace CarGalary.Infrastructure.Configuration
     {
         public void Configure(EntityTypeBuilder<CarColor> builder)
         {
+            // CarColor uses composite key, so BaseEntity.Id is intentionally ignored.
+            builder.Ignore(cc => cc.Id);
+
             // Composite Key
             builder.HasKey(cc => new { cc.CarId, cc.ColorId });
 
@@ -30,14 +33,32 @@ namespace CarGalary.Infrastructure.Configuration
 
 
             // prop
-            builder.Property(cc => cc.StockQuantity);
+            builder.Property(cc => cc.StockQuantity)
+                .IsRequired();
 
-            builder.Property(cc => cc.ColorImageUrl);
+            builder.Property(cc => cc.ColorImageUrl)
+                .IsRequired();
             builder.Property(c => c.PricingPerColor)
-            .HasColumnType("decimal(18,2)");
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+            builder.Property(c => c.PricePefore)
+                .HasColumnType("decimal(18,2)");
+            builder.Property(c => c.VatAmount)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+            builder.Property(c => c.Discount)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+            builder.Property(c => c.DiscountType)
+                .IsRequired();
+            builder.Property(c => c.TotalPrice)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
             builder.Property(b => b.CreatedAt)
-           .HasDefaultValueSql("GETUTCDATE()");
+                .HasDefaultValueSql("GETUTCDATE()");
             builder.Property(c => c.IsAvailable).HasDefaultValue(true);
+
+            builder.ToTable(t => t.HasCheckConstraint("CK_CarColors_DiscountType", "[DiscountType] IN (0,1)"));
         }
     }
 }

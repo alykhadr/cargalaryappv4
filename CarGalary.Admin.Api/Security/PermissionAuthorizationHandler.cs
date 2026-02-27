@@ -19,9 +19,10 @@ namespace CarGalary.Admin.Api.Security
             }
 
             var required = requirement.Permission.Trim();
+            var acceptedPermissions = GetAcceptedPermissions(required);
             var hasPermission = context.User.Claims.Any(claim =>
                 string.Equals(claim.Type, "permission", StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(claim.Value?.Trim(), required, StringComparison.OrdinalIgnoreCase));
+                acceptedPermissions.Contains(claim.Value?.Trim() ?? string.Empty, StringComparer.OrdinalIgnoreCase));
 
             if (hasPermission)
             {
@@ -29,6 +30,21 @@ namespace CarGalary.Admin.Api.Security
             }
 
             return Task.CompletedTask;
+        }
+
+        private static IEnumerable<string> GetAcceptedPermissions(string required)
+        {
+            yield return required;
+
+            // Backward compatibility after renaming users.* permissions to employees.*
+            if (required.StartsWith("employees.", StringComparison.OrdinalIgnoreCase))
+            {
+                yield return "users." + required["employees.".Length..];
+            }
+            else if (required.StartsWith("users.", StringComparison.OrdinalIgnoreCase))
+            {
+                yield return "employees." + required["users.".Length..];
+            }
         }
     }
 }

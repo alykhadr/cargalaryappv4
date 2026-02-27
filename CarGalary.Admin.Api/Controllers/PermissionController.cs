@@ -75,9 +75,9 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok();
         }
 
-        [HttpGet("users/{userId}")]
+        [HttpGet("employees/{userId}")]
         [PermissionAuthorize("permissions.view")]
-        public async Task<IActionResult> GetUserPermissions(string userId)
+        public async Task<IActionResult> GetEmployeePermissions(string userId)
         {
             var permissions = await _identity.GetUserPermissionsAsync(userId);
             return Ok(permissions);

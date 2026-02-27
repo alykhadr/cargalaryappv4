@@ -255,6 +255,13 @@ namespace CarGalary.Admin.Api.Controllers
                     BranchId = dto.BranchId,
                     Year = dto.Year,
                     Mileage = dto.Mileage,
+                    Vat = dto.Vat,
+                    ConditionId = dto.ConditionId,
+                    SeatingCapacity = dto.SeatingCapacity,
+                    WeelSizeInch = dto.WeelSizeInch,
+                    FuelTankCapacityLiter = dto.FuelTankCapacityLiter,
+                    TrimLevel = dto.TrimLevel,
+                    VehicleClass = dto.VehicleClass,
                     DescriptionAr = dto.DescriptionAr,
                     DescriptionEn = dto.DescriptionEn
                 };

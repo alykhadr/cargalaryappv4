@@ -40,6 +40,7 @@ namespace CarGalary.Api
             services.AddScoped<IOfferRepository, OfferRepository>();
             services.AddScoped<IServicesRepository, ServicesRepository>();
             services.AddScoped<IIdentityRepository, IdentityRepository>();
+            services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
              services.AddScoped<ICarModelRepository, CarModelRepository>();
             return services;

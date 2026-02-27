@@ -1,14 +1,13 @@
 using System.Net;
 using System.Net.Mail;
-using CarGalary.Admin.Api.Security;
 using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Interfaces;
-using CarGalary.Domain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using CarGalary.Domain.Entities;
 
 namespace CarGalary.Admin.Api.Controllers
 {
@@ -18,95 +17,33 @@ namespace CarGalary.Admin.Api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IIdentityService _identity;
-        private readonly IValidator<RegisterRequest> _registerValidator;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             IIdentityService identity,
-            IValidator<RegisterRequest> registerValidator,
             UserManager<ApplicationUser> userManager,
             IConfiguration configuration,
             ILogger<AuthController> logger)
         {
             _identity = identity;
-            _registerValidator = registerValidator;
             _userManager = userManager;
             _configuration = configuration;
             _logger = logger;
         }
 
-        // ================= REGISTER =================
-
-        [PermissionAuthorize("users.create")]
-        [HttpPost("register/admin")]
-        public async Task<IActionResult> RegisterByAdmin([FromForm] RegisterRequest request)
-        {
-            try
-            {
-                var validator = _registerValidator.Validate(request);
-                if (!validator.IsValid)
-                {
-                    var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
-                }
-
-                string emailExist = await _identity.GetUserByEmailAsync(request.Email.ToUpper().Trim());
-                if (!string.IsNullOrWhiteSpace(emailExist))
-                {
-                    return BadRequest(new ApiErrorResponse($"email : {request.Email} already exist"));
-                }
-
-                string? profileImageUrl = null;
-                if (request.ProfileImage != null)
-                {
-                    profileImageUrl = await SaveProfileImageAsync(request.ProfileImage);
-                }
-
-                var user = await _identity.CreateUserAsync(
-                    request.UserName.Trim(),
-                    request.Email.ToUpper().Trim(),
-                    request.Password,
-                    request.FirstName?.Trim(),
-                    request.LastName?.Trim(),
-                    request.BranchId,
-                    profileImageUrl);
-
-                var userRoles = request.Roles ?? new List<string>();
-
-                foreach (var role in userRoles)
-                {
-                    await _identity.AssignRoleAsync(user.Id!, role);
-                }
-
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("already exists", StringComparison.OrdinalIgnoreCase))
-                {
-                    return BadRequest(new ApiErrorResponse(ex.Message));
-                }
-
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
-            }
-        }
-
-        // ================= LOGIN =================
-
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request,
-                                [FromServices] IValidator<LoginRequest> _validator)
+                                [FromServices] IValidator<LoginRequest> validator)
         {
             try
             {
-                var validator = _validator.Validate(request);
-                if (!validator.IsValid)
+                var validation = validator.Validate(request);
+                if (!validation.IsValid)
                 {
-                    var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
+                    var errors = validation.Errors.Select(e => e.ErrorMessage).ToList();
                     return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
                 }
 
@@ -123,8 +60,6 @@ namespace CarGalary.Admin.Api.Controllers
                     new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
             }
         }
-
-        // ================= FORGOT/RESET PASSWORD =================
 
         [AllowAnonymous]
         [HttpPost("forgot-password")]
@@ -196,162 +131,6 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(new { message = "Password reset successfully" });
         }
 
-        // ================= USER MANAGEMENT =================
-
-        [PermissionAuthorize("users.view")]
-        [HttpGet("users")]
-        public async Task<IActionResult> GetUsers()
-        {
-            var users = await _identity.GetUsersAsync();
-            return Ok(users);
-        }
-
-        [PermissionAuthorize("users.view")]
-        [HttpGet("users/branch/{branchId}")]
-        public async Task<IActionResult> GetUsersByBranch(int branchId)
-        {
-            var users = await _identity.GetUsersByBranchAsync(branchId);
-            return Ok(users);
-        }
-
-        [PermissionAuthorize("users.edit")]
-        [HttpPut("users/{userId}")]
-        public async Task<IActionResult> UpdateUser(string userId, [FromForm] UpdateAdminUserRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Email))
-            {
-                return BadRequest(new ApiErrorResponse("Username and email are required"));
-            }
-
-            string? profileImageUrl = null;
-            if (request.ProfileImage != null)
-            {
-                var user = await _userManager.FindByIdAsync(userId);
-                if (user != null && !string.IsNullOrWhiteSpace(user.ProfileImageUrl))
-                {
-                    DeleteProfileImage(user.ProfileImageUrl);
-                }
-                profileImageUrl = await SaveProfileImageAsync(request.ProfileImage);
-            }
-
-            await _identity.UpdateUserDetailsAsync(
-                userId,
-                request.UserName,
-                request.Email,
-                request.FirstName,
-                request.LastName,
-                request.BranchId,
-                profileImageUrl
-            );
-
-            return Ok();
-        }
-
-        [PermissionAuthorize("users.edit")]
-        [HttpPost("users/{userId}/change-password")]
-        public async Task<IActionResult> ChangeUserPassword(string userId, [FromBody] ChangeUserPasswordByAdminRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(request.NewPassword))
-            {
-                return BadRequest(new ApiErrorResponse("New password is required"));
-            }
-            if (request.NewPassword.Length < 6)
-            {
-                return BadRequest(new ApiErrorResponse("New password must be at least 6 characters"));
-            }
-
-            await _identity.ChangeUserPasswordByAdminAsync(userId, request.NewPassword);
-            return Ok("Password changed successfully");
-        }
-
-        [PermissionAuthorize("users.delete")]
-        [HttpDelete("users/{userId}")]
-        public async Task<IActionResult> DeleteUser(string userId)
-        {
-            var result = await _identity.DeleteUserAsync(userId);
-
-            if (!result)
-                return NotFound(new ApiErrorResponse("User not found", StatusCodes.Status404NotFound));
-
-            return NoContent();
-        }
-
-        [PermissionAuthorize("users.delete")]
-        [HttpPost("users/bulk-delete")]
-        public async Task<IActionResult> BulkDeleteUsers([FromBody] BulkDeleteUsersRequest request)
-        {
-            if (request.UserIds == null || !request.UserIds.Any())
-            {
-                return BadRequest(new ApiErrorResponse("User IDs are required"));
-            }
-
-            var deletedCount = 0;
-            var failedIds = new List<string>();
-
-            foreach (var userId in request.UserIds)
-            {
-                var result = await _identity.DeleteUserAsync(userId);
-                if (result)
-                {
-                    deletedCount++;
-                }
-                else
-                {
-                    failedIds.Add(userId);
-                }
-            }
-
-            return Ok(new { deletedCount, failedIds });
-        }
-
-        [PermissionAuthorize("users.lock")]
-        [HttpPost("users/{userId}/lock")]
-        public async Task<IActionResult> LockUser(string userId)
-        {
-            await _identity.LockUserAsync(userId);
-            return Ok("User locked");
-        }
-
-        [PermissionAuthorize("users.lock")]
-        [HttpPost("users/{userId}/unlock")]
-        public async Task<IActionResult> UnlockUser(string userId)
-        {
-            await _identity.UnlockUserAsync(userId);
-            return Ok("User unlocked");
-        }
-
-        [PermissionAuthorize("users.view")]
-        [HttpGet("users/{userId}/roles")]
-        public async Task<IActionResult> GetUserRoles(string userId)
-        {
-            var roles = await _identity.GetUserRolesAsync(userId);
-            return Ok(roles);
-        }
-
-        [PermissionAuthorize("users.view")]
-        [HttpGet("users/{userId}/permissions")]
-        public async Task<IActionResult> GetUserPermissions(string userId)
-        {
-            var permissions = await _identity.GetUserPermissionsAsync(userId);
-            return Ok(permissions);
-        }
-
-        [PermissionAuthorize("users.roles")]
-        [HttpPost("users/{userId}/roles/{role}")]
-        public async Task<IActionResult> AssignRole(string userId, string role)
-        {
-            await _identity.AssignRoleAsync(userId, role);
-            return Ok("Role assigned");
-        }
-
-        [PermissionAuthorize("users.roles")]
-        [HttpDelete("users/{userId}/roles/{role}")]
-        public async Task<IActionResult> RemoveRole(string userId, string role)
-        {
-            await _identity.RemoveRoleAsync(userId, role);
-            return Ok("Role removed");
-        }
-
         private async Task<ApplicationUser?> FindByUserNameOrEmailOrNullAsync(string userNameOrEmail)
         {
             var normalized = userNameOrEmail.Trim().ToUpperInvariant();
@@ -411,33 +190,6 @@ namespace CarGalary.Admin.Api.Controllers
             }
 
             await smtpClient.SendMailAsync(message);
-        }
-
-        private async Task<string> SaveProfileImageAsync(IFormFile file)
-        {
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
-            Directory.CreateDirectory(uploadsFolder);
-
-            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(fileStream);
-            }
-
-            return $"/uploads/profiles/{uniqueFileName}";
-        }
-
-        private void DeleteProfileImage(string imageUrl)
-        {
-            if (string.IsNullOrWhiteSpace(imageUrl)) return;
-
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imageUrl.TrimStart('/'));
-            if (System.IO.File.Exists(filePath))
-            {
-                System.IO.File.Delete(filePath);
-            }
         }
     }
 }

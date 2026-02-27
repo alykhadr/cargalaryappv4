@@ -43,6 +43,7 @@ namespace CarGalary.Admin.Api
             services.AddScoped<IServicesRepository, ServicesRepository>();
 
             services.AddScoped<IIdentityRepository, IdentityRepository>();
+            services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             return services;
         }
 
@@ -85,6 +86,7 @@ namespace CarGalary.Admin.Api
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<IBranchService, BranchService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
             return services;
         }
 

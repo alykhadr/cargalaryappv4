@@ -14,6 +14,13 @@ namespace CarGalary.Application.Validations.Car
             RuleFor(x => x.BranchId).GreaterThan(0).WithMessage("BranchId is required");
             RuleFor(x => x.Year).GreaterThan(1900).WithMessage("Year is required");
             RuleFor(x => x.Mileage).GreaterThanOrEqualTo(0).WithMessage("Mileage must be zero or greater");
+            RuleFor(x => x.Vat).NotNull().GreaterThanOrEqualTo(0).WithMessage("Vat is required");
+            RuleFor(x => x.ConditionId).NotNull().GreaterThan(0).WithMessage("ConditionId is required");
+            RuleFor(x => x.SeatingCapacity).NotNull().GreaterThan(0).WithMessage("SeatingCapacity is required");
+            RuleFor(x => x.WeelSizeInch).NotEmpty().WithMessage("WeelSizeInch is required");
+            RuleFor(x => x.FuelTankCapacityLiter).NotNull().GreaterThan(0).WithMessage("FuelTankCapacityLiter is required");
+            RuleFor(x => x.TrimLevel).NotNull().GreaterThan(0).WithMessage("TrimLevel is required");
+            RuleFor(x => x.VehicleClass).NotNull().GreaterThan(0).WithMessage("VehicleClass is required");
             RuleFor(x => x.DescriptionAr).NotEmpty().WithMessage("DescriptionAr is required");
             RuleFor(x => x.DescriptionEn).NotEmpty().WithMessage("DescriptionEn is required");
         }

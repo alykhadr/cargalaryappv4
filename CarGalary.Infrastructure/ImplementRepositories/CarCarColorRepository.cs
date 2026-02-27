@@ -2,6 +2,7 @@ using CarGalary.Domain.Entities;
 using CarGalary.Domain.RepositoryInterfaces;
 using CarGalary.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace CarGalary.Infrastructure.ImplementRepositories
 {
@@ -51,9 +52,9 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         public Task DeleteAsync(CarColor entity)
         {
             entity.IsAvailable = false;
+            entity.UpdatedAt = DateTime.UtcNow;
             _context.Entry(entity).State = EntityState.Modified;
             return Task.CompletedTask;
         }
     }
 }
-
