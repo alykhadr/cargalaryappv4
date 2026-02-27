@@ -22,5 +22,6 @@ namespace CarGalary.Domain.Entities
            = new List<UserFavorite>();
 
         public Employee? Employee { get; set; }
+        public Quotation? Quotation { get; set; }
     }
 }

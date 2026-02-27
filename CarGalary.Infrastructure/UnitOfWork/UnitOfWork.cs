@@ -34,6 +34,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
         public IEmployeeRepository Employees { get; }
         public IDepartmentRepository Departments { get; }
         public ILookupDetailsRepository LookupDetails { get; }
+        public IQuotationRepository Quotations { get; }
 
 
 
@@ -62,7 +63,8 @@ namespace CarGalary.Infrastructure.UnitOfWork
             IServicesRepository servicesRepository,
             IEmployeeRepository employeeRepository,
             IDepartmentRepository departmentRepository,
-            ILookupDetailsRepository lookupDetailsRepository)
+            ILookupDetailsRepository lookupDetailsRepository,
+            IQuotationRepository quotationRepository)
         {
             _context = context;
             CarColors = carColorRepository;
@@ -88,6 +90,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             Employees = employeeRepository;
             Departments = departmentRepository;
             LookupDetails = lookupDetailsRepository;
+            Quotations = quotationRepository;
 
             MemberServices=memberServiceRepository;
 

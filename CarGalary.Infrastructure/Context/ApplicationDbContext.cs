@@ -45,6 +45,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<Employee> Employees { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<LookupDetails> LookupDetails { get; set; }
+    public DbSet<Quotation> Quotations { get; set; }
 
 
 
@@ -79,6 +80,7 @@ namespace CarGalary.Infrastructure.Context;
               modelBuilder.ApplyConfiguration(new EmployeeConfiguration());
               modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
               modelBuilder.ApplyConfiguration(new LookupDetailsConfiguration());
+              modelBuilder.ApplyConfiguration(new QuotationConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }
