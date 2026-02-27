@@ -46,6 +46,16 @@ public class Car:BaseEntity
 // Pickup	بيك أب
     public int?  VehicleClass { get; set; }
 
+    public string?  PlateNumber { get; set; }
+   // (AT/MT/CVT/DCT)
+    public int? TransmisionType { get; set; }
+    //DRIVETRAIN (FWD/RWD/AWD/4WD)
+    public int? Drivetrain { get; set; }
+    public int? Cylenders { get; set; }
+    //(Gasoline, Diesel, Hybrid, Electric)
+    public int? FuelType { get; set; }
+    public string? EnginNumber { get; set; }
+
      public int BranchId { get; set; }
     public Branchs?  Branchs { get; set; }
 

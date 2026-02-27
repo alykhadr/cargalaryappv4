@@ -24,6 +24,12 @@ public class CarConfiguration : IEntityTypeConfiguration<Car>
         builder.Property(c => c.FuelTankCapacityLiter).IsRequired();
         builder.Property(c => c.TrimLevel).IsRequired();
         builder.Property(c => c.VehicleClass).IsRequired();
+        builder.Property(c => c.PlateNumber).IsRequired();
+        builder.Property(c => c.TransmisionType).IsRequired();
+        builder.Property(c => c.Drivetrain).IsRequired();
+        builder.Property(c => c.Cylenders).IsRequired();
+        builder.Property(c => c.FuelType).IsRequired();
+        builder.Property(c => c.EnginNumber).IsRequired();
 
         builder.Property(c => c.IsAvailable)
             .HasDefaultValue(true);

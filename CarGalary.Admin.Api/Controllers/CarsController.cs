@@ -262,6 +262,12 @@ namespace CarGalary.Admin.Api.Controllers
                     FuelTankCapacityLiter = dto.FuelTankCapacityLiter,
                     TrimLevel = dto.TrimLevel,
                     VehicleClass = dto.VehicleClass,
+                    PlateNumber = dto.PlateNumber,
+                    TransmisionType = dto.TransmisionType,
+                    Drivetrain = dto.Drivetrain,
+                    Cylenders = dto.Cylenders,
+                    FuelType = dto.FuelType,
+                    EnginNumber = dto.EnginNumber,
                     DescriptionAr = dto.DescriptionAr,
                     DescriptionEn = dto.DescriptionEn
                 };
