@@ -17,19 +17,20 @@ public class CarConfiguration : IEntityTypeConfiguration<Car>
         builder.Property(c => c.DescriptionEn);
         builder.Property(c => c.NameAr).IsRequired();
         builder.Property(c => c.NameEn).IsRequired();
-        builder.Property(c => c.Vat).IsRequired();
+        builder.Property(c => c.Vat).IsRequired().HasDefaultValue(15m);
         builder.Property(c => c.ConditionId).IsRequired();
         builder.Property(c => c.SeatingCapacity).IsRequired();
         builder.Property(c => c.WeelSizeInch).IsRequired();
         builder.Property(c => c.FuelTankCapacityLiter).IsRequired();
         builder.Property(c => c.TrimLevel).IsRequired();
         builder.Property(c => c.VehicleClass).IsRequired();
-        builder.Property(c => c.PlateNumberAr).IsRequired();
-        builder.Property(c => c.PlateNumberEn).IsRequired();
+        builder.Property(c => c.PlateNumberAr);
+        builder.Property(c => c.PlateNumberEn);
         builder.Property(c => c.TransmisionType).IsRequired();
         builder.Property(c => c.Drivetrain).IsRequired();
         builder.Property(c => c.Cylenders).IsRequired();
         builder.Property(c => c.FuelType).IsRequired();
+        builder.Property(c => c.ManufactureCountryId);
         builder.Property(c => c.EnginNumber).IsRequired();
 
         builder.Property(c => c.IsAvailable)

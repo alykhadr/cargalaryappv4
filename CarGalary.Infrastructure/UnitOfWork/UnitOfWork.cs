@@ -33,6 +33,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
         public IServicesRepository Services { get; }
         public IEmployeeRepository Employees { get; }
         public IDepartmentRepository Departments { get; }
+        public ILookupDetailsRepository LookupDetails { get; }
 
 
 
@@ -60,7 +61,8 @@ namespace CarGalary.Infrastructure.UnitOfWork
             IOfferRepository offerRepository,
             IServicesRepository servicesRepository,
             IEmployeeRepository employeeRepository,
-            IDepartmentRepository departmentRepository)
+            IDepartmentRepository departmentRepository,
+            ILookupDetailsRepository lookupDetailsRepository)
         {
             _context = context;
             CarColors = carColorRepository;
@@ -85,6 +87,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             Services=servicesRepository;
             Employees = employeeRepository;
             Departments = departmentRepository;
+            LookupDetails = lookupDetailsRepository;
 
             MemberServices=memberServiceRepository;
 

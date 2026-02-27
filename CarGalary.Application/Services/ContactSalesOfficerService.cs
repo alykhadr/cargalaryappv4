@@ -32,6 +32,13 @@ namespace CarGalary.Application.Services
 
         public async Task<ContactSalesOfficerResponseDto> CreateAsync(CreateContactSalesOfficerRequestDto dto)
         {
+            var contactTypeLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CONTACT_TYPE", dto.ContactType.ToString());
+            if (contactTypeLookup == null)
+            {
+                throw new Exception("ContactType is invalid");
+            }
+
             var entity = _mapper.Map<ContactSalesOfficer>(dto);
             entity.CreatedAt = DateTime.UtcNow;
 
@@ -48,6 +55,14 @@ namespace CarGalary.Application.Services
             {
                 throw new Exception("ContactSalesOfficer not found");
             }
+
+            var contactTypeLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CONTACT_TYPE", dto.ContactType.ToString());
+            if (contactTypeLookup == null)
+            {
+                throw new Exception("ContactType is invalid");
+            }
+
             _mapper.Map(dto, existing);
             await _unitOfWork.ContactSalesOfficers.UpdateAsync(existing);
             await _unitOfWork.SaveChangesAsync();

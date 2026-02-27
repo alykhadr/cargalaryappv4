@@ -50,6 +50,13 @@ namespace CarGalary.Application.Services
                 throw new Exception("Car not found");
             }
 
+            var extraTypeLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("EXTRA_TYPE", dto.CarExtraDetailsType.ToString());
+            if (extraTypeLookup == null)
+            {
+                throw new Exception("CarExtraDetailsType is invalid");
+            }
+
             var entity = _mapper.Map<CarExtraDetails>(dto);
             entity.CreatedAt = DateTime.UtcNow;
             entity.CreatedBy = _currentUserService.UserName;
@@ -72,6 +79,16 @@ namespace CarGalary.Application.Services
             if (car == null)
             {
                 throw new Exception("Car not found");
+            }
+
+            if (dto.CarExtraDetailsType.HasValue)
+            {
+                var extraTypeLookup = await _unitOfWork.LookupDetails
+                    .GetByMasterAndDetailAsync("EXTRA_TYPE", dto.CarExtraDetailsType.Value.ToString());
+                if (extraTypeLookup == null)
+                {
+                    throw new Exception("CarExtraDetailsType is invalid");
+                }
             }
 
             if (dto.IsAvailable == null)
@@ -97,4 +114,3 @@ namespace CarGalary.Application.Services
         }
     }
 }
-

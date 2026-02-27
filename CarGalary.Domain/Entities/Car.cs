@@ -56,6 +56,8 @@ namespace CarGalary.Domain.Entities
         //(Gasoline, Diesel, Hybrid, Electric)
         public int? FuelType { get; set; }
         public string? EnginNumber { get; set; }
+        // all nationalities 
+        public int?  ManufactureCountryId { get; set; }
 
         public int BranchId { get; set; }
         public Branchs? Branchs { get; set; }

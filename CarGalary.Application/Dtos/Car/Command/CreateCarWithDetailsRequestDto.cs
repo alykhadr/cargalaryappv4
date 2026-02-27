@@ -25,6 +25,7 @@ namespace CarGalary.Application.Dtos.Car.Command
         public int? Drivetrain { get; set; }
         public int? Cylenders { get; set; }
         public int? FuelType { get; set; }
+        public int? ManufactureCountryId { get; set; }
         public string? EnginNumber { get; set; }
         public string? DescriptionAr { get; set; }
         public string? DescriptionEn { get; set; }

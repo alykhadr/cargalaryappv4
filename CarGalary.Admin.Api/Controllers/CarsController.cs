@@ -268,6 +268,7 @@ namespace CarGalary.Admin.Api.Controllers
                     Drivetrain = dto.Drivetrain,
                     Cylenders = dto.Cylenders,
                     FuelType = dto.FuelType,
+                    ManufactureCountryId = dto.ManufactureCountryId,
                     EnginNumber = dto.EnginNumber,
                     DescriptionAr = dto.DescriptionAr,
                     DescriptionEn = dto.DescriptionEn

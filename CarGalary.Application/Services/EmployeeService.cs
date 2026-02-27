@@ -86,6 +86,24 @@ namespace CarGalary.Application.Services
                 throw new Exception("Department not found");
             }
 
+            if (!string.IsNullOrWhiteSpace(request.EmploymentStatus))
+            {
+                var statusLookup = await _unitOfWork.LookupDetails.GetByMasterAndDetailAsync("EMPLOYMENT_STATUS", request.EmploymentStatus);
+                if (statusLookup == null)
+                {
+                    throw new Exception("Invalid Employment Status");
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Nationality))
+            {
+                var countryLookup = await _unitOfWork.LookupDetails.GetByMasterAndDetailAsync("COUNTRY", request.Nationality.Trim());
+                if (countryLookup == null)
+                {
+                    throw new Exception("Invalid Nationality");
+                }
+            }
+
             employee.BranchId = request.BranchId;
             employee.DepartmentId = request.DepartmentId;
             if (!string.IsNullOrWhiteSpace(request.EmployeeNo)) employee.EmployeeNo = request.EmployeeNo.Trim();
@@ -93,7 +111,15 @@ namespace CarGalary.Application.Services
             if (!string.IsNullOrWhiteSpace(request.JobTitle)) employee.JobTitle = request.JobTitle.Trim();
             if (request.HireDate.HasValue) employee.HireDate = request.HireDate.Value;
             employee.TerminationDate = request.TerminationDate;
-            if (!string.IsNullOrWhiteSpace(request.EmploymentStatus)) employee.EmploymentStatus = request.EmploymentStatus.Trim();
+            if (!string.IsNullOrWhiteSpace(request.EmploymentStatus))
+            {
+                var statusLookup = await _unitOfWork.LookupDetails.GetByMasterAndDetailAsync("EMPLOYMENT_STATUS", request.EmploymentStatus);
+                if (statusLookup == null)
+                {
+                    throw new Exception("Invalid Employment Status");
+                }
+                employee.EmploymentStatus = request.EmploymentStatus.Trim();
+            }
             employee.WorkEmail = request.WorkEmail?.Trim();
             employee.WorkPhone = request.WorkPhone?.Trim();
             employee.Extension = request.Extension?.Trim();
@@ -138,6 +164,15 @@ namespace CarGalary.Application.Services
             if (department == null)
             {
                 throw new Exception("Department not found");
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Nationality))
+            {
+                var countryLookup = await _unitOfWork.LookupDetails.GetByMasterAndDetailAsync("COUNTRY", request.Nationality.Trim());
+                if (countryLookup == null)
+                {
+                    throw new Exception("Invalid Nationality");
+                }
             }
         }
 

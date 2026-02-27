@@ -46,6 +46,18 @@ namespace CarGalary.Application.Services
                 throw new Exception("Car not found");
             }
 
+            if (!dto.ImageType.HasValue)
+            {
+                throw new Exception("ImageType is required");
+            }
+
+            var imageTypeLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("IMAGE_TYPE", dto.ImageType.Value.ToString());
+            if (imageTypeLookup == null)
+            {
+                throw new Exception("Invalid ImageType");
+            }
+
             var image = _mapper.Map<CarGalleryImage>(dto);
             image.CreatedAt = DateTime.UtcNow;
             image.CreatedBy = _currentUserService.UserName;
@@ -73,6 +85,18 @@ namespace CarGalary.Application.Services
             if (string.IsNullOrWhiteSpace(dto.ImageUrl))
             {
                 dto.ImageUrl = existing.ImageUrl;
+            }
+
+            if (!dto.ImageType.HasValue)
+            {
+                throw new Exception("ImageType is required");
+            }
+
+            var imageTypeLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("IMAGE_TYPE", dto.ImageType.Value.ToString());
+            if (imageTypeLookup == null)
+            {
+                throw new Exception("Invalid ImageType");
             }
 
             _mapper.Map(dto, existing);

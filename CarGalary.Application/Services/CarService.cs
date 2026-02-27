@@ -44,6 +44,90 @@ namespace CarGalary.Application.Services
 
         public async Task<CarResponseDto> CreateAsync(CreateCarRequestDto dto)
         {
+            if (!dto.ConditionId.HasValue)
+            {
+                throw new Exception("ConditionId is required");
+            }
+
+            var conditionLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_CONDITION", dto.ConditionId.Value.ToString());
+            if (conditionLookup == null)
+            {
+                throw new Exception("ConditionId is invalid");
+            }
+
+            if (!dto.TrimLevel.HasValue)
+            {
+                throw new Exception("TrimLevel is required");
+            }
+
+            var trimLevelLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_TRIM_LEVEL", dto.TrimLevel.Value.ToString());
+            if (trimLevelLookup == null)
+            {
+                throw new Exception("TrimLevel is invalid");
+            }
+
+            if (!dto.VehicleClass.HasValue)
+            {
+                throw new Exception("VehicleClass is required");
+            }
+
+            var vehicleClassLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_VEHICLE_CLASS", dto.VehicleClass.Value.ToString());
+            if (vehicleClassLookup == null)
+            {
+                throw new Exception("VehicleClass is invalid");
+            }
+
+            if (!dto.TransmisionType.HasValue)
+            {
+                throw new Exception("TransmisionType is required");
+            }
+
+            var transmisionTypeLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_TRANSMISION_TYPE", dto.TransmisionType.Value.ToString());
+            if (transmisionTypeLookup == null)
+            {
+                throw new Exception("TransmisionType is invalid");
+            }
+
+            if (!dto.Drivetrain.HasValue)
+            {
+                throw new Exception("Drivetrain is required");
+            }
+
+            var drivetrainLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_DRIVETRAIN", dto.Drivetrain.Value.ToString());
+            if (drivetrainLookup == null)
+            {
+                throw new Exception("Drivetrain is invalid");
+            }
+
+            if (!dto.FuelType.HasValue)
+            {
+                throw new Exception("FuelType is required");
+            }
+
+            var fuelTypeLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_FUEL_TYPE", dto.FuelType.Value.ToString());
+            if (fuelTypeLookup == null)
+            {
+                throw new Exception("FuelType is invalid");
+            }
+
+            if (!dto.ManufactureCountryId.HasValue)
+            {
+                throw new Exception("ManufactureCountryId is required");
+            }
+
+            var manufactureCountryLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("COUNTRY", dto.ManufactureCountryId.Value.ToString());
+            if (manufactureCountryLookup == null)
+            {
+                throw new Exception("ManufactureCountryId is invalid");
+            }
+
             var model = await _unitOfWork.CarModels.GetByIdAsync(dto.ModelId);
             if (model == null)
             {
@@ -95,6 +179,90 @@ namespace CarGalary.Application.Services
             if (existing == null)
             {
                 throw new Exception("Car not found");
+            }
+
+            if (!dto.ConditionId.HasValue)
+            {
+                throw new Exception("ConditionId is required");
+            }
+
+            var conditionLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_CONDITION", dto.ConditionId.Value.ToString());
+            if (conditionLookup == null)
+            {
+                throw new Exception("ConditionId is invalid");
+            }
+
+            if (!dto.TrimLevel.HasValue)
+            {
+                throw new Exception("TrimLevel is required");
+            }
+
+            var trimLevelLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_TRIM_LEVEL", dto.TrimLevel.Value.ToString());
+            if (trimLevelLookup == null)
+            {
+                throw new Exception("TrimLevel is invalid");
+            }
+
+            if (!dto.VehicleClass.HasValue)
+            {
+                throw new Exception("VehicleClass is required");
+            }
+
+            var vehicleClassLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_VEHICLE_CLASS", dto.VehicleClass.Value.ToString());
+            if (vehicleClassLookup == null)
+            {
+                throw new Exception("VehicleClass is invalid");
+            }
+
+            if (!dto.TransmisionType.HasValue)
+            {
+                throw new Exception("TransmisionType is required");
+            }
+
+            var transmisionTypeLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_TRANSMISION_TYPE", dto.TransmisionType.Value.ToString());
+            if (transmisionTypeLookup == null)
+            {
+                throw new Exception("TransmisionType is invalid");
+            }
+
+            if (!dto.Drivetrain.HasValue)
+            {
+                throw new Exception("Drivetrain is required");
+            }
+
+            var drivetrainLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_DRIVETRAIN", dto.Drivetrain.Value.ToString());
+            if (drivetrainLookup == null)
+            {
+                throw new Exception("Drivetrain is invalid");
+            }
+
+            if (!dto.FuelType.HasValue)
+            {
+                throw new Exception("FuelType is required");
+            }
+
+            var fuelTypeLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("CAR_FUEL_TYPE", dto.FuelType.Value.ToString());
+            if (fuelTypeLookup == null)
+            {
+                throw new Exception("FuelType is invalid");
+            }
+
+            if (!dto.ManufactureCountryId.HasValue)
+            {
+                throw new Exception("ManufactureCountryId is required");
+            }
+
+            var manufactureCountryLookup = await _unitOfWork.LookupDetails
+                .GetByMasterAndDetailAsync("COUNTRY", dto.ManufactureCountryId.Value.ToString());
+            if (manufactureCountryLookup == null)
+            {
+                throw new Exception("ManufactureCountryId is invalid");
             }
 
             var model = await _unitOfWork.CarModels.GetByIdAsync(dto.ModelId);
@@ -186,6 +354,7 @@ namespace CarGalary.Application.Services
                 Drivetrain = dto.Drivetrain,
                 Cylenders = dto.Cylenders,
                 FuelType = dto.FuelType,
+                ManufactureCountryId = dto.ManufactureCountryId,
                 EnginNumber = dto.EnginNumber,
                 DescriptionAr = dto.DescriptionAr,
                 DescriptionEn = dto.DescriptionEn
@@ -308,6 +477,13 @@ namespace CarGalary.Application.Services
         {
             foreach (var detail in extraDetails)
             {
+                var extraTypeLookup = await _unitOfWork.LookupDetails
+                    .GetByMasterAndDetailAsync("EXTRA_TYPE", detail.CarExtraDetailsType.ToString());
+                if (extraTypeLookup == null)
+                {
+                    throw new Exception("CarExtraDetailsType is invalid");
+                }
+
                 await _unitOfWork.CarExtraDetails.CreateAsync(new CarExtraDetails
                 {
                     CarId = carId,
