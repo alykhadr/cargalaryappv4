@@ -9,6 +9,8 @@ namespace CarGalary.Domain.Entities
         public int PaymentMethod { get; set; }
         public int RegionId { get; set; }
         public int CityId { get; set; }
+        public int CurrentStatus { get; set; }
+        public DateTime? CurrentStatusDate { get; set; }
 
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -21,5 +23,8 @@ namespace CarGalary.Domain.Entities
         public LookupDetails? PaymentMethodLookup { get; set; }
         public LookupDetails? RegionLookup { get; set; }
         public LookupDetails? CityLookup { get; set; }
+        public LookupDetails? CurrentStatusLookup { get; set; }
+
+        public ICollection<QuotationHistory> Histories { get; set; } = new List<QuotationHistory>();
     }
 }

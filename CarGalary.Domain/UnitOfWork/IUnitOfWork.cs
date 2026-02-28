@@ -13,6 +13,7 @@ namespace CarGalary.Domain.UnitOfWork
         public IDepartmentRepository Departments { get; }
         public ILookupDetailsRepository LookupDetails { get; }
         public IQuotationRepository Quotations { get; }
+        public IQuotationHistoryRepository QuotationHistories { get; }
         public ICarColorRepository CarColors { get; }
         public ICarFeatureRepository CarFeatures { get; }
         public ICarGalleryImageRepository CarGalleryImages { get; }

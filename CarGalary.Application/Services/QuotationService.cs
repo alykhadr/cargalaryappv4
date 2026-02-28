@@ -24,6 +24,25 @@ namespace CarGalary.Application.Services
             return _mapper.Map<List<QuotationResponseDto>>(items);
         }
 
+        public async Task<QuotationResponseDto> GetByIdAsync(int id)
+        {
+            var quotation = await _unitOfWork.Quotations.GetByIdAsync(id);
+            if (quotation == null || !quotation.IsAvailable)
+            {
+                throw new KeyNotFoundException($"Quotation not found for id #{id}");
+            }
+
+            return _mapper.Map<QuotationResponseDto>(quotation);
+        }
+
+        public async Task<List<QuotationHistoryResponseDto>> GetHistoryAsync(int quotationId)
+        {
+            
+
+            var historyItems = await _unitOfWork.QuotationHistories.GetByQuotationIdAsync(quotationId);
+            return _mapper.Map<List<QuotationHistoryResponseDto>>(historyItems);
+        }
+
         public async Task<QuotationResponseDto> CreateAsync(CreateQuotationRequestDto dto)
         {
             var car = await _unitOfWork.Cars.GetByIdAsync(dto.CarId);
@@ -52,12 +71,76 @@ namespace CarGalary.Application.Services
             }
 
             var entity = _mapper.Map<Quotation>(dto);
+            var now = DateTime.UtcNow;
             entity.CreatedAt = DateTime.UtcNow;
+            entity.CurrentStatus = await ResolveLookupIdAsync("QUOTATION_STATUS", 1);
+            entity.CurrentStatusDate = now;
+
+            entity.Histories.Add(new QuotationHistory
+            {
+                Status = entity.CurrentStatus,
+                StatusDate = now,
+                Notes = "Quotation created with status New",
+                CreatedAt = now
+            });
 
             await _unitOfWork.Quotations.CreateAsync(entity);
             await _unitOfWork.SaveChangesAsync();
 
             return _mapper.Map<QuotationResponseDto>(entity);
+        }
+
+        public async Task<QuotationResponseDto> UpdateStatusAsync(int quotationId, UpdateQuotationStatusRequestDto dto)
+        {
+            var quotation = await _unitOfWork.Quotations.GetByIdForUpdateAsync(quotationId);
+            if (quotation == null || !quotation.IsAvailable)
+            {
+                throw new KeyNotFoundException($"Quotation not found for id #{quotationId}");
+            }
+
+            await EnsureLookupExistsAsync("QUOTATION_STATUS", dto.CurrentStatus);
+
+            if (quotation.CurrentStatus == dto.CurrentStatus)
+            {
+                throw new Exception("Quotation already has this status");
+            }
+
+            var duplicatedStatus = await _unitOfWork.QuotationHistories
+                .ExistsByQuotationAndStatusAsync(quotation.Id, dto.CurrentStatus);
+            if (!duplicatedStatus)
+            {
+
+
+                var now = DateTime.UtcNow;
+                quotation.CurrentStatus = dto.CurrentStatus;
+                quotation.CurrentStatusDate = now;
+                quotation.UpdatedAt = now;
+
+                await _unitOfWork.QuotationHistories.CreateAsync(new QuotationHistory
+                {
+                    QuotationId = quotation.Id,
+                    Status = dto.CurrentStatus,
+                    StatusDate = now,
+                    Notes = dto.Notes,
+                    CreatedAt = now
+                });
+
+                await _unitOfWork.SaveChangesAsync();
+
+            }
+            return _mapper.Map<QuotationResponseDto>(quotation);
+        }
+
+        private async Task<int> ResolveLookupIdAsync(string masterCode, int detailCode)
+        {
+            var lookups = await _unitOfWork.LookupDetails.GetByMasterCodeAsync(masterCode);
+            var matched = lookups.FirstOrDefault(x => x.Id == detailCode || x.DetailCode == detailCode.ToString());
+            if (matched == null)
+            {
+                throw new Exception($"{masterCode} is invalid");
+            }
+
+            return matched.Id;
         }
 
         private async Task EnsureLookupExistsAsync(string masterCode, int detailCode)

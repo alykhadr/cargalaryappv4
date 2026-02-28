@@ -22,15 +22,22 @@ namespace CarGalary.Infrastructure.ImplementRepositories
                 .ToListAsync();
         }
 
-        public async Task CreateAsync(Quotation quotation)
+        public Task CreateAsync(Quotation quotation)
         {
             _context.Quotations.Add(quotation);
+            return Task.CompletedTask;
         }
 
         public async Task<Quotation?> GetByIdAsync(int id)
         {
             return await _context.Quotations
                 .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<Quotation?> GetByIdForUpdateAsync(int id)
+        {
+            return await _context.Quotations
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 

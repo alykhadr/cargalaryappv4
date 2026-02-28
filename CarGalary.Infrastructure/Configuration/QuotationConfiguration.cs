@@ -29,6 +29,8 @@ namespace CarGalary.Infrastructure.Configuration
             builder.Property(x => x.PaymentMethod).IsRequired();
             builder.Property(x => x.RegionId).IsRequired();
             builder.Property(x => x.CityId).IsRequired();
+            builder.Property(x => x.CurrentStatus).IsRequired();
+            builder.Property(x => x.CurrentStatusDate).IsRequired();
             builder.Property(x => x.CarId).IsRequired();
 
             builder.Property(x => x.IsAvailable)
@@ -70,6 +72,16 @@ namespace CarGalary.Infrastructure.Configuration
                 .WithMany()
                 .HasForeignKey(x => x.CityId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(x => x.CurrentStatusLookup)
+                .WithMany()
+                .HasForeignKey(x => x.CurrentStatus)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(x => x.Histories)
+                .WithOne(x => x.Quotation)
+                .HasForeignKey(x => x.QuotationId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

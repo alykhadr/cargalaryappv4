@@ -11,6 +11,7 @@ namespace CarGalary.Application.Mappings
         {
             CreateMap<CreateQuotationRequestDto, Quotation>();
             CreateMap<Quotation, QuotationResponseDto>();
+            CreateMap<QuotationHistory, QuotationHistoryResponseDto>();
         }
     }
 }

@@ -46,6 +46,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<Department> Departments { get; set; }
     public DbSet<LookupDetails> LookupDetails { get; set; }
     public DbSet<Quotation> Quotations { get; set; }
+    public DbSet<QuotationHistory> QuotationHistories { get; set; }
 
 
 
@@ -81,6 +82,7 @@ namespace CarGalary.Infrastructure.Context;
               modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
               modelBuilder.ApplyConfiguration(new LookupDetailsConfiguration());
               modelBuilder.ApplyConfiguration(new QuotationConfiguration());
+              modelBuilder.ApplyConfiguration(new QuotationHistoryConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

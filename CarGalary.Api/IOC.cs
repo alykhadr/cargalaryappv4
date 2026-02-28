@@ -44,6 +44,7 @@ namespace CarGalary.Api
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             services.AddScoped<ILookupDetailsRepository, LookupDetailsRepository>();
             services.AddScoped<IQuotationRepository, QuotationRepository>();
+            services.AddScoped<IQuotationHistoryRepository, QuotationHistoryRepository>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
              services.AddScoped<ICarModelRepository, CarModelRepository>();
             return services;

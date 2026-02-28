@@ -1,4 +1,5 @@
 using CarGalary.Application.Dtos.Quotation.Command;
+using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Interfaces;
 using CarGalary.Admin.Api.Hubs;
 using FluentValidation;
@@ -29,6 +30,20 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(items);
         }
 
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int id)
+        {
+            var item = await _quotationService.GetByIdAsync(id);
+            return Ok(item);
+        }
+
+        [HttpGet("{id:int}/history")]
+        public async Task<IActionResult> GetHistory([FromRoute] int id)
+        {
+            var items = await _quotationService.GetHistoryAsync(id);
+            return Ok(items);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(
             [FromBody] CreateQuotationRequestDto dto,
@@ -38,12 +53,30 @@ namespace CarGalary.Admin.Api.Controllers
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
             }
 
             var created = await _quotationService.CreateAsync(dto);
             await _hubContext.Clients.All.SendAsync("quotationCreated", created);
             return Ok(created);
+        }
+
+        [HttpPut("{id:int}/status")]
+        public async Task<IActionResult> UpdateStatus(
+            [FromRoute] int id,
+            [FromBody] UpdateQuotationStatusRequestDto dto,
+            [FromServices] IValidator<UpdateQuotationStatusRequestDto> validator)
+        {
+            var validationResult = validator.Validate(dto);
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+            }
+
+            var updated = await _quotationService.UpdateStatusAsync(id, dto);
+            await _hubContext.Clients.All.SendAsync("quotationStatusUpdated", updated);
+            return Ok(updated);
         }
     }
 }

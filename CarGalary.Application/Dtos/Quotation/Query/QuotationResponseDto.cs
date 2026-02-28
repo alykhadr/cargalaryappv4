@@ -12,6 +12,8 @@ namespace CarGalary.Application.Dtos.Quotation.Query
         public int PaymentMethod { get; set; }
         public int RegionId { get; set; }
         public int CityId { get; set; }
+        public int CurrentStatus { get; set; }
+        public DateTime? CurrentStatusDate { get; set; }
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsAvailable { get; set; }
