@@ -63,7 +63,7 @@ namespace CarGalary.Application.Services
             var car = await _unitOfWork.Cars.GetByIdAsync(dto.CarId);
             if (car == null || !car.IsAvailable)
             {
-                throw new Exception("CarId is invalid");
+                throw new ArgumentException("CarId is invalid");
             }
 
             EnsureBranchAccess(car.BranchId);
@@ -78,12 +78,12 @@ namespace CarGalary.Application.Services
                 var userId = dto.UserId.Value;
                 if (!await _unitOfWork.Quotations.UserExistsAsync(userId))
                 {
-                    throw new Exception("UserId is invalid");
+                    throw new ArgumentException("UserId is invalid");
                 }
 
                 if (await _unitOfWork.Quotations.UserHasQuotationAsync(userId))
                 {
-                    throw new Exception("This user already has a quotation");
+                    throw new ArgumentException("This user already has a quotation");
                 }
             }
 
@@ -127,7 +127,7 @@ namespace CarGalary.Application.Services
 
             if (quotation.CurrentStatus == dto.CurrentStatus)
             {
-                throw new Exception("Quotation already has this status");
+                throw new ArgumentException("Quotation already has this status");
             }
 
             var duplicatedStatus = await _unitOfWork.QuotationHistories
@@ -181,7 +181,7 @@ namespace CarGalary.Application.Services
             var matched = lookups.FirstOrDefault(x => x.Id == detailCode || x.DetailCode == detailCode.ToString());
             if (matched == null)
             {
-                throw new Exception($"{masterCode} is invalid");
+                throw new ArgumentException($"{masterCode} is invalid");
             }
 
             return matched.Id;
@@ -193,7 +193,7 @@ namespace CarGalary.Application.Services
             var exists = lookups.Any(x => x.Id == detailCode || x.DetailCode == detailCode.ToString());
             if (!exists)
             {
-                throw new Exception($"{masterCode} is invalid");
+                throw new ArgumentException($"{masterCode} is invalid");
             }
         }
 

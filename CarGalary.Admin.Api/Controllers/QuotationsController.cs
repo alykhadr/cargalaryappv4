@@ -33,15 +33,29 @@ namespace CarGalary.Admin.Api.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var item = await _quotationService.GetByIdAsync(id);
-            return Ok(item);
+            try
+            {
+                var item = await _quotationService.GetByIdAsync(id);
+                return Ok(item);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+            }
         }
 
         [HttpGet("{id:int}/history")]
         public async Task<IActionResult> GetHistory([FromRoute] int id)
         {
-            var items = await _quotationService.GetHistoryAsync(id);
-            return Ok(items);
+            try
+            {
+                var items = await _quotationService.GetHistoryAsync(id);
+                return Ok(items);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+            }
         }
 
         [HttpPost]
@@ -56,9 +70,16 @@ namespace CarGalary.Admin.Api.Controllers
                 return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
             }
 
-            var created = await _quotationService.CreateAsync(dto);
-            await _hubContext.Clients.All.SendAsync("quotationCreated", created);
-            return Ok(created);
+            try
+            {
+                var created = await _quotationService.CreateAsync(dto);
+                await _hubContext.Clients.All.SendAsync("quotationCreated", created);
+                return Ok(created);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+            }
         }
 
         [HttpPut("{id:int}/status")]
@@ -74,9 +95,24 @@ namespace CarGalary.Admin.Api.Controllers
                 return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
             }
 
-            var updated = await _quotationService.UpdateStatusAsync(id, dto);
-            await _hubContext.Clients.All.SendAsync("quotationStatusUpdated", updated);
-            return Ok(updated);
+            try
+            {
+                var updated = await _quotationService.UpdateStatusAsync(id, dto);
+                await _hubContext.Clients.All.SendAsync("quotationStatusUpdated", updated);
+                return Ok(updated);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+            }
         }
     }
 }
