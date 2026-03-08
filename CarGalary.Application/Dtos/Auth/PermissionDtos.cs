@@ -16,6 +16,8 @@ namespace CarGalary.Application.Dtos.Auth
         public string Id { get; set; } = string.Empty;
         public int EmployeeId { get; set; }
         public string UserName { get; set; } = string.Empty;
+        public string FullNameEn { get; set; } = string.Empty;
+        public string FullNameAr { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? MobileNo { get; set; }
         public string BranchName { get; set; } = string.Empty;

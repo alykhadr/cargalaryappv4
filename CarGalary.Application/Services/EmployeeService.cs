@@ -201,9 +201,12 @@ namespace CarGalary.Application.Services
                 Id = employee.UserId.ToString(),
                 EmployeeId = employee.Id,
                 UserName = employee.User?.UserName ?? string.Empty,
+                FullNameEn = employee.User?.FullNameEn ?? string.Empty,
+                FullNameAr = employee.User?.FullNameAr ?? string.Empty,
                 Email = employee.User?.Email ?? string.Empty,
                 MobileNo = employee.User?.PhoneNumber,
                 BranchName = employee.Branch?.BranchNameEn ?? string.Empty,
+                // Keep legacy fields for backward compatibility with existing clients.
                 FirstName = employee.User?.FullNameEn ?? string.Empty,
                 LastName = employee.User?.FullNameAr ?? string.Empty,
                 IsLocked = employee.User?.LockoutEnd.HasValue == true && employee.User.LockoutEnd.Value > DateTimeOffset.UtcNow,
