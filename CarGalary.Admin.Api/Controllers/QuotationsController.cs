@@ -1,6 +1,5 @@
 using CarGalary.Application.Dtos.Quotation.Command;
 using CarGalary.Application.Dtos.Auth;
-using CarGalary.Application.ErrorCatalog;
 using CarGalary.Application.Interfaces;
 using CarGalary.Admin.Api.Hubs;
 using FluentValidation;
@@ -13,21 +12,18 @@ namespace CarGalary.Admin.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class QuotationsController : ControllerBase
-    {
-        private readonly IQuotationService _quotationService;
-        private readonly IHubContext<QuotationHub> _hubContext;
-        private readonly IErrorCatalogService _errorCatalogService;
-
-        public QuotationsController(
-            IQuotationService quotationService,
-            IHubContext<QuotationHub> hubContext,
-            IErrorCatalogService errorCatalogService)
+        public class QuotationsController : ControllerBase
         {
-            _quotationService = quotationService;
-            _hubContext = hubContext;
-            _errorCatalogService = errorCatalogService;
-        }
+            private readonly IQuotationService _quotationService;
+            private readonly IHubContext<QuotationHub> _hubContext;
+
+            public QuotationsController(
+                IQuotationService quotationService,
+                IHubContext<QuotationHub> hubContext)
+            {
+                _quotationService = quotationService;
+                _hubContext = hubContext;
+            }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -84,7 +80,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(BuildErrorByCode(ex.Message, StatusCodes.Status400BadRequest));
+                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
             }
         }
 
@@ -109,7 +105,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(BuildErrorByCode(ex.Message, StatusCodes.Status400BadRequest));
+                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
             }
             catch (KeyNotFoundException ex)
             {
@@ -119,31 +115,6 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
             }
-        }
-
-        private ApiErrorResponse BuildErrorByCode(string errorCodeOrMessage, int statusCode)
-        {
-            var code = errorCodeOrMessage?.Trim() ?? string.Empty;
-            var entry = _errorCatalogService.GetByCode(code);
-            if (entry == null)
-            {
-                return new ApiErrorResponse(errorCodeOrMessage, statusCode);
-            }
-
-            var message = IsArabicRequest() ? entry.MessageAr : entry.MessageEn;
-            return new ApiErrorResponse(
-                message,
-                statusCode,
-                errorCode: entry.ErrorCode,
-                messageAr: entry.MessageAr,
-                messageEn: entry.MessageEn);
-        }
-
-        private bool IsArabicRequest()
-        {
-            var acceptLanguage = Request.Headers.AcceptLanguage.ToString();
-            return !string.IsNullOrWhiteSpace(acceptLanguage) &&
-                   acceptLanguage.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
