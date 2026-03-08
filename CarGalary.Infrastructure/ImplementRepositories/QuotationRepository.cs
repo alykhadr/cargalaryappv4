@@ -19,6 +19,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             return await _context.Quotations
                 .AsNoTracking()
                 .Include(x => x.Car)
+                .ThenInclude(x => x.CarImages)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
         }
@@ -28,6 +29,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             return await _context.Quotations
                 .AsNoTracking()
                 .Include(x => x.Car)
+                .ThenInclude(x => x.CarImages)
                 .Where(x => x.Car.BranchId == branchId)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
@@ -44,6 +46,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             return await _context.Quotations
                 .AsNoTracking()
                 .Include(x => x.Car)
+                .ThenInclude(x => x.CarImages)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -52,6 +55,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             return await _context.Quotations
                 .AsNoTracking()
                 .Include(x => x.Car)
+                .ThenInclude(x => x.CarImages)
                 .FirstOrDefaultAsync(x => x.Id == id && x.Car.BranchId == branchId);
         }
 

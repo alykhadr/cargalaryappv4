@@ -55,6 +55,12 @@ namespace CarGalary.Application.Services
                     CarName = !string.IsNullOrWhiteSpace(x.Car?.NameEn)
                         ? x.Car.NameEn
                         : (x.Car?.NameAr ?? $"Car #{x.CarId}"),
+                    CarImageUrl = x.Car?.CarImages
+                        .Where(i => i.IsAvailable && !string.IsNullOrWhiteSpace(i.ImageUrl))
+                        .OrderByDescending(i => i.IsPrimary)
+                        .ThenByDescending(i => i.CreatedAt)
+                        .Select(i => i.ImageUrl)
+                        .FirstOrDefault(),
                     CreatedDate = x.CreatedAt
                 })
                 .ToList();
