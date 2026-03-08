@@ -120,6 +120,11 @@ namespace CarGalary.Application.Services
 
             await EnsureLookupExistsAsync("QUOTATION_STATUS", dto.CurrentStatus);
 
+            if (await IsFinalClosedStatusAsync(quotation.CurrentStatus))
+            {
+                throw new ArgumentException("This is the last status, you cannot change it.");
+            }
+
             if (quotation.CurrentStatus == dto.CurrentStatus)
             {
                 throw new Exception("Quotation already has this status");
@@ -190,6 +195,19 @@ namespace CarGalary.Application.Services
             {
                 throw new Exception($"{masterCode} is invalid");
             }
+        }
+
+        private async Task<bool> IsFinalClosedStatusAsync(int statusId)
+        {
+            var lookups = await _unitOfWork.LookupDetails.GetByMasterCodeAsync("QUOTATION_STATUS");
+            var current = lookups.FirstOrDefault(x => x.Id == statusId);
+            if (current == null)
+            {
+                return false;
+            }
+
+            return string.Equals(current.DetailCode, "4", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(current.DetailCode, "5", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
