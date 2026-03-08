@@ -10,7 +10,6 @@ namespace CarGalary.Application.Validations.CompanyInformation
             RuleFor(x => x.CompanyNameAr).NotEmpty().WithMessage("CompanyNameAr is required").MaximumLength(200);
             RuleFor(x => x.CompanyNameEn).NotEmpty().WithMessage("CompanyNameEn is required").MaximumLength(200);
             RuleFor(x => x.CRNumber).NotEmpty().WithMessage("CRNumber is required").MaximumLength(50);
-            RuleFor(x => x.LogoUrl).NotEmpty().WithMessage("LogoUrl is required");
             RuleFor(x => x.MobileNo).NotEmpty().WithMessage("MobileNo is required")
                 .Matches(@"^05\d{8}$").WithMessage("Mobile number must start with 05 and be 10 digits");
             RuleFor(x => x.TelNo).NotEmpty().WithMessage("TelNo is required").MaximumLength(30);
