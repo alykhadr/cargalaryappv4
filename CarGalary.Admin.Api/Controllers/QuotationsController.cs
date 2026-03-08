@@ -14,6 +14,10 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
         public class QuotationsController : ControllerBase
         {
+            private const string ValidationFailedCode = "1101";
+            private const string QuotationNotFoundCode = "1321";
+            private const string QuotationOperationFailedCode = "1322";
+
             private readonly IQuotationService _quotationService;
             private readonly IHubContext<QuotationHub> _hubContext;
 
@@ -42,7 +46,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(QuotationNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -56,7 +60,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(QuotationNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -69,7 +73,7 @@ namespace CarGalary.Admin.Api.Controllers
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             try
@@ -80,7 +84,8 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+                var code = !string.IsNullOrWhiteSpace(ex.Message) && ex.Message.All(char.IsDigit) ? ex.Message : QuotationOperationFailedCode;
+                return BadRequest(new ApiErrorResponse(code, StatusCodes.Status400BadRequest));
             }
         }
 
@@ -94,7 +99,7 @@ namespace CarGalary.Admin.Api.Controllers
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             try
@@ -105,15 +110,16 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+                var code = !string.IsNullOrWhiteSpace(ex.Message) && ex.Message.All(char.IsDigit) ? ex.Message : QuotationOperationFailedCode;
+                return BadRequest(new ApiErrorResponse(code, StatusCodes.Status400BadRequest));
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(QuotationNotFoundCode, StatusCodes.Status404NotFound));
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+                return BadRequest(new ApiErrorResponse(QuotationOperationFailedCode, StatusCodes.Status400BadRequest));
             }
         }
     }

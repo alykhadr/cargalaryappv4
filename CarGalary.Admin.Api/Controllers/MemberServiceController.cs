@@ -1,4 +1,5 @@
 using CarGalary.Admin.Api.Security;
+using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Dtos.MemberService.Command;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
@@ -12,6 +13,10 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class MemberServiceController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string MemberServiceNotFoundCode = "1323";
+        private const string MemberServiceIdsRequiredCode = "1218";
+
         private readonly IMemberServiceService _service;
         private readonly IWebHostEnvironment _env;
 
@@ -34,7 +39,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var item = await _service.GetByIdAsync(id);
-            if (item == null) return NotFound();
+            if (item == null) return NotFound(new ApiErrorResponse(MemberServiceNotFoundCode, StatusCodes.Status404NotFound));
             return Ok(item);
         }
 
@@ -48,7 +53,7 @@ namespace CarGalary.Admin.Api.Controllers
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             if (dto.ImageFile != null)
@@ -76,13 +81,13 @@ namespace CarGalary.Admin.Api.Controllers
             [FromServices] IValidator<UpdateMemberServiceRequestDto> validator)
         {
             var existing = await _service.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            if (existing == null) return NotFound(new ApiErrorResponse(MemberServiceNotFoundCode, StatusCodes.Status404NotFound));
 
             var validationResult = validator.Validate(dto);
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             if (dto.ImageFile != null)
@@ -115,7 +120,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "MemberService not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(MemberServiceNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -124,7 +129,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var existing = await _service.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            if (existing == null) return NotFound(new ApiErrorResponse(MemberServiceNotFoundCode, StatusCodes.Status404NotFound));
 
             if (!string.IsNullOrEmpty(existing.ImageUrl))
             {
@@ -139,7 +144,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "MemberService not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(MemberServiceNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -149,7 +154,7 @@ namespace CarGalary.Admin.Api.Controllers
         {
             if (request.MemberServiceIds == null || !request.MemberServiceIds.Any())
             {
-                return BadRequest("MemberService IDs are required");
+                return BadRequest(new ApiErrorResponse(MemberServiceIdsRequiredCode, StatusCodes.Status400BadRequest));
             }
 
             var deletedCount = 0;

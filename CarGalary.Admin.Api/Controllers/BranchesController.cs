@@ -14,6 +14,10 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class BranchesController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string InternalServerErrorCode = "1102";
+        private const string BranchNotFoundCode = "1301";
+
         private readonly IBranchService _service;
 
         public BranchesController(IBranchService service)
@@ -40,7 +44,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(BranchNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -55,7 +59,7 @@ namespace CarGalary.Admin.Api.Controllers
                 if (!validator.IsValid)
                 {
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                    return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
                 }
                 var response = await _service.CreateAsync(createBrancRequestDto);
                 return Ok(response);
@@ -63,7 +67,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -78,7 +82,7 @@ namespace CarGalary.Admin.Api.Controllers
                 if (!validator.IsValid)
                 {
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                    return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
                 }
                 var updated = await _service.UpdateAsync(id, updateBranchRequestDto);
                 return Ok(updated);
@@ -86,7 +90,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -102,7 +106,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -118,7 +122,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 

@@ -13,6 +13,10 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class TypesController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string InternalServerErrorCode = "1102";
+        private const string CarTypeNotFoundCode = "1210";
+
         private readonly ICarTypeService _service;
 
         public TypesController(ICarTypeService service)
@@ -32,7 +36,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -45,13 +49,13 @@ namespace CarGalary.Admin.Api.Controllers
                 var type = await _service.GetByIdAsync(id);
                 if (type == null)
                 {
-                    return NotFound(new ApiErrorResponse("Car type not found", StatusCodes.Status404NotFound));
+                    return NotFound(new ApiErrorResponse(CarTypeNotFoundCode, StatusCodes.Status404NotFound));
                 }
                 return Ok(type);
             }
             catch (Exception ex)
             {
-                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(CarTypeNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -67,7 +71,7 @@ namespace CarGalary.Admin.Api.Controllers
                 if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                    return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
                 }
 
                 var created = await _service.CreateAsync(dto);
@@ -76,7 +80,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -92,14 +96,14 @@ namespace CarGalary.Admin.Api.Controllers
                 var existing = await _service.GetByIdAsync(id);
                 if (existing == null)
                 {
-                    return NotFound(new ApiErrorResponse("Car type not found", StatusCodes.Status404NotFound));
+                    return NotFound(new ApiErrorResponse(CarTypeNotFoundCode, StatusCodes.Status404NotFound));
                 }
 
                 var validationResult = validator.Validate(dto);
                 if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                    return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
                 }
 
                 await _service.UpdateAsync(id, dto);
@@ -107,12 +111,12 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "CarType not found")
             {
-                return NotFound(new ApiErrorResponse("Car type not found", StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(CarTypeNotFoundCode, StatusCodes.Status404NotFound));
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -125,7 +129,7 @@ namespace CarGalary.Admin.Api.Controllers
                 var existing = await _service.GetByIdAsync(id);
                 if (existing == null)
                 {
-                    return NotFound(new ApiErrorResponse("Car type not found", StatusCodes.Status404NotFound));
+                    return NotFound(new ApiErrorResponse(CarTypeNotFoundCode, StatusCodes.Status404NotFound));
                 }
 
                 await _service.DeleteAsync(id);
@@ -133,12 +137,12 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "CarType not found")
             {
-                return NotFound(new ApiErrorResponse("Car type not found", StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(CarTypeNotFoundCode, StatusCodes.Status404NotFound));
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
     }

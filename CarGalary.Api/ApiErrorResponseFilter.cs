@@ -80,6 +80,25 @@ namespace CarGalary.Api
                 return (message, null);
             }
 
+            if (value is ValidationProblemDetails validationProblem)
+            {
+                var validationErrors = FlattenErrorValues(validationProblem.Errors);
+                var validationMessage = !string.IsNullOrWhiteSpace(validationProblem.Title)
+                    ? validationProblem.Title
+                    : (validationErrors?.FirstOrDefault() ?? GetDefaultMessage(statusCode));
+                return (validationMessage, validationErrors);
+            }
+
+            if (value is ProblemDetails problemDetails)
+            {
+                var problemMessage = !string.IsNullOrWhiteSpace(problemDetails.Detail)
+                    ? problemDetails.Detail
+                    : (!string.IsNullOrWhiteSpace(problemDetails.Title)
+                        ? problemDetails.Title
+                        : GetDefaultMessage(statusCode));
+                return (problemMessage, null);
+            }
+
             if (value is IEnumerable<string> errorsList)
             {
                 var errorsObj = errorsList.Where(e => !string.IsNullOrWhiteSpace(e)).ToList();
@@ -100,12 +119,46 @@ namespace CarGalary.Api
             {
                 errors = enumerableErrors.Where(e => !string.IsNullOrWhiteSpace(e)).ToList();
             }
+            else if (errorsValue is System.Collections.IDictionary dictionaryErrors)
+            {
+                errors = FlattenErrorValues(dictionaryErrors);
+            }
 
             var finalMessage = !string.IsNullOrWhiteSpace(messageValue)
                 ? messageValue
                 : (errors?.FirstOrDefault() ?? GetDefaultMessage(statusCode));
 
             return (finalMessage, errors);
+        }
+
+        private static List<string>? FlattenErrorValues(System.Collections.IDictionary dictionary)
+        {
+            var errors = new List<string>();
+            foreach (System.Collections.DictionaryEntry entry in dictionary)
+            {
+                if (entry.Value is string error && !string.IsNullOrWhiteSpace(error))
+                {
+                    errors.Add(error);
+                    continue;
+                }
+
+                if (entry.Value is IEnumerable<string> errorList)
+                {
+                    errors.AddRange(errorList.Where(e => !string.IsNullOrWhiteSpace(e)));
+                }
+            }
+
+            return errors.Count > 0 ? errors : null;
+        }
+
+        private static List<string>? FlattenErrorValues(IEnumerable<KeyValuePair<string, string[]>> errorsByField)
+        {
+            var errors = errorsByField
+                .SelectMany(x => x.Value ?? Array.Empty<string>())
+                .Where(e => !string.IsNullOrWhiteSpace(e))
+                .ToList();
+
+            return errors.Count > 0 ? errors : null;
         }
 
         private static string GetDefaultMessage(int statusCode)
@@ -124,7 +177,7 @@ namespace CarGalary.Api
 
         private ApiErrorResponse EnrichErrorResponse(ApiErrorResponse response, int statusCode)
         {
-            var code = ResolveCode(response.ErrorCode, response.Message, statusCode);
+            var code = ResolveCode(response.ErrorCode, response.Message, statusCode, _errorCatalogService);
             var entry = _errorCatalogService.GetByCode(code);
 
             response.StatusCode = statusCode;
@@ -144,7 +197,7 @@ namespace CarGalary.Api
             return response;
         }
 
-        private static string ResolveCode(string? errorCode, string? message, int statusCode)
+        private static string ResolveCode(string? errorCode, string? message, int statusCode, IErrorCatalogService errorCatalogService)
         {
             if (!string.IsNullOrWhiteSpace(errorCode))
             {
@@ -155,7 +208,6 @@ namespace CarGalary.Api
             {
                 return message.Trim();
             }
-
             return $"HTTP_{statusCode}";
         }
     }

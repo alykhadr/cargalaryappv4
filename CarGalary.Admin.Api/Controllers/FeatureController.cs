@@ -1,4 +1,5 @@
 using CarGalary.Application.Dtos.CarFeature.Command;
+using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,9 @@ namespace CarGalary.Admin.Api.Controllers
     [ApiController]
     public class FeatureController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string CarFeatureNotFoundCode = "1303";
+
         private readonly ICarFeatureService _service;
 
         public FeatureController(ICarFeatureService service)
@@ -27,7 +31,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var feature = await _service.GetByIdAsync(id);
-            if (feature == null) return NotFound();
+            if (feature == null) return NotFound(new ApiErrorResponse(CarFeatureNotFoundCode, StatusCodes.Status404NotFound));
             return Ok(feature);
         }
 
@@ -40,7 +44,7 @@ namespace CarGalary.Admin.Api.Controllers
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             var created = await _service.CreateAsync(dto);
@@ -54,13 +58,13 @@ namespace CarGalary.Admin.Api.Controllers
             [FromServices] IValidator<UpdateCarFeatureRequestDto> validator)
         {
             var existing = await _service.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            if (existing == null) return NotFound(new ApiErrorResponse(CarFeatureNotFoundCode, StatusCodes.Status404NotFound));
 
             var validationResult = validator.Validate(dto);
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             try
@@ -70,7 +74,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "CarFeature not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(CarFeatureNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -78,7 +82,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var existing = await _service.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            if (existing == null) return NotFound(new ApiErrorResponse(CarFeatureNotFoundCode, StatusCodes.Status404NotFound));
 
             try
             {
@@ -87,7 +91,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "CarFeature not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(CarFeatureNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
     }

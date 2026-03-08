@@ -16,6 +16,15 @@ namespace CarGalary.Admin.Api.Controllers
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
+        private const string AuthValidationFailedCode = "1101";
+        private const string AuthInternalServerErrorCode = "1102";
+        private const string AuthUserNameOrEmailRequiredCode = "1103";
+        private const string AuthResetTokenRequiredCode = "1104";
+        private const string AuthNewPasswordRequiredCode = "1105";
+        private const string AuthNewPasswordMinLengthCode = "1106";
+        private const string AuthInvalidResetRequestCode = "1107";
+        private const string AuthResetPasswordFailedCode = "1108";
+
         private readonly IIdentityService _identity;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
@@ -44,7 +53,7 @@ namespace CarGalary.Admin.Api.Controllers
                 if (!validation.IsValid)
                 {
                     var errors = validation.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                    return BadRequest(new ApiErrorResponse(AuthValidationFailedCode, StatusCodes.Status400BadRequest, errors));
                 }
 
                 var user = await _identity.LoginAsync(
@@ -57,7 +66,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("Internal server error", StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(AuthInternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -67,7 +76,7 @@ namespace CarGalary.Admin.Api.Controllers
         {
             if (string.IsNullOrWhiteSpace(request.UserNameOrEmail))
             {
-                return BadRequest(new ApiErrorResponse("User name or email is required"));
+                return BadRequest(new ApiErrorResponse(AuthUserNameOrEmailRequiredCode));
             }
 
             var identifier = request.UserNameOrEmail.Trim();
@@ -96,28 +105,28 @@ namespace CarGalary.Admin.Api.Controllers
         {
             if (string.IsNullOrWhiteSpace(request.UserNameOrEmail))
             {
-                return BadRequest(new ApiErrorResponse("User name or email is required"));
+                return BadRequest(new ApiErrorResponse(AuthUserNameOrEmailRequiredCode));
             }
 
             if (string.IsNullOrWhiteSpace(request.Token))
             {
-                return BadRequest(new ApiErrorResponse("Reset token is required"));
+                return BadRequest(new ApiErrorResponse(AuthResetTokenRequiredCode));
             }
 
             if (string.IsNullOrWhiteSpace(request.NewPassword))
             {
-                return BadRequest(new ApiErrorResponse("New password is required"));
+                return BadRequest(new ApiErrorResponse(AuthNewPasswordRequiredCode));
             }
 
             if (request.NewPassword.Length < 6)
             {
-                return BadRequest(new ApiErrorResponse("New password must be at least 6 characters"));
+                return BadRequest(new ApiErrorResponse(AuthNewPasswordMinLengthCode));
             }
 
             var user = await FindByUserNameOrEmailOrNullAsync(request.UserNameOrEmail.Trim());
             if (user == null)
             {
-                return BadRequest(new ApiErrorResponse("Invalid reset request"));
+                return BadRequest(new ApiErrorResponse(AuthInvalidResetRequestCode));
             }
 
             var decodedToken = request.Token.Trim().Replace(" ", "+");
@@ -125,7 +134,7 @@ namespace CarGalary.Admin.Api.Controllers
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => e.Description).ToList();
-                return BadRequest(new ApiErrorResponse("Password reset failed", StatusCodes.Status400BadRequest, errors));
+                return BadRequest(new ApiErrorResponse(AuthResetPasswordFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             return Ok(new { message = "Password reset successfully" });

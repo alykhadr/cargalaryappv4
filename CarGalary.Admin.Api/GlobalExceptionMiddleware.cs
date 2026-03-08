@@ -41,7 +41,8 @@ namespace CarGalary.Admin.Api
 
         private ApiErrorResponse BuildErrorResponse(string message, int statusCode)
         {
-            var code = !string.IsNullOrWhiteSpace(message) && message.All(char.IsDigit)
+            var hasNumericMessage = !string.IsNullOrWhiteSpace(message) && message.All(char.IsDigit);
+            var code = hasNumericMessage
                 ? message
                 : $"HTTP_{statusCode}";
             var baseMessage = string.IsNullOrWhiteSpace(message) ? code : message;

@@ -14,6 +14,11 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class BrandsController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string InternalServerErrorCode = "1102";
+        private const string BrandNotFoundCode = "1204";
+        private const string BrandIdsRequiredCode = "1203";
+
         private readonly IBrandService _brandService;
         private readonly IWebHostEnvironment _environment;
 
@@ -40,13 +45,13 @@ namespace CarGalary.Admin.Api.Controllers
                 var brand = await _brandService.GetByIdAsync(id);
                 if (brand == null)
                 {
-                    return NotFound(new ApiErrorResponse("Brand not found", StatusCodes.Status404NotFound));
+                    return NotFound(new ApiErrorResponse(BrandNotFoundCode, StatusCodes.Status404NotFound));
                 }
                 return Ok(brand);
             }
             catch (Exception ex)
             {
-                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(BrandNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -70,7 +75,7 @@ namespace CarGalary.Admin.Api.Controllers
                 if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                    return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
                 }
 
                 if (createBrandRequestDto.ImageFile != null)
@@ -84,7 +89,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -100,14 +105,14 @@ namespace CarGalary.Admin.Api.Controllers
                 var existingBrand = await _brandService.GetByIdAsync(id);
                 if (existingBrand == null)
                 {
-                    return NotFound(new ApiErrorResponse("Brand not found", StatusCodes.Status404NotFound));
+                    return NotFound(new ApiErrorResponse(BrandNotFoundCode, StatusCodes.Status404NotFound));
                 }
 
                 var validationResult = validator.Validate(updateBrandRequestDto);
                 if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                    return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
                 }
 
                 if (updateBrandRequestDto.ImageFile != null)
@@ -125,12 +130,12 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "Brand not found")
             {
-                return NotFound(new ApiErrorResponse("Brand not found", StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(BrandNotFoundCode, StatusCodes.Status404NotFound));
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -143,7 +148,7 @@ namespace CarGalary.Admin.Api.Controllers
                 var existingBrand = await _brandService.GetByIdAsync(id);
                 if (existingBrand == null)
                 {
-                    return NotFound(new ApiErrorResponse("Brand not found", StatusCodes.Status404NotFound));
+                    return NotFound(new ApiErrorResponse(BrandNotFoundCode, StatusCodes.Status404NotFound));
                 }
 
                 await _brandService.DeleteAsync(id);
@@ -151,12 +156,12 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "Brand not found")
             {
-                return NotFound(new ApiErrorResponse("Brand not found", StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(BrandNotFoundCode, StatusCodes.Status404NotFound));
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -168,7 +173,7 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 if (request.BrandIds == null || !request.BrandIds.Any())
                 {
-                    return BadRequest(new ApiErrorResponse("Brand IDs are required", StatusCodes.Status400BadRequest));
+                    return BadRequest(new ApiErrorResponse(BrandIdsRequiredCode, StatusCodes.Status400BadRequest));
                 }
 
                 var deletedCount = 0;
@@ -192,7 +197,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 

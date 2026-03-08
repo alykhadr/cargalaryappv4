@@ -3,5 +3,335 @@
     "errorCode": "1001",
     "messageAr": "هذه آخر حالة، لا يمكنك تغييرها.",
     "messageEn": "This is the last status, you cannot change it."
+  },
+  {
+    "errorCode": "1101",
+    "messageAr": "فشل التحقق من صحة البيانات.",
+    "messageEn": "Validation failed."
+  },
+  {
+    "errorCode": "1102",
+    "messageAr": "حدث خطأ داخلي في الخادم.",
+    "messageEn": "Internal server error."
+  },
+  {
+    "errorCode": "1103",
+    "messageAr": "اسم المستخدم أو البريد الإلكتروني مطلوب.",
+    "messageEn": "User name or email is required."
+  },
+  {
+    "errorCode": "1104",
+    "messageAr": "رمز إعادة التعيين مطلوب.",
+    "messageEn": "Reset token is required."
+  },
+  {
+    "errorCode": "1105",
+    "messageAr": "كلمة المرور الجديدة مطلوبة.",
+    "messageEn": "New password is required."
+  },
+  {
+    "errorCode": "1106",
+    "messageAr": "يجب أن تتكون كلمة المرور الجديدة من 6 أحرف على الأقل.",
+    "messageEn": "New password must be at least 6 characters."
+  },
+  {
+    "errorCode": "1107",
+    "messageAr": "طلب إعادة التعيين غير صالح.",
+    "messageEn": "Invalid reset request."
+  },
+  {
+    "errorCode": "1108",
+    "messageAr": "فشلت إعادة تعيين كلمة المرور.",
+    "messageEn": "Password reset failed."
+  },
+  {
+    "errorCode": "1201",
+    "messageAr": "الإجراء مطلوب.",
+    "messageEn": "Action is required"
+  },
+  {
+    "errorCode": "1202",
+    "messageAr": "معرف الفرع غير صالح.",
+    "messageEn": "Branch ID is not valid"
+  },
+  {
+    "errorCode": "1203",
+    "messageAr": "معرفات العلامات التجارية مطلوبة.",
+    "messageEn": "Brand IDs are required"
+  },
+  {
+    "errorCode": "1204",
+    "messageAr": "العلامة التجارية غير موجودة.",
+    "messageEn": "Brand not found"
+  },
+  {
+    "errorCode": "1205",
+    "messageAr": "لا يمكن حذف هذه السيارة لأنها مرتبطة بسجلات عروض الأسعار.",
+    "messageEn": "Cannot delete this car because it is linked to quotation records."
+  },
+  {
+    "errorCode": "1206",
+    "messageAr": "لا يمكن حذف هذه السيارة لأنها مرتبطة بسجلات أخرى.",
+    "messageEn": "Cannot delete this car because it is linked to related records."
+  },
+  {
+    "errorCode": "1207",
+    "messageAr": "معرفات السيارات مطلوبة.",
+    "messageEn": "Car IDs are required"
+  },
+  {
+    "errorCode": "1208",
+    "messageAr": "تفاصيل السيارة الإضافية غير موجودة.",
+    "messageEn": "Car extra detail not found"
+  },
+  {
+    "errorCode": "1209",
+    "messageAr": "السيارة غير موجودة.",
+    "messageEn": "Car not found"
+  },
+  {
+    "errorCode": "1210",
+    "messageAr": "نوع السيارة غير موجود.",
+    "messageEn": "Car type not found"
+  },
+  {
+    "errorCode": "1211",
+    "messageAr": "معرف السيارة غير صالح.",
+    "messageEn": "CarId is not valid"
+  },
+  {
+    "errorCode": "1212",
+    "messageAr": "معرفات الألوان مطلوبة.",
+    "messageEn": "Color IDs are required"
+  },
+  {
+    "errorCode": "1213",
+    "messageAr": "معرفات جهات الاتصال مطلوبة.",
+    "messageEn": "Contact IDs are required"
+  },
+  {
+    "errorCode": "1214",
+    "messageAr": "معرفات التفاصيل الإضافية مطلوبة.",
+    "messageEn": "Extra detail IDs are required"
+  },
+  {
+    "errorCode": "1215",
+    "messageAr": "معرفات الأسئلة الشائعة مطلوبة.",
+    "messageEn": "FAQ IDs are required"
+  },
+  {
+    "errorCode": "1216",
+    "messageAr": "ملف الصورة مطلوب.",
+    "messageEn": "Image file is required"
+  },
+  {
+    "errorCode": "1217",
+    "messageAr": "معرف المستخدم الذي تم إنشاؤه غير صالح.",
+    "messageEn": "Invalid created user id"
+  },
+  {
+    "errorCode": "1218",
+    "messageAr": "معرف الخدمة العضوية مطلوب.",
+    "messageEn": "MemberService IDs are required"
+  },
+  {
+    "errorCode": "1219",
+    "messageAr": "معرف الموديل غير صالح.",
+    "messageEn": "Model ID is not valid"
+  },
+  {
+    "errorCode": "1220",
+    "messageAr": "معرفات العروض مطلوبة.",
+    "messageEn": "Offer IDs are required"
+  },
+  {
+    "errorCode": "1221",
+    "messageAr": "الصفحة مطلوبة.",
+    "messageEn": "Page is required"
+  },
+  {
+    "errorCode": "1222",
+    "messageAr": "الصلاحية مطلوبة.",
+    "messageEn": "Permission is required"
+  },
+  {
+    "errorCode": "1223",
+    "messageAr": "الدور غير موجود.",
+    "messageEn": "Role not found"
+  },
+  {
+    "errorCode": "1224",
+    "messageAr": "بعض الأدوار غير موجودة.",
+    "messageEn": "Some roles were not found"
+  },
+  {
+    "errorCode": "1225",
+    "messageAr": "معرف النوع غير صالح.",
+    "messageEn": "Type ID is not valid"
+  },
+  {
+    "errorCode": "1226",
+    "messageAr": "معرفات المستخدمين مطلوبة.",
+    "messageEn": "User IDs are required"
+  },
+  {
+    "errorCode": "1227",
+    "messageAr": "المستخدم غير موجود.",
+    "messageEn": "User not found"
+  },
+  {
+    "errorCode": "1228",
+    "messageAr": "اسم المستخدم والبريد الإلكتروني مطلوبان.",
+    "messageEn": "Username and email are required"
+  },
+  {
+    "errorCode": "1229",
+    "messageAr": "معرفات الأدوار مطلوبة.",
+    "messageEn": "roleIds is required"
+  },
+  {
+    "errorCode": "1230",
+    "messageAr": "يجب أن تحتوي معرفات الأدوار على قيم صحيحة.",
+    "messageEn": "roleIds must contain valid values"
+  },
+  {
+    "errorCode": "1301",
+    "messageAr": "الفرع غير موجود.",
+    "messageEn": "Branch not found"
+  },
+  {
+    "errorCode": "1302",
+    "messageAr": "لون السيارة غير موجود.",
+    "messageEn": "Car color not found"
+  },
+  {
+    "errorCode": "1303",
+    "messageAr": "ميزة السيارة غير موجودة.",
+    "messageEn": "Car feature not found"
+  },
+  {
+    "errorCode": "1304",
+    "messageAr": "معلومات الشركة غير موجودة.",
+    "messageEn": "Company information not found"
+  },
+  {
+    "errorCode": "1305",
+    "messageAr": "مسؤول المبيعات غير موجود.",
+    "messageEn": "Contact sales officer not found"
+  },
+  {
+    "errorCode": "1306",
+    "messageAr": "صيغة JSON غير صالحة.",
+    "messageEn": "Invalid JSON payload"
+  },
+  {
+    "errorCode": "1307",
+    "messageAr": "فشل حفظ البيانات.",
+    "messageEn": "Save failed"
+  },
+  {
+    "errorCode": "1308",
+    "messageAr": "معرف الميزة مطلوب.",
+    "messageEn": "FeatureId is required"
+  },
+  {
+    "errorCode": "1309",
+    "messageAr": "معرف السيارة غير صالح.",
+    "messageEn": "CarId is not valid"
+  },
+  {
+    "errorCode": "1310",
+    "messageAr": "معرف الميزة غير صالح.",
+    "messageEn": "FeatureId is not valid"
+  },
+  {
+    "errorCode": "1311",
+    "messageAr": "الميزة مضافة مسبقاً لهذه السيارة.",
+    "messageEn": "Feature already assigned to this car"
+  },
+  {
+    "errorCode": "1312",
+    "messageAr": "ربط ميزة السيارة غير موجود.",
+    "messageEn": "Car feature assignment not found"
+  },
+  {
+    "errorCode": "1313",
+    "messageAr": "معرف العلامة التجارية غير صالح.",
+    "messageEn": "BrandId is not valid"
+  },
+  {
+    "errorCode": "1314",
+    "messageAr": "سجل تواصل معنا غير موجود.",
+    "messageEn": "Contact us item not found"
+  },
+  {
+    "errorCode": "1315",
+    "messageAr": "القسم غير موجود.",
+    "messageEn": "Department not found"
+  },
+  {
+    "errorCode": "1316",
+    "messageAr": "فشلت عملية القسم.",
+    "messageEn": "Department operation failed"
+  },
+  {
+    "errorCode": "1317",
+    "messageAr": "صورة المعرض غير موجودة.",
+    "messageEn": "Gallery image not found"
+  },
+  {
+    "errorCode": "1318",
+    "messageAr": "الدور موجود بالفعل.",
+    "messageEn": "Role already exists"
+  },
+  {
+    "errorCode": "1319",
+    "messageAr": "المفضلة غير موجودة.",
+    "messageEn": "User favorite not found"
+  },
+  {
+    "errorCode": "1320",
+    "messageAr": "البريد الإلكتروني مستخدم بالفعل.",
+    "messageEn": "Email already exists"
+  },
+  {
+    "errorCode": "1321",
+    "messageAr": "عرض السعر غير موجود.",
+    "messageEn": "Quotation not found"
+  },
+  {
+    "errorCode": "1322",
+    "messageAr": "فشلت عملية عرض السعر.",
+    "messageEn": "Quotation operation failed"
+  },
+  {
+    "errorCode": "1323",
+    "messageAr": "خدمة العضوية غير موجودة.",
+    "messageEn": "Member service not found"
+  },
+  {
+    "errorCode": "1324",
+    "messageAr": "العرض غير موجود.",
+    "messageEn": "Offer not found"
+  },
+  {
+    "errorCode": "1325",
+    "messageAr": "الموديل غير موجود.",
+    "messageEn": "Car model not found"
+  },
+  {
+    "errorCode": "1326",
+    "messageAr": "الخدمة غير موجودة.",
+    "messageEn": "Service not found"
+  },
+  {
+    "errorCode": "1331",
+    "messageAr": "فشلت عملية الموظف.",
+    "messageEn": "Employee operation failed"
+  },
+  {
+    "errorCode": "1332",
+    "messageAr": "السؤال الشائع غير موجود.",
+    "messageEn": "FAQ not found"
   }
 ]

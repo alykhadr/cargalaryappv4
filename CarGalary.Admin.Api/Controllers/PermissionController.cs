@@ -11,6 +11,11 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class PermissionController : ControllerBase
     {
+        private const string RoleNotFoundCode = "1223";
+        private const string PageRequiredCode = "1221";
+        private const string ActionRequiredCode = "1201";
+        private const string PermissionRequiredCode = "1222";
+
         private readonly IIdentityService _identity;
 
         public PermissionController(IIdentityService identity)
@@ -33,7 +38,7 @@ namespace CarGalary.Admin.Api.Controllers
             var role = await _identity.GetRoleByIdAsync(roleId);
             if (role == null)
             {
-                return NotFound(new ApiErrorResponse("Role not found", StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(RoleNotFoundCode, StatusCodes.Status404NotFound));
             }
 
             var permissions = await _identity.GetRolePermissionsAsync(roleId);
@@ -49,12 +54,12 @@ namespace CarGalary.Admin.Api.Controllers
 
             if (string.IsNullOrWhiteSpace(page))
             {
-                return BadRequest(new ApiErrorResponse("Page is required"));
+                return BadRequest(new ApiErrorResponse(PageRequiredCode, StatusCodes.Status400BadRequest));
             }
 
             if (string.IsNullOrWhiteSpace(action))
             {
-                return BadRequest(new ApiErrorResponse("Action is required"));
+                return BadRequest(new ApiErrorResponse(ActionRequiredCode, StatusCodes.Status400BadRequest));
             }
 
             var permission = BuildPermission(page, action);
@@ -68,7 +73,7 @@ namespace CarGalary.Admin.Api.Controllers
         {
             if (string.IsNullOrWhiteSpace(permission))
             {
-                return BadRequest(new ApiErrorResponse("Permission is required"));
+                return BadRequest(new ApiErrorResponse(PermissionRequiredCode, StatusCodes.Status400BadRequest));
             }
 
             await _identity.RemovePermissionFromRoleAsync(roleId, permission.Trim());

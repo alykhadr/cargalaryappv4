@@ -13,6 +13,10 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class DepartmentsController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string DepartmentNotFoundCode = "1315";
+        private const string DepartmentOperationFailedCode = "1316";
+
         private readonly IDepartmentService _departmentService;
 
         public DepartmentsController(IDepartmentService departmentService)
@@ -39,7 +43,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(DepartmentNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -55,7 +59,7 @@ namespace CarGalary.Admin.Api.Controllers
                 if (!validation.IsValid)
                 {
                     var errors = validation.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                    return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
                 }
 
                 var response = await _departmentService.CreateAsync(request);
@@ -63,7 +67,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+                return BadRequest(new ApiErrorResponse(DepartmentOperationFailedCode, StatusCodes.Status400BadRequest));
             }
         }
 
@@ -80,7 +84,7 @@ namespace CarGalary.Admin.Api.Controllers
                 if (!validation.IsValid)
                 {
                     var errors = validation.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                    return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
                 }
 
                 var result = await _departmentService.UpdateAsync(id, request);
@@ -88,7 +92,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+                return BadRequest(new ApiErrorResponse(DepartmentOperationFailedCode, StatusCodes.Status400BadRequest));
             }
         }
 
@@ -103,7 +107,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+                return BadRequest(new ApiErrorResponse(DepartmentOperationFailedCode, StatusCodes.Status400BadRequest));
             }
         }
     }

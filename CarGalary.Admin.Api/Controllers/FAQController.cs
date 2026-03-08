@@ -1,4 +1,5 @@
 using CarGalary.Admin.Api.Security;
+using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Dtos.FAQ.Command;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
@@ -12,6 +13,10 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class FAQController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string FaqNotFoundCode = "1332";
+        private const string FaqIdsRequiredCode = "1215";
+
         private readonly IFAQService _service;
 
         public FAQController(IFAQService service)
@@ -32,7 +37,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var item = await _service.GetByIdAsync(id);
-            if (item == null) return NotFound();
+            if (item == null) return NotFound(new ApiErrorResponse(FaqNotFoundCode, StatusCodes.Status404NotFound));
             return Ok(item);
         }
 
@@ -46,7 +51,7 @@ namespace CarGalary.Admin.Api.Controllers
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             var created = await _service.CreateAsync(dto);
@@ -61,13 +66,13 @@ namespace CarGalary.Admin.Api.Controllers
             [FromServices] IValidator<UpdateFAQRequestDto> validator)
         {
             var existing = await _service.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            if (existing == null) return NotFound(new ApiErrorResponse(FaqNotFoundCode, StatusCodes.Status404NotFound));
 
             var validationResult = validator.Validate(dto);
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             try
@@ -77,7 +82,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "FAQ not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(FaqNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -86,7 +91,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var existing = await _service.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            if (existing == null) return NotFound(new ApiErrorResponse(FaqNotFoundCode, StatusCodes.Status404NotFound));
 
             try
             {
@@ -95,7 +100,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "FAQ not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(FaqNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -105,7 +110,7 @@ namespace CarGalary.Admin.Api.Controllers
         {
             if (request.FaqIds == null || !request.FaqIds.Any())
             {
-                return BadRequest("FAQ IDs are required");
+                return BadRequest(new ApiErrorResponse(FaqIdsRequiredCode, StatusCodes.Status400BadRequest));
             }
 
             var deletedCount = 0;

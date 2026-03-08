@@ -1,5 +1,6 @@
 
 using CarGalary.Admin.Api.Security;
+using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Dtos.Services.Command;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
@@ -13,6 +14,9 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class ServicesController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string ServicesNotFoundCode = "1326";
+
         private readonly IServicesService _service;
         
         public ServicesController(IServicesService service)
@@ -29,7 +33,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var x = await _service.GetByIdAsync(id);
-            return x == null ? NotFound() : Ok(x);
+            return x == null ? NotFound(new ApiErrorResponse(ServicesNotFoundCode, StatusCodes.Status404NotFound)) : Ok(x);
         }
         
         [HttpPost]
@@ -37,7 +41,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> Create([FromForm] CreateServicesRequestDto dto, [FromServices] IValidator<CreateServicesRequestDto> v)
         {
             var r = v.Validate(dto);
-            if (!r.IsValid) return BadRequest(r.Errors.Select(e => e.ErrorMessage).ToList());
+            if (!r.IsValid) return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, r.Errors.Select(e => e.ErrorMessage).ToList()));
             return Ok(await _service.CreateAsync(dto));
         }
         
@@ -46,9 +50,9 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> Update(int id, [FromForm] UpdateServicesRequestDto dto, [FromServices] IValidator<UpdateServicesRequestDto> v)
         {
             var ex = await _service.GetByIdAsync(id);
-            if (ex == null) return NotFound();
+            if (ex == null) return NotFound(new ApiErrorResponse(ServicesNotFoundCode, StatusCodes.Status404NotFound));
             var r = v.Validate(dto);
-            if (!r.IsValid) return BadRequest(r.Errors.Select(e => e.ErrorMessage).ToList());
+            if (!r.IsValid) return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, r.Errors.Select(e => e.ErrorMessage).ToList()));
             try
             {
                 await _service.UpdateAsync(id, dto);
@@ -56,7 +60,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception e) when (e.Message == "Services not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(ServicesNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
         
@@ -65,7 +69,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var ex = await _service.GetByIdAsync(id);
-            if (ex == null) return NotFound();
+            if (ex == null) return NotFound(new ApiErrorResponse(ServicesNotFoundCode, StatusCodes.Status404NotFound));
             try
             {
                 await _service.DeleteAsync(id);
@@ -73,7 +77,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception e) when (e.Message == "Services not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(ServicesNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
         

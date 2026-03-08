@@ -11,6 +11,8 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class CarCarColorsController : ControllerBase
     {
+        private const string InternalServerErrorCode = "1102";
+
         private readonly ICarCarColorService _carCarColorService;
 
         public CarCarColorsController(ICarCarColorService carCarColorService)
@@ -30,7 +32,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
     }

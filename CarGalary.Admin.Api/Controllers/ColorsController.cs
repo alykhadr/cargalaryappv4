@@ -1,4 +1,5 @@
 using CarGalary.Admin.Api.Security;
+using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Dtos.CarColor.Command;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
@@ -12,6 +13,10 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class ColorsController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string CarColorNotFoundCode = "1302";
+        private const string ColorIdsRequiredCode = "1212";
+
         private readonly ICarColorService _carColorService;
 
         public ColorsController(ICarColorService carColorService)
@@ -34,7 +39,7 @@ namespace CarGalary.Admin.Api.Controllers
             var color = await _carColorService.GetByIdAsync(id);
             if (color == null)
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(CarColorNotFoundCode, StatusCodes.Status404NotFound));
             }
 
             return Ok(color);
@@ -50,7 +55,7 @@ namespace CarGalary.Admin.Api.Controllers
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             var created = await _carColorService.CreateAsync(createCarColorRequestDto);
@@ -67,14 +72,14 @@ namespace CarGalary.Admin.Api.Controllers
             var existingColor = await _carColorService.GetByIdAsync(id);
             if (existingColor == null)
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(CarColorNotFoundCode, StatusCodes.Status404NotFound));
             }
 
             var validationResult = validator.Validate(updateCarColorRequestDto);
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             try
@@ -84,7 +89,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "CarColor not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(CarColorNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -99,7 +104,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "CarColor not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(CarColorNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -109,7 +114,7 @@ namespace CarGalary.Admin.Api.Controllers
         {
             if (request.ColorIds == null || !request.ColorIds.Any())
             {
-                return BadRequest("Color IDs are required");
+                return BadRequest(new ApiErrorResponse(ColorIdsRequiredCode, StatusCodes.Status400BadRequest));
             }
 
             var deletedCount = 0;

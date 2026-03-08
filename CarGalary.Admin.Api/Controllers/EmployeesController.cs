@@ -14,6 +14,16 @@ namespace CarGalary.Admin.Api.Controllers
     [Route("api/employees")]
     public class EmployeesController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string UserNotFoundCode = "1227";
+        private const string UserIdsRequiredCode = "1226";
+        private const string UserNameAndEmailRequiredCode = "1228";
+        private const string NewPasswordRequiredCode = "1105";
+        private const string NewPasswordMinLengthCode = "1106";
+        private const string InvalidCreatedUserIdCode = "1217";
+        private const string EmailAlreadyExistsCode = "1320";
+        private const string EmployeeOperationFailedCode = "1331";
+
         private readonly IIdentityService _identity;
         private readonly IEmployeeService _employeeService;
         private readonly IValidator<RegisterRequest> _registerValidator;
@@ -39,7 +49,7 @@ namespace CarGalary.Admin.Api.Controllers
             if (!validator.IsValid)
             {
                 var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new ApiErrorResponse("Validation failed", StatusCodes.Status400BadRequest, errors));
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             var normalizedEmail = request.Email?.ToUpper().Trim() ?? string.Empty;
@@ -49,7 +59,7 @@ namespace CarGalary.Admin.Api.Controllers
             var emailExist = await _identity.GetUserByEmailAsync(normalizedEmail);
             if (!string.IsNullOrWhiteSpace(emailExist))
             {
-                return BadRequest(new ApiErrorResponse($"email : {request.Email} already exist"));
+                return BadRequest(new ApiErrorResponse(EmailAlreadyExistsCode, StatusCodes.Status400BadRequest));
             }
 
             string? profileImageUrl = null;
@@ -69,7 +79,7 @@ namespace CarGalary.Admin.Api.Controllers
 
             if (string.IsNullOrWhiteSpace(user.Id))
             {
-                return BadRequest(new ApiErrorResponse("Invalid created user id"));
+                return BadRequest(new ApiErrorResponse(InvalidCreatedUserIdCode, StatusCodes.Status400BadRequest));
             }
 
             try
@@ -77,7 +87,7 @@ namespace CarGalary.Admin.Api.Controllers
                 if (!Guid.TryParse(user.Id, out var createdUserId))
                 {
                     await _identity.DeleteUserAsync(user.Id);
-                    return BadRequest(new ApiErrorResponse("Invalid created user id"));
+                    return BadRequest(new ApiErrorResponse(InvalidCreatedUserIdCode, StatusCodes.Status400BadRequest));
                 }
 
                 await _employeeService.CreateEmployeeAsync(request, createdUserId);
@@ -85,7 +95,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 await _identity.DeleteUserAsync(user.Id);
-                return BadRequest(new ApiErrorResponse(ex.Message));
+                return BadRequest(new ApiErrorResponse(EmployeeOperationFailedCode, StatusCodes.Status400BadRequest));
             }
 
             var userRoles = request.Roles ?? new List<string>();
@@ -128,7 +138,7 @@ namespace CarGalary.Admin.Api.Controllers
         {
             if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Email))
             {
-                return BadRequest(new ApiErrorResponse("Username and email are required"));
+                return BadRequest(new ApiErrorResponse(UserNameAndEmailRequiredCode, StatusCodes.Status400BadRequest));
             }
 
             string? profileImageUrl = null;
@@ -166,11 +176,11 @@ namespace CarGalary.Admin.Api.Controllers
         {
             if (string.IsNullOrWhiteSpace(request.NewPassword))
             {
-                return BadRequest(new ApiErrorResponse("New password is required"));
+                return BadRequest(new ApiErrorResponse(NewPasswordRequiredCode, StatusCodes.Status400BadRequest));
             }
             if (request.NewPassword.Length < 6)
             {
-                return BadRequest(new ApiErrorResponse("New password must be at least 6 characters"));
+                return BadRequest(new ApiErrorResponse(NewPasswordMinLengthCode, StatusCodes.Status400BadRequest));
             }
 
             await _identity.ChangeUserPasswordByAdminAsync(userId, request.NewPassword);
@@ -189,7 +199,7 @@ namespace CarGalary.Admin.Api.Controllers
             var result = await _identity.DeleteUserAsync(userId);
 
             if (!result)
-                return NotFound(new ApiErrorResponse("User not found", StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(UserNotFoundCode, StatusCodes.Status404NotFound));
 
             return NoContent();
         }
@@ -200,7 +210,7 @@ namespace CarGalary.Admin.Api.Controllers
         {
             if (request.UserIds == null || !request.UserIds.Any())
             {
-                return BadRequest(new ApiErrorResponse("User IDs are required"));
+                return BadRequest(new ApiErrorResponse(UserIdsRequiredCode, StatusCodes.Status400BadRequest));
             }
 
             var deletedCount = 0;

@@ -1,5 +1,6 @@
 
 using CarGalary.Admin.Api.Security;
+using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Dtos.CarModel.Command;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
@@ -14,6 +15,10 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class ModelController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
+        private const string CarModelNotFoundCode = "1325";
+        private const string BrandIdInvalidCode = "1313";
+
         private readonly ICarModelService _service;
         private readonly IWebHostEnvironment _environment;
 
@@ -36,7 +41,7 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var model = await _service.GetByIdAsync(id);
-            if (model == null) return NotFound();
+            if (model == null) return NotFound(new ApiErrorResponse(CarModelNotFoundCode, StatusCodes.Status404NotFound));
             return Ok(model);
         }
 
@@ -50,7 +55,7 @@ namespace CarGalary.Admin.Api.Controllers
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             if (dto.ImageFile != null)
@@ -65,7 +70,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "Brand not found")
             {
-                return BadRequest(new[] { "BrandId is not valid" });
+                return BadRequest(new ApiErrorResponse(BrandIdInvalidCode, StatusCodes.Status400BadRequest));
             }
         }
 
@@ -79,14 +84,14 @@ namespace CarGalary.Admin.Api.Controllers
             var existing = await _service.GetByIdAsync(id);
             if (existing == null)
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(CarModelNotFoundCode, StatusCodes.Status404NotFound));
             }
 
             var validationResult = validator.Validate(dto);
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(errors);
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
             if (dto.ImageFile != null)
@@ -102,11 +107,11 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "CarModel not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(CarModelNotFoundCode, StatusCodes.Status404NotFound));
             }
             catch (Exception ex) when (ex.Message == "Brand not found")
             {
-                return BadRequest(new[] { "BrandId is not valid" });
+                return BadRequest(new ApiErrorResponse(BrandIdInvalidCode, StatusCodes.Status400BadRequest));
             }
         }
 
@@ -117,7 +122,7 @@ namespace CarGalary.Admin.Api.Controllers
             var existing = await _service.GetByIdAsync(id);
             if (existing == null)
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(CarModelNotFoundCode, StatusCodes.Status404NotFound));
             }
 
             DeleteModelImageIfExists(existing.ImageUrl);
@@ -129,7 +134,7 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "CarModel not found")
             {
-                return NotFound();
+                return NotFound(new ApiErrorResponse(CarModelNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 

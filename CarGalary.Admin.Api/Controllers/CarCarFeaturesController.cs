@@ -13,6 +13,13 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class CarCarFeaturesController : ControllerBase
     {
+        private const string InternalServerErrorCode = "1102";
+        private const string FeatureIdRequiredCode = "1308";
+        private const string CarIdInvalidCode = "1309";
+        private const string FeatureIdInvalidCode = "1310";
+        private const string FeatureAlreadyAssignedCode = "1311";
+        private const string CarFeatureAssignmentNotFoundCode = "1312";
+
         private readonly ICarFeatureService _carFeatureService;
 
         public CarCarFeaturesController(ICarFeatureService carFeatureService)
@@ -39,20 +46,24 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "FeatureId is required")
             {
-                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+                return BadRequest(new ApiErrorResponse(FeatureIdRequiredCode, StatusCodes.Status400BadRequest));
             }
-            catch (Exception ex) when (ex.Message == "CarId is not valid" || ex.Message == "FeatureId is not valid")
+            catch (Exception ex) when (ex.Message == "CarId is not valid")
             {
-                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+                return BadRequest(new ApiErrorResponse(CarIdInvalidCode, StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex) when (ex.Message == "FeatureId is not valid")
+            {
+                return BadRequest(new ApiErrorResponse(FeatureIdInvalidCode, StatusCodes.Status400BadRequest));
             }
             catch (Exception ex) when (ex.Message == "Feature already assigned to this car")
             {
-                return Conflict(new ApiErrorResponse(ex.Message, StatusCodes.Status409Conflict));
+                return Conflict(new ApiErrorResponse(FeatureAlreadyAssignedCode, StatusCodes.Status409Conflict));
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -67,12 +78,12 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "Car feature assignment not found")
             {
-                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(CarFeatureAssignmentNotFoundCode, StatusCodes.Status404NotFound));
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -87,12 +98,12 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex.Message == "Car feature assignment not found")
             {
-                return NotFound(new ApiErrorResponse(ex.Message, StatusCodes.Status404NotFound));
+                return NotFound(new ApiErrorResponse(CarFeatureAssignmentNotFoundCode, StatusCodes.Status404NotFound));
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(ex.Message, StatusCodes.Status500InternalServerError));
+                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
     }

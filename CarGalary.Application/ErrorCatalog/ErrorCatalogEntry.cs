@@ -5,5 +5,6 @@ namespace CarGalary.Application.ErrorCatalog
         public string ErrorCode { get; set; } = string.Empty;
         public string MessageAr { get; set; } = string.Empty;
         public string MessageEn { get; set; } = string.Empty;
+        public List<string> Aliases { get; set; } = new();
     }
 }
