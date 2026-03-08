@@ -4,6 +4,7 @@ using CarGalary.Application.Validations;
 using CarGalary.Domain.Entities;
 using CarGalary.Infrastructure.Auth;
 using CarGalary.Infrastructure.Context;
+using CarGalary.Application.ErrorCatalog;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -30,6 +31,7 @@ builder.Services.AddControllers(options =>
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<IErrorCatalogService, ErrorCatalogService>();
 
 // Authorization & Authentication
 builder.Services.AddAuthorization();

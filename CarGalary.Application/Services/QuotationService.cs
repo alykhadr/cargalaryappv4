@@ -122,7 +122,7 @@ namespace CarGalary.Application.Services
 
             if (await IsFinalClosedStatusAsync(quotation.CurrentStatus))
             {
-                throw new ArgumentException("This is the last status, you cannot change it.");
+                throw new ArgumentException("1001");
             }
 
             if (quotation.CurrentStatus == dto.CurrentStatus)

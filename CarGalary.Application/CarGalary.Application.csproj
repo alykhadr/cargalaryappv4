@@ -10,6 +10,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="ErrorCatalog\error-codes.json" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

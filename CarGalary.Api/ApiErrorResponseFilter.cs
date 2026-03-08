@@ -1,4 +1,5 @@
 using CarGalary.Application.Dtos.Auth;
+using CarGalary.Application.ErrorCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -6,24 +7,32 @@ namespace CarGalary.Api
 {
     public class ApiErrorResponseFilter : IAsyncResultFilter
     {
+        private readonly IErrorCatalogService _errorCatalogService;
+
+        public ApiErrorResponseFilter(IErrorCatalogService errorCatalogService)
+        {
+            _errorCatalogService = errorCatalogService;
+        }
+
         public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
             context.Result = WrapErrorResult(context.Result);
             await next();
         }
 
-        private static IActionResult WrapErrorResult(IActionResult result)
+        private IActionResult WrapErrorResult(IActionResult result)
         {
             if (result is ObjectResult objectResult && IsErrorStatusCode(objectResult.StatusCode))
             {
-                if (objectResult.Value is ApiErrorResponse)
+                if (objectResult.Value is ApiErrorResponse existingError)
                 {
-                    return result;
+                    var enriched = EnrichErrorResponse(existingError, objectResult.StatusCode ?? StatusCodes.Status400BadRequest);
+                    return new ObjectResult(enriched) { StatusCode = enriched.StatusCode };
                 }
 
                 var statusCode = objectResult.StatusCode ?? StatusCodes.Status400BadRequest;
                 var (message, errors) = ExtractMessageAndErrors(objectResult.Value, statusCode);
-                return new ObjectResult(new ApiErrorResponse(message, statusCode, errors))
+                return new ObjectResult(EnrichErrorResponse(new ApiErrorResponse(message, statusCode, errors), statusCode))
                 {
                     StatusCode = statusCode
                 };
@@ -32,7 +41,7 @@ namespace CarGalary.Api
             if (result is StatusCodeResult statusCodeResult && IsErrorStatusCode(statusCodeResult.StatusCode))
             {
                 var message = GetDefaultMessage(statusCodeResult.StatusCode);
-                return new ObjectResult(new ApiErrorResponse(message, statusCodeResult.StatusCode))
+                return new ObjectResult(EnrichErrorResponse(new ApiErrorResponse(message, statusCodeResult.StatusCode), statusCodeResult.StatusCode))
                 {
                     StatusCode = statusCodeResult.StatusCode
                 };
@@ -45,7 +54,7 @@ namespace CarGalary.Api
                     ? GetDefaultMessage(statusCode)
                     : contentResult.Content;
 
-                return new ObjectResult(new ApiErrorResponse(message, statusCode))
+                return new ObjectResult(EnrichErrorResponse(new ApiErrorResponse(message, statusCode), statusCode))
                 {
                     StatusCode = statusCode
                 };
@@ -111,6 +120,43 @@ namespace CarGalary.Api
                 StatusCodes.Status500InternalServerError => "Internal server error",
                 _ => "Request failed"
             };
+        }
+
+        private ApiErrorResponse EnrichErrorResponse(ApiErrorResponse response, int statusCode)
+        {
+            var code = ResolveCode(response.ErrorCode, response.Message, statusCode);
+            var entry = _errorCatalogService.GetByCode(code);
+
+            response.StatusCode = statusCode;
+            response.ErrorCode = code;
+
+            if (entry != null)
+            {
+                response.MessageAr = entry.MessageAr;
+                response.MessageEn = entry.MessageEn;
+            }
+            else
+            {
+                response.MessageAr ??= response.Message;
+                response.MessageEn ??= response.Message;
+            }
+
+            return response;
+        }
+
+        private static string ResolveCode(string? errorCode, string? message, int statusCode)
+        {
+            if (!string.IsNullOrWhiteSpace(errorCode))
+            {
+                return errorCode.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(message) && message.All(char.IsDigit))
+            {
+                return message.Trim();
+            }
+
+            return $"HTTP_{statusCode}";
         }
     }
 }

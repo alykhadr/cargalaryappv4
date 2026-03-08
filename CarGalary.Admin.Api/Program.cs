@@ -6,11 +6,11 @@ using CarGalary.Infrastructure.Context;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using CarGalary.Admin.Api;
 using CarGalary.Admin.Api.Hubs;
+using CarGalary.Application.ErrorCatalog;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
@@ -44,6 +44,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<IErrorCatalogService, ErrorCatalogService>();
 
 // Authorization & Authentication
 builder.Services.AddAuthorization();

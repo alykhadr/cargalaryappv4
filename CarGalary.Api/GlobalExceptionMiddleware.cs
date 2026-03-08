@@ -1,15 +1,18 @@
 using System.Text.Json;
 using CarGalary.Application.Dtos.Auth;
+using CarGalary.Application.ErrorCatalog;
 
 namespace CarGalary.Api
 {
     public class GlobalExceptionMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly IErrorCatalogService _errorCatalogService;
 
-        public GlobalExceptionMiddleware(RequestDelegate next)
+        public GlobalExceptionMiddleware(RequestDelegate next, IErrorCatalogService errorCatalogService)
         {
             _next = next;
+            _errorCatalogService = errorCatalogService;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -28,12 +31,38 @@ namespace CarGalary.Api
                     _ => StatusCodes.Status500InternalServerError
                 };
 
-                var response = new ApiErrorResponse(ex.Message, statusCode);
+                var response = BuildErrorResponse(ex.Message, statusCode);
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = statusCode;
 
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response));
             }
+        }
+
+        private ApiErrorResponse BuildErrorResponse(string message, int statusCode)
+        {
+            var code = !string.IsNullOrWhiteSpace(message) && message.All(char.IsDigit)
+                ? message
+                : $"HTTP_{statusCode}";
+            var baseMessage = string.IsNullOrWhiteSpace(message) ? code : message;
+
+            var entry = _errorCatalogService.GetByCode(code);
+            if (entry == null)
+            {
+                return new ApiErrorResponse(
+                    baseMessage,
+                    statusCode,
+                    errorCode: code,
+                    messageAr: baseMessage,
+                    messageEn: baseMessage);
+            }
+
+            return new ApiErrorResponse(
+                baseMessage,
+                statusCode,
+                errorCode: entry.ErrorCode,
+                messageAr: entry.MessageAr,
+                messageEn: entry.MessageEn);
         }
     }
 }
