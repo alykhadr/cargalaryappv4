@@ -75,6 +75,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 
 // Dependency Injection
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddCarGalaryDependencies();
 
 // =======================

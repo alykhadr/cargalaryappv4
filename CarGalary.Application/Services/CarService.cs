@@ -33,13 +33,19 @@ namespace CarGalary.Application.Services
 
         public async Task<List<CarResponseDto>> GetAllAsync()
         {
-            var cars = await _unitOfWork.Cars.GetAllAsync();
+            var userBranchId = GetCurrentUserBranchId();
+            var cars = userBranchId.HasValue
+                ? await _unitOfWork.Cars.GetAllByBranchAsync(userBranchId.Value)
+                : await _unitOfWork.Cars.GetAllAsync();
             return _mapper.Map<List<CarResponseDto>>(cars);
         }
 
         public async Task<CarResponseDto?> GetByIdAsync(int id)
         {
-            var car = await _unitOfWork.Cars.GetByIdAsync(id);
+            var userBranchId = GetCurrentUserBranchId();
+            var car = userBranchId.HasValue
+                ? await _unitOfWork.Cars.GetByIdAsync(id, userBranchId.Value)
+                : await _unitOfWork.Cars.GetByIdAsync(id);
             return car == null ? null : _mapper.Map<CarResponseDto>(car);
         }
 
@@ -147,6 +153,8 @@ namespace CarGalary.Application.Services
                 throw new Exception("Branch not found");
             }
 
+            EnsureBranchAccess(dto.BranchId);
+
             var entity = _mapper.Map<Car>(dto);
             entity.CreatedAt = DateTime.UtcNow;
             entity.CreatedBy = _currentUserService.UserName;
@@ -178,7 +186,10 @@ namespace CarGalary.Application.Services
         {
             return await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                var existing = await _unitOfWork.Cars.GetByIdAsync(id);
+                var userBranchId = GetCurrentUserBranchId();
+                var existing = userBranchId.HasValue
+                    ? await _unitOfWork.Cars.GetByIdAsync(id, userBranchId.Value)
+                    : await _unitOfWork.Cars.GetByIdAsync(id);
                 if (existing == null)
                 {
                     throw new Exception("Car not found");
@@ -290,7 +301,10 @@ namespace CarGalary.Application.Services
 
         public async Task UpdateAsync(int id, UpdateCarRequestDto dto)
         {
-            var existing = await _unitOfWork.Cars.GetByIdAsync(id);
+            var userBranchId = GetCurrentUserBranchId();
+            var existing = userBranchId.HasValue
+                ? await _unitOfWork.Cars.GetByIdAsync(id, userBranchId.Value)
+                : await _unitOfWork.Cars.GetByIdAsync(id);
             if (existing == null)
             {
                 throw new Exception("Car not found");
@@ -398,6 +412,8 @@ namespace CarGalary.Application.Services
                 throw new Exception("Branch not found");
             }
 
+            EnsureBranchAccess(dto.BranchId);
+
             if (dto.IsAvailable == null)
             {
                 dto.IsAvailable = existing.IsAvailable;
@@ -410,7 +426,10 @@ namespace CarGalary.Application.Services
 
         public async Task DeleteAsync(int id)
         {
-            var existing = await _unitOfWork.Cars.GetByIdAsync(id);
+            var userBranchId = GetCurrentUserBranchId();
+            var existing = userBranchId.HasValue
+                ? await _unitOfWork.Cars.GetByIdAsync(id, userBranchId.Value)
+                : await _unitOfWork.Cars.GetByIdAsync(id);
             if (existing == null)
             {
                 throw new Exception("Car not found");
@@ -436,7 +455,10 @@ namespace CarGalary.Application.Services
 
         public async Task SetAvailabilityAsync(int id, bool isAvailable)
         {
-            var existing = await _unitOfWork.Cars.GetByIdAsync(id);
+            var userBranchId = GetCurrentUserBranchId();
+            var existing = userBranchId.HasValue
+                ? await _unitOfWork.Cars.GetByIdAsync(id, userBranchId.Value)
+                : await _unitOfWork.Cars.GetByIdAsync(id);
             if (existing == null)
             {
                 throw new Exception("Car not found");
@@ -468,8 +490,27 @@ namespace CarGalary.Application.Services
 
         public async Task<List<CarResponseDto>> FilterAsync(int? modelId = null, int? typeId = null, bool? isAvailable = null)
         {
-            var cars = await _unitOfWork.Cars.FilterAsync(modelId, typeId, isAvailable);
+            var cars = await _unitOfWork.Cars.FilterAsync(modelId, typeId, isAvailable, GetCurrentUserBranchId());
             return _mapper.Map<List<CarResponseDto>>(cars);
+        }
+
+        private int? GetCurrentUserBranchId()
+        {
+            if (_currentUserService.IsInRole("Admin"))
+            {
+                return null;
+            }
+
+            return _currentUserService.BranchId;
+        }
+
+        private void EnsureBranchAccess(int branchId)
+        {
+            var userBranchId = GetCurrentUserBranchId();
+            if (userBranchId.HasValue && userBranchId.Value != branchId)
+            {
+                throw new UnauthorizedAccessException("You are not allowed to access data outside your branch");
+            }
         }
 
         private CreateCarRequestDto BuildBaseCarCreateRequest(CreateCarWithDetailsRequestDto dto)

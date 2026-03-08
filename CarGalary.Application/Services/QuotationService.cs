@@ -11,22 +11,30 @@ namespace CarGalary.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public QuotationService(IUnitOfWork unitOfWork, IMapper mapper)
+        public QuotationService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<List<QuotationResponseDto>> GetAllAsync()
         {
-            var items = await _unitOfWork.Quotations.GetAllAsync();
+            var userBranchId = GetCurrentUserBranchId();
+            var items = userBranchId.HasValue
+                ? await _unitOfWork.Quotations.GetAllByBranchAsync(userBranchId.Value)
+                : await _unitOfWork.Quotations.GetAllAsync();
             return _mapper.Map<List<QuotationResponseDto>>(items);
         }
 
         public async Task<QuotationResponseDto> GetByIdAsync(int id)
         {
-            var quotation = await _unitOfWork.Quotations.GetByIdAsync(id);
+            var userBranchId = GetCurrentUserBranchId();
+            var quotation = userBranchId.HasValue
+                ? await _unitOfWork.Quotations.GetByIdAsync(id, userBranchId.Value)
+                : await _unitOfWork.Quotations.GetByIdAsync(id);
             if (quotation == null || !quotation.IsAvailable)
             {
                 throw new KeyNotFoundException($"Quotation not found for id #{id}");
@@ -37,7 +45,14 @@ namespace CarGalary.Application.Services
 
         public async Task<List<QuotationHistoryResponseDto>> GetHistoryAsync(int quotationId)
         {
-            
+            var userBranchId = GetCurrentUserBranchId();
+            var quotation = userBranchId.HasValue
+                ? await _unitOfWork.Quotations.GetByIdAsync(quotationId, userBranchId.Value)
+                : await _unitOfWork.Quotations.GetByIdAsync(quotationId);
+            if (quotation == null || !quotation.IsAvailable)
+            {
+                throw new KeyNotFoundException($"Quotation not found for id #{quotationId}");
+            }
 
             var historyItems = await _unitOfWork.QuotationHistories.GetByQuotationIdAsync(quotationId);
             return _mapper.Map<List<QuotationHistoryResponseDto>>(historyItems);
@@ -50,6 +65,8 @@ namespace CarGalary.Application.Services
             {
                 throw new Exception("CarId is invalid");
             }
+
+            EnsureBranchAccess(car.BranchId);
 
             await EnsureLookupExistsAsync("PAYMENT_METHOD", dto.PaymentMethod);
             await EnsureLookupExistsAsync("REGION", dto.RegionId);
@@ -92,7 +109,10 @@ namespace CarGalary.Application.Services
 
         public async Task<QuotationResponseDto> UpdateStatusAsync(int quotationId, UpdateQuotationStatusRequestDto dto)
         {
-            var quotation = await _unitOfWork.Quotations.GetByIdForUpdateAsync(quotationId);
+            var userBranchId = GetCurrentUserBranchId();
+            var quotation = userBranchId.HasValue
+                ? await _unitOfWork.Quotations.GetByIdForUpdateAsync(quotationId, userBranchId.Value)
+                : await _unitOfWork.Quotations.GetByIdForUpdateAsync(quotationId);
             if (quotation == null || !quotation.IsAvailable)
             {
                 throw new KeyNotFoundException($"Quotation not found for id #{quotationId}");
@@ -129,6 +149,25 @@ namespace CarGalary.Application.Services
 
             }
             return _mapper.Map<QuotationResponseDto>(quotation);
+        }
+
+        private int? GetCurrentUserBranchId()
+        {
+            if (_currentUserService.IsInRole("Admin"))
+            {
+                return null;
+            }
+
+            return _currentUserService.BranchId;
+        }
+
+        private void EnsureBranchAccess(int branchId)
+        {
+            var userBranchId = GetCurrentUserBranchId();
+            if (userBranchId.HasValue && userBranchId.Value != branchId)
+            {
+                throw new UnauthorizedAccessException("You are not allowed to access data outside your branch");
+            }
         }
 
         private async Task<int> ResolveLookupIdAsync(string masterCode, int detailCode)

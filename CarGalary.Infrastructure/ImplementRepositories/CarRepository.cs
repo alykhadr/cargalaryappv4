@@ -24,12 +24,30 @@ namespace CarGalary.Infrastructure.ImplementRepositories
                 .ToListAsync();
         }
 
+        public async Task<List<Car>> GetAllByBranchAsync(int branchId)
+        {
+            return await _context.Cars
+                .Include(c => c.CarModel)
+                .Include(c => c.Type)
+                .Where(c => c.BranchId == branchId)
+                .OrderByDescending(c => c.Id)
+                .ToListAsync();
+        }
+
         public async Task<Car> GetByIdAsync(int id)
         {
             return await _context.Cars
                 .Include(c => c.CarModel)
                 .Include(c => c.Type)
                 .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<Car> GetByIdAsync(int id, int branchId)
+        {
+            return await _context.Cars
+                .Include(c => c.CarModel)
+                .Include(c => c.Type)
+                .FirstOrDefaultAsync(c => c.Id == id && c.BranchId == branchId);
         }
 
         public async Task CreateAsync(Car car)
@@ -57,7 +75,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         return car;
         }
 
-        public async Task<List<Car>> FilterAsync(int? modelId = null, int? typeId = null, bool? isAvailable = null)
+        public async Task<List<Car>> FilterAsync(int? modelId = null, int? typeId = null, bool? isAvailable = null, int? branchId = null)
         {
             var query = _context.Cars
                 .Include(c => c.CarModel)
@@ -67,6 +85,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             if (modelId.HasValue) query = query.Where(c => c.ModelId == modelId.Value);
             if (typeId.HasValue) query = query.Where(c => c.TypeId == typeId.Value);
             if (isAvailable.HasValue) query = query.Where(c => c.IsAvailable == isAvailable.Value);
+            if (branchId.HasValue) query = query.Where(c => c.BranchId == branchId.Value);
 
             return await query.ToListAsync();
         }

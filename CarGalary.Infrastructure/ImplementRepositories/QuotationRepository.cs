@@ -18,6 +18,17 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             return await _context.Quotations
                 .AsNoTracking()
+                .Include(x => x.Car)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<List<Quotation>> GetAllByBranchAsync(int branchId)
+        {
+            return await _context.Quotations
+                .AsNoTracking()
+                .Include(x => x.Car)
+                .Where(x => x.Car.BranchId == branchId)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
         }
@@ -32,13 +43,30 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             return await _context.Quotations
                 .AsNoTracking()
+                .Include(x => x.Car)
                 .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<Quotation?> GetByIdAsync(int id, int branchId)
+        {
+            return await _context.Quotations
+                .AsNoTracking()
+                .Include(x => x.Car)
+                .FirstOrDefaultAsync(x => x.Id == id && x.Car.BranchId == branchId);
         }
 
         public async Task<Quotation?> GetByIdForUpdateAsync(int id)
         {
             return await _context.Quotations
+                .Include(x => x.Car)
                 .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<Quotation?> GetByIdForUpdateAsync(int id, int branchId)
+        {
+            return await _context.Quotations
+                .Include(x => x.Car)
+                .FirstOrDefaultAsync(x => x.Id == id && x.Car.BranchId == branchId);
         }
 
         public async Task<bool> UserHasQuotationAsync(Guid userId)

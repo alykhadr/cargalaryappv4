@@ -28,5 +28,24 @@ namespace CarGalary.Application.Services
         public string? Email =>
             _httpContextAccessor.HttpContext?.User?
                 .FindFirstValue(ClaimTypes.Email);
+
+        public int? BranchId
+        {
+            get
+            {
+                var raw = _httpContextAccessor.HttpContext?.User?.FindFirstValue("branch_id");
+                if (int.TryParse(raw, out var branchId))
+                {
+                    return branchId;
+                }
+
+                return null;
+            }
+        }
+
+        public bool IsInRole(string roleName)
+        {
+            return _httpContextAccessor.HttpContext?.User?.IsInRole(roleName) == true;
+        }
     }
 }
