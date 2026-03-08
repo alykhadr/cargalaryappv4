@@ -36,6 +36,13 @@ namespace CarGalary.Admin.Api.Controllers
             return Ok(items);
         }
 
+        [HttpGet("notifications")]
+        public async Task<IActionResult> GetNotifications([FromQuery] int take = 10)
+        {
+            var items = await _quotationService.GetNotificationsAsync(take);
+            return Ok(items);
+        }
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {

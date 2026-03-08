@@ -29,6 +29,43 @@ namespace CarGalary.Application.Services
             return _mapper.Map<List<QuotationResponseDto>>(items);
         }
 
+        public async Task<QuotationNotificationsResponseDto> GetNotificationsAsync(int take = 10)
+        {
+            var userBranchId = GetCurrentUserBranchId();
+            var items = userBranchId.HasValue
+                ? await _unitOfWork.Quotations.GetAllByBranchAsync(userBranchId.Value)
+                : await _unitOfWork.Quotations.GetAllAsync();
+
+            var quotationStatusLookups = await _unitOfWork.LookupDetails.GetByMasterCodeAsync("QUOTATION_STATUS");
+            var newStatusIds = quotationStatusLookups
+                .Where(x => string.Equals(x.DetailCode, "1", StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.Id)
+                .ToHashSet();
+
+            var newQuotations = items
+                .Where(x => x.IsAvailable && (newStatusIds.Count == 0 || newStatusIds.Contains(x.CurrentStatus)))
+                .OrderByDescending(x => x.CreatedAt)
+                .ToList();
+
+            var notifications = newQuotations
+                .Take(Math.Max(1, take))
+                .Select(x => new QuotationNotificationItemDto
+                {
+                    Id = x.Id,
+                    CarName = !string.IsNullOrWhiteSpace(x.Car?.NameEn)
+                        ? x.Car.NameEn
+                        : (x.Car?.NameAr ?? $"Car #{x.CarId}"),
+                    CreatedDate = x.CreatedAt
+                })
+                .ToList();
+
+            return new QuotationNotificationsResponseDto
+            {
+                Count = newQuotations.Count,
+                Items = notifications
+            };
+        }
+
         public async Task<QuotationResponseDto> GetByIdAsync(int id)
         {
             var userBranchId = GetCurrentUserBranchId();

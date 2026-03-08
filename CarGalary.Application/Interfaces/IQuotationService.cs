@@ -6,6 +6,7 @@ namespace CarGalary.Application.Interfaces
     public interface IQuotationService
     {
         Task<List<QuotationResponseDto>> GetAllAsync();
+        Task<QuotationNotificationsResponseDto> GetNotificationsAsync(int take = 10);
         Task<QuotationResponseDto> GetByIdAsync(int id);
         Task<QuotationResponseDto> CreateAsync(CreateQuotationRequestDto dto);
         Task<QuotationResponseDto> UpdateStatusAsync(int quotationId, UpdateQuotationStatusRequestDto dto);
