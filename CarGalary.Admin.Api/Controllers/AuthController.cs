@@ -24,6 +24,7 @@ namespace CarGalary.Admin.Api.Controllers
         private const string AuthNewPasswordMinLengthCode = "1106";
         private const string AuthInvalidResetRequestCode = "1107";
         private const string AuthResetPasswordFailedCode = "1108";
+        private const string AuthUserNotFoundCode = "1227";
 
         private readonly IIdentityService _identity;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -82,7 +83,12 @@ namespace CarGalary.Admin.Api.Controllers
             var identifier = request.UserNameOrEmail.Trim();
             var user = await FindByUserNameOrEmailOrNullAsync(identifier);
 
-            if (user != null && !string.IsNullOrWhiteSpace(user.Email))
+            if (user == null || string.IsNullOrWhiteSpace(user.Email))
+            {
+                return BadRequest(new ApiErrorResponse(AuthUserNotFoundCode));
+            }
+
+            if (user != null)
             {
                 try
                 {

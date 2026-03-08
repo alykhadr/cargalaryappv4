@@ -158,13 +158,18 @@ namespace CarGalary.Api.Controllers
         {
             if (string.IsNullOrWhiteSpace(request.UserNameOrEmail))
             {
-                return BadRequest(new ApiErrorResponse("User name or email is required"));
+                return BadRequest(new ApiErrorResponse("1103"));
             }
 
             var identifier = request.UserNameOrEmail.Trim();
             var user = await FindByUserNameOrEmailOrNullAsync(identifier);
 
-            if (user != null && !string.IsNullOrWhiteSpace(user.Email))
+            if (user == null || string.IsNullOrWhiteSpace(user.Email))
+            {
+                return BadRequest(new ApiErrorResponse("1227"));
+            }
+
+            if (user != null)
             {
                 try
                 {
