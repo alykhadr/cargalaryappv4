@@ -67,7 +67,13 @@ namespace CarGalary.Application.Services
         public async Task<List<UserListItemDto>> GetUsersAsync()
         {
             var users = await _unitOfWork.identities.GetUsersAsync();
-            return users.Select(ToUserListItemDto).ToList();
+            var employeeUserIds = await _unitOfWork.Employees.GetEmployeeUserIdsAsync();
+            var employeeUserIdSet = employeeUserIds.ToHashSet();
+
+            return users
+                .Where(user => !employeeUserIdSet.Contains(user.Id))
+                .Select(ToUserListItemDto)
+                .ToList();
         }
 
         public async Task<List<UserByBranchResponseDto>> GetUsersByBranchAsync(int branchId)

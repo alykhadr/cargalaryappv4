@@ -24,6 +24,15 @@ namespace CarGalary.Infrastructure.ImplementRepositories
             return await _context.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
         }
 
+        public async Task<List<Guid>> GetEmployeeUserIdsAsync()
+        {
+            return await _context.Employees
+                .AsNoTracking()
+                .Select(e => e.UserId)
+                .Distinct()
+                .ToListAsync();
+        }
+
         public async Task<List<Employee>> GetAllWithDetailsAsync()
         {
             return await _context.Employees

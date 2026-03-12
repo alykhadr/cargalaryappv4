@@ -6,6 +6,7 @@ namespace CarGalary.Domain.RepositoryInterfaces
     {
         Task AddAsync(Employee employee);
         Task<Employee?> GetByUserIdAsync(Guid userId);
+        Task<List<Guid>> GetEmployeeUserIdsAsync();
         Task<List<Employee>> GetAllWithDetailsAsync();
         Task<List<Employee>> GetByBranchIdWithDetailsAsync(int branchId);
         Task<List<Employee>> GetByDepartmentIdWithDetailsAsync(int departmentId);
