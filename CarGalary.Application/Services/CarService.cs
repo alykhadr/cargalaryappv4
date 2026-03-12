@@ -496,7 +496,7 @@ namespace CarGalary.Application.Services
 
         private int? GetCurrentUserBranchId()
         {
-            if (_currentUserService.IsInRole("Admin"))
+            if (_currentUserService.IsInRole("Admin") || _currentUserService.IsInRole("Manager"))
             {
                 return null;
             }

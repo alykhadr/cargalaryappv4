@@ -23,17 +23,20 @@ namespace CarGalary.Admin.Api.Controllers
         private readonly ICarGalleryImageService _carImageService;
         private readonly IWebHostEnvironment _environment;
         private readonly IHubContext<CarHub> _hubContext;
+        private readonly ICurrentUserService _currentUserService;
 
         public CarsController(
             ICarService carService,
             ICarGalleryImageService carImageService,
             IWebHostEnvironment environment,
-            IHubContext<CarHub> hubContext)
+            IHubContext<CarHub> hubContext,
+            ICurrentUserService currentUserService)
         {
             _carService = carService;
             _carImageService = carImageService;
             _environment = environment;
             _hubContext = hubContext;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet]
@@ -112,6 +115,12 @@ namespace CarGalary.Admin.Api.Controllers
         {
             try
             {
+                if (!TryResolveBranchId(dto.BranchId, out var resolvedBranchId, out var errorResult))
+                {
+                    return errorResult!;
+                }
+                dto.BranchId = resolvedBranchId;
+
                 var validationResult = validator.Validate(dto);
                 if (!validationResult.IsValid)
                 {
@@ -151,6 +160,12 @@ namespace CarGalary.Admin.Api.Controllers
         {
             try
             {
+                if (!TryResolveBranchId(dto.BranchId, out var resolvedBranchId, out var errorResult))
+                {
+                    return errorResult!;
+                }
+                dto.BranchId = resolvedBranchId;
+
                 var existing = await _carService.GetByIdAsync(id);
                 if (existing == null)
                 {
@@ -340,6 +355,12 @@ namespace CarGalary.Admin.Api.Controllers
         {
             try
             {
+                if (!TryResolveBranchId(dto.BranchId, out var resolvedBranchId, out var errorResult))
+                {
+                    return errorResult!;
+                }
+                dto.BranchId = resolvedBranchId;
+
                 var baseCarDto = new CreateCarRequestDto
                 {
                     NameAr = dto.NameAr,
@@ -552,6 +573,46 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 PropertyNameCaseInsensitive = true
             });
+        }
+
+        private bool TryResolveBranchId(int requestedBranchId, out int resolvedBranchId, out IActionResult? errorResult)
+        {
+            if (CanSelectBranch())
+            {
+                if (requestedBranchId <= 0)
+                {
+                    errorResult = BadRequest(new ApiErrorResponse(
+                        "1101",
+                        StatusCodes.Status400BadRequest,
+                        new List<string> { "BranchId is required for manager users." }));
+                    resolvedBranchId = 0;
+                    return false;
+                }
+
+                resolvedBranchId = requestedBranchId;
+                errorResult = null;
+                return true;
+            }
+
+            var userBranchId = _currentUserService.BranchId;
+            if (!userBranchId.HasValue || userBranchId.Value <= 0)
+            {
+                errorResult = BadRequest(new ApiErrorResponse(
+                    "1101",
+                    StatusCodes.Status400BadRequest,
+                    new List<string> { "Current user branch is missing." }));
+                resolvedBranchId = 0;
+                return false;
+            }
+
+            resolvedBranchId = userBranchId.Value;
+            errorResult = null;
+            return true;
+        }
+
+        private bool CanSelectBranch()
+        {
+            return _currentUserService.IsInRole("Manager") || _currentUserService.IsInRole("Admin");
         }
 
     }
