@@ -72,8 +72,8 @@ namespace CarGalary.Admin.Api.Controllers
                 normalizedUserName,
                 normalizedEmail,
                 password,
-                request.FirstName?.Trim(),
-                request.LastName?.Trim(),
+                request.NameEn?.Trim(),
+                request.NameAr?.Trim(),
                 request.BranchId,
                 profileImageUrl);
 
@@ -141,6 +141,14 @@ namespace CarGalary.Admin.Api.Controllers
                 return BadRequest(new ApiErrorResponse(UserNameAndEmailRequiredCode, StatusCodes.Status400BadRequest));
             }
 
+            if (string.IsNullOrWhiteSpace(request.NameEn) || string.IsNullOrWhiteSpace(request.NameAr))
+            {
+                return BadRequest(new ApiErrorResponse(
+                    ValidationFailedCode,
+                    StatusCodes.Status400BadRequest,
+                    new List<string> { "NameEn is required", "NameAr is required" }));
+            }
+
             string? profileImageUrl = null;
             if (request.ProfileImage != null)
             {
@@ -156,8 +164,8 @@ namespace CarGalary.Admin.Api.Controllers
                 userId,
                 request.UserName,
                 request.Email,
-                request.FirstName,
-                request.LastName,
+                request.NameEn?.Trim(),
+                request.NameAr?.Trim(),
                 request.BranchId,
                 profileImageUrl
             );

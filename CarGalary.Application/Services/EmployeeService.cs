@@ -207,8 +207,8 @@ namespace CarGalary.Application.Services
                 MobileNo = employee.User?.PhoneNumber,
                 BranchName = employee.Branch?.BranchNameEn ?? string.Empty,
                 // Keep legacy fields for backward compatibility with existing clients.
-                FirstName = employee.User?.FullNameEn ?? string.Empty,
-                LastName = employee.User?.FullNameAr ?? string.Empty,
+                NameEn = employee.User?.FullNameEn ?? string.Empty,
+                NameAr = employee.User?.FullNameAr ?? string.Empty,
                 IsLocked = employee.User?.LockoutEnd.HasValue == true && employee.User.LockoutEnd.Value > DateTimeOffset.UtcNow,
                 CreatedAt = employee.CreatedAt,
                 BranchId = employee.BranchId,

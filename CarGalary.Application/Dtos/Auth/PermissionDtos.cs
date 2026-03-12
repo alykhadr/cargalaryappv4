@@ -21,8 +21,8 @@ namespace CarGalary.Application.Dtos.Auth
         public string Email { get; set; } = string.Empty;
         public string? MobileNo { get; set; }
         public string BranchName { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
+        public string NameEn { get; set; } = string.Empty;
+        public string NameAr { get; set; } = string.Empty;
         public bool IsLocked { get; set; }
         public DateTime CreatedAt { get; set; }
         public int BranchId { get; set; }

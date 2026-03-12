@@ -30,7 +30,7 @@ namespace CarGalary.Infrastructure.Identity
 
         // ================= USER =================
 
-        public async Task<(ApplicationUser User, string Token)> CreateUserAsync(string userName, string email, string password, string? firstName, string? lastName, int branchId, string? profileImageUrl)
+        public async Task<(ApplicationUser User, string Token)> CreateUserAsync(string userName, string email, string password, string? nameEn, string? nameAr, int branchId, string? profileImageUrl)
         {
             var normalizedUserName = userName.Trim().ToUpperInvariant();
             var userNameExists = await _userManager.Users.AnyAsync(u => u.NormalizedUserName == normalizedUserName);
@@ -43,8 +43,8 @@ namespace CarGalary.Infrastructure.Identity
             {
                 UserName = userName.Trim(),
                 Email = email.Trim(),
-                FullNameEn = firstName,
-                FullNameAr = lastName,
+                FullNameEn = nameEn,
+                FullNameAr = nameAr,
                 BranchId = branchId,
                 ProfileImageUrl = profileImageUrl
             };
@@ -90,7 +90,7 @@ namespace CarGalary.Infrastructure.Identity
                 .ToListAsync();
         }
 
-        public async Task UpdateUserDetailsAsync(string userId, string userName, string email, string? firstName, string? lastName, int branchId, string? profileImageUrl)
+        public async Task UpdateUserDetailsAsync(string userId, string userName, string email, string? nameEn, string? nameAr, int branchId, string? profileImageUrl)
         {
             var user = await _userManager.FindByIdAsync(userId)
                 ?? throw new Exception("User not found");
@@ -114,8 +114,8 @@ namespace CarGalary.Infrastructure.Identity
 
             user.UserName = userName.Trim();
             user.Email = email.Trim();
-            user.FullNameEn = firstName?.Trim();
-            user.FullNameAr = lastName?.Trim();
+            user.FullNameEn = nameEn?.Trim();
+            user.FullNameAr = nameAr?.Trim();
             user.BranchId = branchId;
             if (profileImageUrl != null)
             {

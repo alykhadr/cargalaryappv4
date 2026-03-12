@@ -63,8 +63,8 @@ namespace CarGalary.Api.Controllers
                     request.UserName.Trim(),
                     request.Email.ToUpper().Trim(),
                     request.Password,
-                    request.FirstName?.Trim(),
-                    request.LastName?.Trim(),
+                    request.NameEn?.Trim(),
+                    request.NameAr?.Trim(),
                     0,
                     null);
 
@@ -102,8 +102,8 @@ namespace CarGalary.Api.Controllers
                     request.UserName.Trim(),
                    request.Email.ToUpper().Trim(),
                     request.Password,
-                    request.FirstName?.Trim(),
-                    request.LastName?.Trim(),
+                    request.NameEn?.Trim(),
+                    request.NameAr?.Trim(),
                     0,
                     null);
 

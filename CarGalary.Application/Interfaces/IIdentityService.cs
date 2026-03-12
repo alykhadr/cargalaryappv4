@@ -6,12 +6,12 @@ namespace CarGalary.Application.Interfaces
     public interface IIdentityService
     {
         // User
-        Task<UserDto> CreateUserAsync(string userName, string email, string password, string? firstName, string? lastName, int branchId, string? profileImageUrl);
+        Task<UserDto> CreateUserAsync(string userName, string email, string password, string? nameEn, string? nameAr, int branchId, string? profileImageUrl);
         Task<bool> DeleteUserAsync(string userId);
         Task<bool> CheckPasswordAsync(string userName, string password);
         Task<List<UserListItemDto>> GetUsersAsync();
         Task<List<UserByBranchResponseDto>> GetUsersByBranchAsync(int branchId);
-        Task UpdateUserDetailsAsync(string userId, string userName, string email, string? firstName, string? lastName, int branchId, string? profileImageUrl);
+        Task UpdateUserDetailsAsync(string userId, string userName, string email, string? nameEn, string? nameAr, int branchId, string? profileImageUrl);
         Task ChangeUserPasswordByAdminAsync(string userId, string newPassword);
         Task<IList<string>> GetUserRolesAsync(string userId);
         Task<IList<string>> GetUserPermissionsAsync(string userId);

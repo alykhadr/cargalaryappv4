@@ -76,9 +76,9 @@ namespace CarGalary.Application.Services
             return users.Select(ToUserByBranchDto).ToList();
         }
 
-        public async Task UpdateUserDetailsAsync(string userId, string userName, string email, string? firstName, string? lastName, int branchId, string? profileImageUrl)
+        public async Task UpdateUserDetailsAsync(string userId, string userName, string email, string? nameEn, string? nameAr, int branchId, string? profileImageUrl)
         {
-            await _unitOfWork.identities.UpdateUserDetailsAsync(userId, userName, email, firstName, lastName, branchId, profileImageUrl);
+            await _unitOfWork.identities.UpdateUserDetailsAsync(userId, userName, email, nameEn, nameAr, branchId, profileImageUrl);
         }
 
         public async Task ChangeUserPasswordByAdminAsync(string userId, string newPassword)
@@ -91,9 +91,9 @@ namespace CarGalary.Application.Services
             await _unitOfWork.identities.CreateRoleAsync(roleName);
         }
 
-        public async Task<UserDto> CreateUserAsync(string userName, string email, string password, string? firstName, string? lastName, int branchId, string? profileImageUrl)
+        public async Task<UserDto> CreateUserAsync(string userName, string email, string password, string? nameEn, string? nameAr, int branchId, string? profileImageUrl)
         {
-            var result = await _unitOfWork.identities.CreateUserAsync(userName, email, password, firstName, lastName, branchId, profileImageUrl);
+            var result = await _unitOfWork.identities.CreateUserAsync(userName, email, password, nameEn, nameAr, branchId, profileImageUrl);
             return ToUserDto(result.User, result.Token);
         }
 
@@ -180,8 +180,8 @@ namespace CarGalary.Application.Services
                 Id = user.Id.ToString(),
                 Username = user.UserName,
                 Password = null,
-                FirstName = user.FullNameEn,
-                LastName = user.FullNameAr,
+                NameEn = user.FullNameEn ?? string.Empty,
+                NameAr = user.FullNameAr ?? string.Empty,
                 Token = token,
                 Email = user.Email
             };
@@ -205,8 +205,8 @@ namespace CarGalary.Application.Services
                 Id = user.Id.ToString(),
                 Username = user.UserName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
-                FirstName = user.FullNameEn ?? string.Empty,
-                LastName = user.FullNameAr ?? string.Empty
+                NameEn = user.FullNameEn ?? string.Empty,
+                NameAr = user.FullNameAr ?? string.Empty
             };
         }
 
@@ -217,8 +217,8 @@ namespace CarGalary.Application.Services
                 Id = user.Id.ToString(),
                 UserName = user.UserName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
-                FirstName = user.FullNameEn ?? string.Empty,
-                LastName = user.FullNameAr ?? string.Empty,
+                NameEn = user.FullNameEn ?? string.Empty,
+                NameAr = user.FullNameAr ?? string.Empty,
                 CreatedAt = user.CreatedAt,
                 IsLocked = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow,
                 BranchId = user.BranchId,
@@ -233,8 +233,8 @@ namespace CarGalary.Application.Services
                 Id = user.Id.ToString(),
                 UserName = user.UserName,
                 Email = user.Email,
-                FirstName = user.FullNameEn,
-                LastName = user.FullNameAr,
+                NameEn = user.FullNameEn,
+                NameAr = user.FullNameAr,
                 BranchId = user.BranchId,
                 ProfileImageUrl = user.ProfileImageUrl,
                 LockoutEnd = user.LockoutEnd
