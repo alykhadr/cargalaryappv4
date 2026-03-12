@@ -94,7 +94,7 @@ namespace CarGalary.Application.Services
         public async Task<UserDto> CreateUserAsync(string userName, string email, string password, string? nameEn, string? nameAr, int branchId, string? profileImageUrl)
         {
             var result = await _unitOfWork.identities.CreateUserAsync(userName, email, password, nameEn, nameAr, branchId, profileImageUrl);
-            return ToUserDto(result.User, result.Token);
+            return await ToUserDtoAsync(result.User, result.Token);
         }
 
         public async Task<bool> DeleteUserAsync(string userId)
@@ -125,7 +125,7 @@ namespace CarGalary.Application.Services
         public async Task<UserDto> LoginAsync(string userName, string password, bool rememberMe = false)
         {
             var result = await _unitOfWork.identities.LoginAsync(userName, password, rememberMe);
-            return ToUserDto(result.User, result.Token);
+            return await ToUserDtoAsync(result.User, result.Token);
         }
 
         public async Task RemoveRoleAsync(string userId, string roleName)
@@ -173,8 +173,10 @@ namespace CarGalary.Application.Services
             await _unitOfWork.identities.UpdateUsernameAsync(userId, newUsername);
         }
 
-        private static UserDto ToUserDto(ApplicationUser user, string token)
+        private async Task<UserDto> ToUserDtoAsync(ApplicationUser user, string token)
         {
+            var branch = await _unitOfWork.Branches.GetByIdAsync(user.BranchId);
+
             return new UserDto
             {
                 Id = user.Id.ToString(),
@@ -182,6 +184,9 @@ namespace CarGalary.Application.Services
                 Password = null,
                 NameEn = user.FullNameEn ?? string.Empty,
                 NameAr = user.FullNameAr ?? string.Empty,
+                BranchId = user.BranchId,
+                BranchNameEn = branch?.BranchNameEn ?? string.Empty,
+                BranchNameAr = branch?.BranchNameAr ?? string.Empty,
                 Token = token,
                 Email = user.Email
             };
