@@ -10,6 +10,7 @@ namespace CarGalary.Application.Services
 {
     public class CurrentUserService : ICurrentUserService
     {
+        private const string BranchHeaderName = "X-Branch-Id";
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CurrentUserService(IHttpContextAccessor httpContextAccessor)
@@ -33,8 +34,25 @@ namespace CarGalary.Application.Services
         {
             get
             {
-                var raw = _httpContextAccessor.HttpContext?.User?.FindFirstValue("branch_id");
-                if (int.TryParse(raw, out var branchId))
+                var httpContext = _httpContextAccessor.HttpContext;
+                if (httpContext?.User == null)
+                {
+                    return null;
+                }
+
+                var user = httpContext.User;
+                var canSwitchBranch = user.IsInRole("Admin") || user.IsInRole("Manager");
+
+                if (canSwitchBranch &&
+                    httpContext.Request.Headers.TryGetValue(BranchHeaderName, out var branchHeaderValues) &&
+                    int.TryParse(branchHeaderValues.FirstOrDefault(), out var selectedBranchId) &&
+                    selectedBranchId > 0)
+                {
+                    return selectedBranchId;
+                }
+
+                var raw = user.FindFirstValue("branch_id");
+                if (int.TryParse(raw, out var branchId) && branchId > 0)
                 {
                     return branchId;
                 }
