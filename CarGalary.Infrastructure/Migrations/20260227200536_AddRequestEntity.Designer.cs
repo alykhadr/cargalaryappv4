@@ -4,6 +4,7 @@ using CarGalary.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarGalary.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260227200536_AddRequestEntity")]
+    partial class AddRequestEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1207,12 +1210,6 @@ namespace CarGalary.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<int>("CurrentStatus")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CurrentStatusDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -1261,8 +1258,6 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.HasIndex("CurrentStatus");
-
                     b.HasIndex("PaymentMethod");
 
                     b.HasIndex("RegionId");
@@ -1274,52 +1269,6 @@ namespace CarGalary.Infrastructure.Migrations
                     b.HasIndex("VehicleOwnerType");
 
                     b.ToTable("Requests");
-                });
-
-            modelBuilder.Entity("CarGalary.Domain.Entities.RequestHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<bool>("IsAvailable")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("RequestId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StatusDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RequestId");
-
-                    b.HasIndex("Status");
-
-                    b.ToTable("RequestHistories");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Services", b =>
@@ -1804,12 +1753,6 @@ namespace CarGalary.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CarGalary.Domain.Entities.LookupDetails", "CurrentStatusLookup")
-                        .WithMany()
-                        .HasForeignKey("CurrentStatus")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("CarGalary.Domain.Entities.LookupDetails", "PaymentMethodLookup")
                         .WithMany()
                         .HasForeignKey("PaymentMethod")
@@ -1837,8 +1780,6 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.Navigation("CityLookup");
 
-                    b.Navigation("CurrentStatusLookup");
-
                     b.Navigation("PaymentMethodLookup");
 
                     b.Navigation("RegionLookup");
@@ -1846,25 +1787,6 @@ namespace CarGalary.Infrastructure.Migrations
                     b.Navigation("User");
 
                     b.Navigation("VehicleOwnerTypeLookup");
-                });
-
-            modelBuilder.Entity("CarGalary.Domain.Entities.RequestHistory", b =>
-                {
-                    b.HasOne("CarGalary.Domain.Entities.Request", "Request")
-                        .WithMany("Histories")
-                        .HasForeignKey("RequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CarGalary.Domain.Entities.LookupDetails", "StatusLookup")
-                        .WithMany()
-                        .HasForeignKey("Status")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Request");
-
-                    b.Navigation("StatusLookup");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.UserFavorite", b =>
@@ -1990,11 +1912,6 @@ namespace CarGalary.Infrastructure.Migrations
             modelBuilder.Entity("CarGalary.Domain.Entities.Department", b =>
                 {
                     b.Navigation("Employees");
-                });
-
-            modelBuilder.Entity("CarGalary.Domain.Entities.Request", b =>
-                {
-                    b.Navigation("Histories");
                 });
 
             modelBuilder.Entity("CarType", b =>

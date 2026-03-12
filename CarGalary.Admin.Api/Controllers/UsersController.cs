@@ -22,7 +22,7 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet]
-        [PermissionAuthorize("quotations.view")]
+        [PermissionAuthorize("requests.view")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _identityService.GetUsersAsync();

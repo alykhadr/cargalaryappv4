@@ -12,8 +12,8 @@ namespace CarGalary.Domain.UnitOfWork
         public IEmployeeRepository Employees { get; }
         public IDepartmentRepository Departments { get; }
         public ILookupDetailsRepository LookupDetails { get; }
-        public IQuotationRepository Quotations { get; }
-        public IQuotationHistoryRepository QuotationHistories { get; }
+        public IRequestRepository Requests { get; }
+        public IRequestHistoryRepository RequestHistories { get; }
         public ICarColorRepository CarColors { get; }
         public ICarFeatureRepository CarFeatures { get; }
         public ICarGalleryImageRepository CarGalleryImages { get; }

@@ -220,7 +220,7 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return NotFound(new ApiErrorResponse("1209", StatusCodes.Status404NotFound));
             }
-            catch (Exception ex) when (ex.Message == "Cannot delete car because it is referenced by quotations")
+            catch (Exception ex) when (ex.Message == "Cannot delete car because it is referenced by requests")
             {
                 return BadRequest(new ApiErrorResponse("1205", StatusCodes.Status400BadRequest));
             }

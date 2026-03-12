@@ -67,7 +67,7 @@
   {
     "errorCode": "1205",
     "messageAr": "لا يمكن حذف هذه السيارة لأنها مرتبطة بسجلات عروض الأسعار.",
-    "messageEn": "Cannot delete this car because it is linked to quotation records."
+    "messageEn": "Cannot delete this car because it is linked to request records."
   },
   {
     "errorCode": "1206",
@@ -297,12 +297,12 @@
   {
     "errorCode": "1321",
     "messageAr": "عرض السعر غير موجود.",
-    "messageEn": "Quotation not found"
+    "messageEn": "Request not found"
   },
   {
     "errorCode": "1322",
     "messageAr": "فشلت عملية عرض السعر.",
-    "messageEn": "Quotation operation failed"
+    "messageEn": "Request operation failed"
   },
   {
     "errorCode": "1323",

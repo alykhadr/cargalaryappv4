@@ -435,11 +435,11 @@ namespace CarGalary.Application.Services
                 throw new Exception("Car not found");
             }
 
-            var hasQuotations = (await _unitOfWork.Quotations.GetAllAsync())
+            var hasRequests = (await _unitOfWork.Requests.GetAllAsync())
                 .Any(q => q.CarId == id && q.IsAvailable);
-            if (hasQuotations)
+            if (hasRequests)
             {
-                throw new Exception("Cannot delete car because it is referenced by quotations");
+                throw new Exception("Cannot delete car because it is referenced by requests");
             }
 
             try

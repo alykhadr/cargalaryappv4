@@ -4,6 +4,7 @@ using CarGalary.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarGalary.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260312132217_MapRequestToLegacyQuotationSchema")]
+    partial class MapRequestToLegacyQuotationSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1273,7 +1276,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("VehicleOwnerType");
 
-                    b.ToTable("Requests");
+                    b.ToTable("Quotations", (string)null);
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.RequestHistory", b =>
@@ -1299,7 +1302,8 @@ namespace CarGalary.Infrastructure.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<int>("RequestId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("QuotationId");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -1319,7 +1323,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("RequestHistories");
+                    b.ToTable("QuotationHistories", (string)null);
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Services", b =>

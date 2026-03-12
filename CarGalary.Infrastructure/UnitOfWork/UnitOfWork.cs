@@ -34,8 +34,8 @@ namespace CarGalary.Infrastructure.UnitOfWork
         public IEmployeeRepository Employees { get; }
         public IDepartmentRepository Departments { get; }
         public ILookupDetailsRepository LookupDetails { get; }
-        public IQuotationRepository Quotations { get; }
-        public IQuotationHistoryRepository QuotationHistories { get; }
+        public IRequestRepository Requests { get; }
+        public IRequestHistoryRepository RequestHistories { get; }
 
 
 
@@ -65,8 +65,8 @@ namespace CarGalary.Infrastructure.UnitOfWork
             IEmployeeRepository employeeRepository,
             IDepartmentRepository departmentRepository,
             ILookupDetailsRepository lookupDetailsRepository,
-            IQuotationRepository quotationRepository,
-            IQuotationHistoryRepository quotationHistoryRepository)
+            IRequestRepository requestRepository,
+            IRequestHistoryRepository requestHistoryRepository)
         {
             _context = context;
             CarColors = carColorRepository;
@@ -92,8 +92,8 @@ namespace CarGalary.Infrastructure.UnitOfWork
             Employees = employeeRepository;
             Departments = departmentRepository;
             LookupDetails = lookupDetailsRepository;
-            Quotations = quotationRepository;
-            QuotationHistories = quotationHistoryRepository;
+            Requests = requestRepository;
+            RequestHistories = requestHistoryRepository;
 
             MemberServices=memberServiceRepository;
 

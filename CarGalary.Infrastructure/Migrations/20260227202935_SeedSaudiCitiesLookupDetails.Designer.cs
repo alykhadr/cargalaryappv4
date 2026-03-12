@@ -1191,7 +1191,7 @@ namespace CarGalary.Infrastructure.Migrations
                     b.ToTable("Offers");
                 });
 
-            modelBuilder.Entity("CarGalary.Domain.Entities.Quotation", b =>
+            modelBuilder.Entity("CarGalary.Domain.Entities.Request", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1268,7 +1268,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("VehicleOwnerType");
 
-                    b.ToTable("Quotations");
+                    b.ToTable("Requests");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Services", b =>
@@ -1739,7 +1739,7 @@ namespace CarGalary.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CarGalary.Domain.Entities.Quotation", b =>
+            modelBuilder.Entity("CarGalary.Domain.Entities.Request", b =>
                 {
                     b.HasOne("CarGalary.Domain.Entities.Car", "Car")
                         .WithMany()
@@ -1766,8 +1766,8 @@ namespace CarGalary.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("CarGalary.Domain.Entities.ApplicationUser", "User")
-                        .WithOne("Quotation")
-                        .HasForeignKey("CarGalary.Domain.Entities.Quotation", "UserId")
+                        .WithOne("Request")
+                        .HasForeignKey("CarGalary.Domain.Entities.Request", "UserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("CarGalary.Domain.Entities.LookupDetails", "VehicleOwnerTypeLookup")
@@ -1870,7 +1870,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.Navigation("Favorites");
 
-                    b.Navigation("Quotation");
+                    b.Navigation("Request");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Branchs", b =>

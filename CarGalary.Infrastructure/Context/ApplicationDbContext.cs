@@ -45,8 +45,8 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<Employee> Employees { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<LookupDetails> LookupDetails { get; set; }
-    public DbSet<Quotation> Quotations { get; set; }
-    public DbSet<QuotationHistory> QuotationHistories { get; set; }
+    public DbSet<Request> Requests { get; set; }
+    public DbSet<RequestHistory> RequestHistories { get; set; }
 
 
 
@@ -81,8 +81,8 @@ namespace CarGalary.Infrastructure.Context;
               modelBuilder.ApplyConfiguration(new EmployeeConfiguration());
               modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
               modelBuilder.ApplyConfiguration(new LookupDetailsConfiguration());
-              modelBuilder.ApplyConfiguration(new QuotationConfiguration());
-              modelBuilder.ApplyConfiguration(new QuotationHistoryConfiguration());
+              modelBuilder.ApplyConfiguration(new RequestConfiguration());
+              modelBuilder.ApplyConfiguration(new RequestHistoryConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }
