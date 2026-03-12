@@ -8,6 +8,8 @@ namespace CarGalary.Application.Services
 {
     public class IdentityService : IIdentityService
     {
+        private static readonly DateTimeOffset MaxSupportedLockoutEnd = new DateTimeOffset(2077, 11, 16, 23, 59, 59, TimeSpan.Zero);
+
         private readonly IUnitOfWork _unitOfWork;
 
         public IdentityService(IUnitOfWork unitOfWork)
@@ -248,7 +250,9 @@ namespace CarGalary.Application.Services
                 NameAr = user.FullNameAr,
                 BranchId = user.BranchId,
                 ProfileImageUrl = user.ProfileImageUrl,
-                LockoutEnd = user.LockoutEnd
+                LockoutEnd = (user.LockoutEnd.HasValue && user.LockoutEnd.Value > MaxSupportedLockoutEnd)
+                    ? MaxSupportedLockoutEnd
+                    : user.LockoutEnd
             };
         }
     }

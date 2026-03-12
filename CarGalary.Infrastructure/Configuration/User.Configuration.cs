@@ -32,6 +32,10 @@ public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
         builder.Property(u => u.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
 
+        builder.HasOne(u => u.Branchs)
+            .WithMany(b => b.ApplicationUsers)
+            .HasForeignKey(u => u.BranchId)
+            .OnDelete(DeleteBehavior.Restrict);
        
     }
 }

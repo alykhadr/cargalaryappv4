@@ -13,6 +13,8 @@ namespace CarGalary.Infrastructure.Identity
 {
     public class IdentityRepository : IIdentityRepository
     {
+        private static readonly DateTimeOffset MaxSupportedLockoutEnd = new DateTimeOffset(2077, 11, 16, 23, 59, 59, TimeSpan.Zero);
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly JwtSettings _jwt;
@@ -181,7 +183,7 @@ namespace CarGalary.Infrastructure.Identity
             var user = await _userManager.FindByIdAsync(userId)
                 ?? throw new Exception("User not found");
 
-            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+            await _userManager.SetLockoutEndDateAsync(user, MaxSupportedLockoutEnd);
         }
 
         public async Task UnlockUserAsync(string userId)
