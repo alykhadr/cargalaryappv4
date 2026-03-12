@@ -45,6 +45,16 @@ namespace CarGalary.Admin.Api.Security
             {
                 yield return "employees." + required["users.".Length..];
             }
+
+            // Backward compatibility for dashboard endpoints while roles are being updated.
+            if (string.Equals(required, "dashboard.view", StringComparison.OrdinalIgnoreCase))
+            {
+                yield return "cars.view";
+            }
+            else if (string.Equals(required, "cars.view", StringComparison.OrdinalIgnoreCase))
+            {
+                yield return "dashboard.view";
+            }
         }
     }
 }
