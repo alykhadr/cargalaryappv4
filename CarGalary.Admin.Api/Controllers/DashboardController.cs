@@ -218,6 +218,101 @@ namespace CarGalary.Admin.Api.Controllers
             });
         }
 
+        [HttpGet("best-seller-cars")]
+        [PermissionAuthorize("dashboard.view")]
+        public async Task<IActionResult> GetBestSellerCars([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            var safePage = 1;
+            var safePageSize = 5;
+            var userBranchId = _currentUserService.BranchId;
+
+            var query = _context.Requests
+                .AsNoTracking()
+                .Include(x => x.Car)
+                .Include(x => x.CurrentStatusLookup)
+                .Where(x =>
+                    x.IsAvailable &&
+                    x.Car.IsAvailable &&
+                    x.CurrentStatusLookup != null &&
+                    x.CurrentStatusLookup.DetailCode == "4")
+                .AsQueryable();
+
+            if (userBranchId.HasValue)
+            {
+                query = query.Where(x => x.Car.BranchId == userBranchId.Value);
+            }
+
+            var groupedQuery = query
+                .GroupBy(x => x.CarId)
+                .Select(g => new
+                {
+                    CarId = g.Key,
+                    SalesCount = g.Count(),
+                    LastSoldAt = g.Max(x => x.CurrentStatusDate ?? x.CreatedAt)
+                })
+                .Join(
+                    _context.Cars
+                        .AsNoTracking()
+                        .Select(car => new
+                        {
+                            car.Id,
+                            NameAr = car.NameAr,
+                            NameEn = car.NameEn
+                        }),
+                    sales => sales.CarId,
+                    car => car.Id,
+                    (sales, car) => new
+                    {
+                        sales.CarId,
+                        car.NameAr,
+                        car.NameEn,
+                        sales.SalesCount,
+                        sales.LastSoldAt
+                    });
+
+            var pageItems = await groupedQuery
+                .OrderByDescending(x => x.SalesCount)
+                .ThenByDescending(x => x.LastSoldAt)
+                .Take(safePageSize)
+                .ToListAsync();
+
+            var carIds = pageItems.Select(x => x.CarId).Distinct().ToList();
+            var carPrimaryImages = carIds.Count == 0
+                ? new Dictionary<int, string?>()
+                : (await _context.CarGalleryImages
+                    .Where(i =>
+                        i.IsAvailable &&
+                        carIds.Contains(i.CarId) &&
+                        i.ImageUrl != null &&
+                        i.ImageUrl != string.Empty)
+                    .OrderByDescending(i => i.IsPrimary)
+                    .ThenByDescending(i => i.CreatedAt)
+                    .Select(i => new { i.CarId, i.ImageUrl })
+                    .ToListAsync())
+                    .GroupBy(i => i.CarId)
+                    .ToDictionary(g => g.Key, g => g.Select(x => x.ImageUrl).FirstOrDefault());
+
+            var items = pageItems.Select(x => new
+            {
+                carId = x.CarId,
+                nameAr = string.IsNullOrWhiteSpace(x.NameAr) ? null : x.NameAr.Trim(),
+                nameEn = string.IsNullOrWhiteSpace(x.NameEn) ? null : x.NameEn.Trim(),
+                carNameAr = string.IsNullOrWhiteSpace(x.NameAr) ? null : x.NameAr.Trim(),
+                carNameEn = string.IsNullOrWhiteSpace(x.NameEn) ? null : x.NameEn.Trim(),
+                salesCount = x.SalesCount,
+                lastSoldAt = x.LastSoldAt,
+                primaryImageUrl = carPrimaryImages.TryGetValue(x.CarId, out var primaryImageUrl) ? primaryImageUrl : null
+            });
+
+            return Ok(new
+            {
+                page = safePage,
+                pageSize = safePageSize,
+                totalCount = pageItems.Count,
+                items
+            });
+        }
+
         [HttpGet("recent-requests")]
         [PermissionAuthorize("dashboard.view")]
         public async Task<IActionResult> GetRecentRequests([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
