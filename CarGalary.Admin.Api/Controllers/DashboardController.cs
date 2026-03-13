@@ -137,6 +137,87 @@ namespace CarGalary.Admin.Api.Controllers
             });
         }
 
+        [HttpGet("favorite-cars")]
+        [PermissionAuthorize("dashboard.view")]
+        public async Task<IActionResult> GetFavoriteCars([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            var safePage = page <= 0 ? 1 : page;
+            var safePageSize = pageSize <= 0 ? 5 : Math.Min(pageSize, 100);
+            var userBranchId = _currentUserService.BranchId;
+
+            var query = _context.UserFavorites
+                .AsNoTracking()
+                .Include(x => x.Car)
+                .Include(x => x.User)
+                .Where(x => x.Car.IsAvailable)
+                .AsQueryable();
+
+            if (userBranchId.HasValue)
+            {
+                query = query.Where(x => x.Car.BranchId == userBranchId.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var pageItems = await query
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((safePage - 1) * safePageSize)
+                .Take(safePageSize)
+                .Select(x => new
+                {
+                    x.CarId,
+                    x.UserId,
+                    x.CreatedAt,
+                    x.Priority,
+                    x.Notes,
+                    CarNameAr = x.Car.NameAr,
+                    CarNameEn = x.Car.NameEn,
+                    UserName = x.User.UserName,
+                    FullNameAr = x.User.FullNameAr,
+                    FullNameEn = x.User.FullNameEn
+                })
+                .ToListAsync();
+
+            var carIds = pageItems.Select(x => x.CarId).Distinct().ToList();
+            var carPrimaryImages = carIds.Count == 0
+                ? new Dictionary<int, string?>()
+                : (await _context.CarGalleryImages
+                    .Where(i =>
+                        i.IsAvailable &&
+                        carIds.Contains(i.CarId) &&
+                        i.ImageUrl != null &&
+                        i.ImageUrl != string.Empty)
+                    .OrderByDescending(i => i.IsPrimary)
+                    .ThenByDescending(i => i.CreatedAt)
+                    .Select(i => new { i.CarId, i.ImageUrl })
+                    .ToListAsync())
+                    .GroupBy(i => i.CarId)
+                    .ToDictionary(g => g.Key, g => g.Select(x => x.ImageUrl).FirstOrDefault());
+
+            var items = pageItems.Select(x => new
+            {
+                x.CarId,
+                x.UserId,
+                x.CreatedAt,
+                x.Priority,
+                x.Notes,
+                x.CarNameAr,
+                x.CarNameEn,
+                x.UserName,
+                x.FullNameAr,
+                x.FullNameEn,
+                PrimaryImageUrl = carPrimaryImages.TryGetValue(x.CarId, out var primaryImageUrl) ? primaryImageUrl : null
+            });
+
+            return Ok(new
+            {
+                page = safePage,
+                pageSize = safePageSize,
+                totalCount,
+                items
+            });
+        }
+
         [HttpGet("recent-requests")]
         [PermissionAuthorize("dashboard.view")]
         public async Task<IActionResult> GetRecentRequests([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
@@ -255,6 +336,107 @@ namespace CarGalary.Admin.Api.Controllers
                 closedSuccessCount,
                 closedLossCount = CountByCode("5"),
                 conversionRatio
+            });
+        }
+
+        [HttpGet("sales-by-branches")]
+        [PermissionAuthorize("dashboard.view")]
+        public async Task<IActionResult> GetSalesByBranches()
+        {
+            var userBranchId = _currentUserService.BranchId;
+
+            var branchQuery = _context.Branches
+                .AsNoTracking()
+                .Where(x => x.IsAvailable)
+                .AsQueryable();
+
+            if (userBranchId.HasValue)
+            {
+                branchQuery = branchQuery.Where(x => x.Id == userBranchId.Value);
+            }
+
+            var branches = await branchQuery
+                .Select(x => new
+                {
+                    x.Id,
+                    x.BranchNameAr,
+                    x.BranchNameEn,
+                    x.Latitute,
+                    x.Longtute
+                })
+                .ToListAsync();
+
+            if (branches.Count == 0)
+            {
+                return Ok(new { totalSales = 0, items = Array.Empty<object>() });
+            }
+
+            var branchIds = branches.Select(x => x.Id).Distinct().ToList();
+            var salesByBranch = await _context.Requests
+                .AsNoTracking()
+                .Where(x =>
+                    x.IsAvailable &&
+                    branchIds.Contains(x.Car.BranchId) &&
+                    x.CurrentStatusLookup != null &&
+                    x.CurrentStatusLookup.DetailCode == "4")
+                .GroupBy(x => x.Car.BranchId)
+                .Select(g => new
+                {
+                    BranchId = g.Key,
+                    SalesCount = g.Count()
+                })
+                .ToListAsync();
+
+            var salesMap = salesByBranch.ToDictionary(x => x.BranchId, x => x.SalesCount);
+            var branchSalesRaw = branches
+                .Select(branch =>
+                {
+                    var salesCount = salesMap.TryGetValue(branch.Id, out var value) ? value : 0;
+
+                    var hasLatitude = decimal.TryParse(
+                        (branch.Latitute ?? string.Empty).Trim(),
+                        NumberStyles.Float,
+                        CultureInfo.InvariantCulture,
+                        out var latitude);
+                    var hasLongitude = decimal.TryParse(
+                        (branch.Longtute ?? string.Empty).Trim(),
+                        NumberStyles.Float,
+                        CultureInfo.InvariantCulture,
+                        out var longitude);
+
+                    return new
+                    {
+                        branchId = branch.Id,
+                        nameAr = branch.BranchNameAr,
+                        nameEn = branch.BranchNameEn,
+                        salesCount,
+                        latitude = hasLatitude ? (double?)latitude : null,
+                        longitude = hasLongitude ? (double?)longitude : null
+                    };
+                })
+                .OrderByDescending(x => x.salesCount)
+                .ThenBy(x => x.branchId)
+                .Take(3)
+                .ToList();
+
+            var totalSales = branchSalesRaw.Sum(x => x.salesCount);
+            var items = branchSalesRaw.Select(x => new
+            {
+                x.branchId,
+                x.nameAr,
+                x.nameEn,
+                x.salesCount,
+                percentage = totalSales == 0
+                    ? 0m
+                    : Math.Round((decimal)x.salesCount * 100m / totalSales, 2),
+                x.latitude,
+                x.longitude
+            }).ToList();
+
+            return Ok(new
+            {
+                totalSales,
+                items
             });
         }
 
