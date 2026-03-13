@@ -15,4 +15,3 @@ namespace CarGalary.Application.Mappings
         }
     }
 }
-

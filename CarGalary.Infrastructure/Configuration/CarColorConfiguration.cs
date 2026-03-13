@@ -9,30 +9,25 @@ namespace CarGalary.Infrastructure.Configuration
 {
     public void Configure(EntityTypeBuilder<Color> builder)
     {
-        // Table name (optional, defaults to DbSet name)
-
-        // Primary Key
         builder.HasKey(c => c.Id);
 
-        // Properties
         builder.Property(c => c.ColorNameAr)
-            .IsRequired() ;               // NOT NULL          // Max length 50
-  builder.Property(c => c.ColorNameEn)
-            .IsRequired() ;     
-        builder.Property(c => c.ColorCode);          // Optional, max length 20
+            .IsRequired();
+        builder.Property(c => c.ColorNameEn)
+            .IsRequired();
+        builder.Property(c => c.ColorCode);
 
         builder.Property(c => c.IsAvailable)
-            .IsRequired();               // NOT NULL
+            .IsRequired();
 
-        builder.Property(c => c.CreatedBy);          // Optional, max length 50
+        builder.Property(c => c.CreatedBy);
 
         builder.Property(c => c.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()")  // Default to UTC now in SQL Server
+            .HasDefaultValueSql("GETUTCDATE()")
             .ValueGeneratedOnAdd();
 
-        // Optional: add unique constraint on ColorName if needed
         builder.HasIndex(c => c.ColorNameAr).IsUnique();
-         builder.HasIndex(c => c.ColorNameEn).IsUnique();
+        builder.HasIndex(c => c.ColorNameEn).IsUnique();
     }
 }
 }

@@ -9,6 +9,7 @@ namespace CarGalary.Application.Services
 {
     public class CarCarColorService : ICarCarColorService
     {
+        private const string ColorStatusMasterCode = "CAR_COLOR_STATUS";
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -57,6 +58,7 @@ namespace CarGalary.Application.Services
             }
 
             var entity = _mapper.Map<CarColor>(dto);
+            entity.ColorStatus = await ResolveColorStatusLookupIdAsync(dto.ColorStatus);
             entity.CreatedAt = DateTime.UtcNow;
             entity.IsAvailable = true;
             entity.ApplyPricing(
@@ -83,6 +85,11 @@ namespace CarGalary.Application.Services
             if (dto.IsAvailable == null)
             {
                 dto.IsAvailable = existing.IsAvailable;
+            }
+
+            if (dto.ColorStatus == null)
+            {
+                dto.ColorStatus = existing.ColorStatus;
             }
 
             // Preserve existing values if caller omitted them.
@@ -123,6 +130,7 @@ namespace CarGalary.Application.Services
             }
 
             _mapper.Map(dto, existing);
+            existing.ColorStatus = await ResolveColorStatusLookupIdAsync(dto.ColorStatus ?? existing.ColorStatus);
             existing.UpdatedAt = DateTime.UtcNow;
             existing.ApplyPricing(
                 dto.PricingPerColor ?? 0m,
@@ -145,6 +153,18 @@ namespace CarGalary.Application.Services
             existing.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.CarCarColors.DeleteAsync(existing);
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        private async Task<int> ResolveColorStatusLookupIdAsync(int statusId)
+        {
+            var lookups = await _unitOfWork.LookupDetails.GetByMasterCodeAsync(ColorStatusMasterCode);
+            var matched = lookups.FirstOrDefault(x => x.Id == statusId);
+            if (matched == null)
+            {
+                throw new Exception("ColorStatus is invalid");
+            }
+
+            return matched.Id;
         }
     }
 }

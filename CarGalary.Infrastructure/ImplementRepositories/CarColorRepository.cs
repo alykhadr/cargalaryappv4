@@ -23,7 +23,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
 
         public async Task<Color> GetCarColorByIdAsync(int id)
         {
-            return await _context.Colors.FindAsync(id);
+            return await _context.Colors.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<IEnumerable<Color>> GetAllCarColorsAsync()

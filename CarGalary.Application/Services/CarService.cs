@@ -14,6 +14,7 @@ namespace CarGalary.Application.Services
 {
     public class CarService : ICarService
     {
+        private const string CarColorStatusMasterCode = "CAR_COLOR_STATUS";
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
@@ -627,10 +628,13 @@ namespace CarGalary.Application.Services
                     colorImageUrl = $"/uploads/cars/{savedName}";
                 }
 
+                var colorStatusId = await ResolveCarColorStatusIdAsync(color.ColorStatus);
+
                 var carColor = new CarColor
                 {
                     CarId = carId,
                     ColorId = color.ColorId,
+                    ColorStatus = colorStatusId,
                     StockQuantity = color.StockQuantity,
                     ColorImageUrl = colorImageUrl,
                     IsAvailable = color.IsAvailable,
@@ -741,6 +745,18 @@ namespace CarGalary.Application.Services
             {
                 PropertyNameCaseInsensitive = true
             });
+        }
+
+        private async Task<int> ResolveCarColorStatusIdAsync(int statusId)
+        {
+            var lookups = await _unitOfWork.LookupDetails.GetByMasterCodeAsync(CarColorStatusMasterCode);
+            var matched = lookups.FirstOrDefault(x => x.Id == statusId);
+            if (matched == null)
+            {
+                throw new Exception("ColorStatus is invalid");
+            }
+
+            return matched.Id;
         }
 
         private sealed class CreateWithDetailsPayload

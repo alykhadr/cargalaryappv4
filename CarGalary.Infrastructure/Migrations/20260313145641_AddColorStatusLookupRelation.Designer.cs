@@ -4,6 +4,7 @@ using CarGalary.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarGalary.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260313145641_AddColorStatusLookupRelation")]
+    partial class AddColorStatusLookupRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -477,9 +480,6 @@ namespace CarGalary.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ColorStatus")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -520,8 +520,6 @@ namespace CarGalary.Infrastructure.Migrations
                     b.HasKey("CarId", "ColorId");
 
                     b.HasIndex("ColorId");
-
-                    b.HasIndex("ColorStatus");
 
                     b.ToTable("CarColors", t =>
                         {
@@ -697,6 +695,9 @@ namespace CarGalary.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("ColorStatus")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -721,6 +722,8 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("ColorNameEn")
                         .IsUnique();
+
+                    b.HasIndex("ColorStatus");
 
                     b.ToTable("Colors");
                 });
@@ -1725,17 +1728,9 @@ namespace CarGalary.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CarGalary.Domain.Entities.LookupDetails", "ColorStatusLookup")
-                        .WithMany()
-                        .HasForeignKey("ColorStatus")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Car");
 
                     b.Navigation("Color");
-
-                    b.Navigation("ColorStatusLookup");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.CarExtraDetails", b =>
@@ -1769,6 +1764,17 @@ namespace CarGalary.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Brand");
+                });
+
+            modelBuilder.Entity("CarGalary.Domain.Entities.Color", b =>
+                {
+                    b.HasOne("CarGalary.Domain.Entities.LookupDetails", "ColorStatusLookup")
+                        .WithMany()
+                        .HasForeignKey("ColorStatus")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ColorStatusLookup");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.ContactSalesOfficer", b =>

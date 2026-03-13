@@ -7,6 +7,10 @@ namespace CarGalary.Application.Validations.CarCarColor
     {
         public UpdateCarCarColorRequestValidator()
         {
+            RuleFor(x => x.ColorStatus)
+                .GreaterThan(0).When(x => x.ColorStatus.HasValue)
+                .WithMessage("ColorStatus must be greater than 0");
+
             RuleFor(x => x.StockQuantity)
                 .NotNull().WithMessage("StockQuantity is required")
                 .GreaterThanOrEqualTo(0).WithMessage("StockQuantity must be zero or greater");

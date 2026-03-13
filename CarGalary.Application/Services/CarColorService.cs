@@ -43,7 +43,8 @@ namespace CarGalary.Application.Services
             await _unitOfWork.CarColors.AddCarColorAsync(entity);
             await _unitOfWork.SaveChangesAsync();
 
-            return _mapper.Map<CarColorResponseDto>(entity);
+            var created = await _unitOfWork.CarColors.GetCarColorByIdAsync(entity.Id);
+            return _mapper.Map<CarColorResponseDto>(created ?? entity);
         }
 
         public async Task UpdateAsync(int id, UpdateCarColorRequestDto dto)
@@ -77,4 +78,3 @@ namespace CarGalary.Application.Services
         }
     }
 }
-

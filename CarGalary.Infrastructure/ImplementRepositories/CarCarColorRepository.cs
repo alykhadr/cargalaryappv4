@@ -19,13 +19,18 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             return await _context.CarColors
                 .Where(x => x.IsAvailable)
+                .Include(x => x.Color)
+                .Include(x => x.ColorStatusLookup)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
         public async Task<CarColor?> GetByIdAsync(int carId, int colorId)
         {
-            var entity = await _context.CarColors.FindAsync(carId, colorId);
+            var entity = await _context.CarColors
+                .Include(x => x.Color)
+                .Include(x => x.ColorStatusLookup)
+                .FirstOrDefaultAsync(x => x.CarId == carId && x.ColorId == colorId);
             return entity != null && entity.IsAvailable ? entity : null;
         }
 
@@ -33,6 +38,8 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             return await _context.CarColors
                 .Where(x => x.IsAvailable && x.CarId == carId)
+                .Include(x => x.Color)
+                .Include(x => x.ColorStatusLookup)
                 .AsNoTracking()
                 .ToListAsync();
         }

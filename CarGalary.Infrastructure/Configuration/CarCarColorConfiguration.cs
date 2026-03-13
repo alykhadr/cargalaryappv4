@@ -20,6 +20,8 @@ namespace CarGalary.Infrastructure.Configuration
 
             builder.Property(cc => cc.CarId);
             builder.Property(cc => cc.ColorId);
+            builder.Property(cc => cc.ColorStatus)
+                .IsRequired();
             // Relationships
             builder.HasOne(cc => cc.Car)
                 .WithMany(c => c.CarColors)
@@ -31,6 +33,12 @@ namespace CarGalary.Infrastructure.Configuration
                 .HasForeignKey(cc => cc.ColorId)
                   .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasOne(cc => cc.ColorStatusLookup)
+                .WithMany()
+                .HasForeignKey(cc => cc.ColorStatus)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasIndex(cc => cc.ColorStatus);
 
             // prop
             builder.Property(cc => cc.StockQuantity)

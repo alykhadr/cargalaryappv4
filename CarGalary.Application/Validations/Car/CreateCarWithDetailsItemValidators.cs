@@ -19,6 +19,10 @@ namespace CarGalary.Application.Validations.Car
             RuleFor(x => x.ColorId)
                 .GreaterThan(0).WithMessage("ColorId is required");
 
+            RuleFor(x => x.ColorStatus)
+                .GreaterThan(0)
+                .WithMessage("ColorStatus must be greater than 0");
+
             RuleFor(x => x.StockQuantity)
                 .NotNull().WithMessage("StockQuantity is required")
                 .GreaterThanOrEqualTo(0).WithMessage("StockQuantity must be zero or greater");

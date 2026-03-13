@@ -6,6 +6,7 @@ namespace CarGalary.Application.Dtos.CarCarColor.Command
     {
         public int CarId { get; set; }
         public int ColorId { get; set; }
+        public int ColorStatus { get; set; }
         public int? StockQuantity { get; set; }
         public string? ColorImageUrl { get; set; }
         public IFormFile? ColorImageFile { get; set; }

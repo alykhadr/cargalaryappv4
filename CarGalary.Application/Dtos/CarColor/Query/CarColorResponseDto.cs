@@ -10,4 +10,3 @@ namespace CarGalary.Application.Dtos.CarColor.Query
         public bool IsAvailable { get; set; }
     }
 }
-

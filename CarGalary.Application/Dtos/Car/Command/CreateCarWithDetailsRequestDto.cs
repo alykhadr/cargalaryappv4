@@ -51,6 +51,7 @@ namespace CarGalary.Application.Dtos.Car.Command
     public class CreateCarWithDetailsColorItemDto
     {
         public int ColorId { get; set; }
+        public int ColorStatus { get; set; }
         public int? StockQuantity { get; set; }
         public string? ColorImageUrl { get; set; }
         public decimal? PricingPerColor { get; set; }

@@ -8,4 +8,3 @@ namespace CarGalary.Application.Dtos.CarColor.Command
         public bool? IsAvailable { get; set; }
     }
 }
-

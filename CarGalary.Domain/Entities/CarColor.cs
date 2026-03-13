@@ -11,6 +11,8 @@ namespace CarGalary.Domain.Entities
         public Car Car { get; set; } = null!;
         public int ColorId { get; set; }
         public Color Color { get; set; } = null!;
+        public int ColorStatus { get; set; }
+        public LookupDetails? ColorStatusLookup { get; set; }
 
         public int? StockQuantity { get; set; }
         public string? ColorImageUrl { get; set; }

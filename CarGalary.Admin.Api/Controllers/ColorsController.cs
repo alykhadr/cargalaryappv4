@@ -58,8 +58,15 @@ namespace CarGalary.Admin.Api.Controllers
                 return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
-            var created = await _carColorService.CreateAsync(createCarColorRequestDto);
-            return Ok(created);
+            try
+            {
+                var created = await _carColorService.CreateAsync(createCarColorRequestDto);
+                return Ok(created);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, new List<string> { ex.Message }));
+            }
         }
 
         [HttpPut("{id:int}")]
@@ -86,6 +93,10 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 await _carColorService.UpdateAsync(id, updateCarColorRequestDto);
                 return Ok();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, new List<string> { ex.Message }));
             }
             catch (Exception ex) when (ex.Message == "CarColor not found")
             {

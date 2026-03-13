@@ -7,4 +7,3 @@ namespace CarGalary.Application.Dtos.CarColor.Command
         public string? ColorCode { get; set; }
     }
 }
-

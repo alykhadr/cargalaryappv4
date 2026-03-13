@@ -21,4 +21,3 @@ namespace CarGalary.Application.Validations.CarColor
         }
     }
 }
-
