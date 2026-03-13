@@ -4,6 +4,7 @@ using CarGalary.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarGalary.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260313092835_AddRequestColorRelation")]
+    partial class AddRequestColorRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +66,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("CarFeature", b =>
@@ -91,7 +94,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("FeatureId");
 
-                    b.ToTable("CarFeatures", (string)null);
+                    b.ToTable("CarFeatures");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.ApplicationRole", b =>
@@ -282,7 +285,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.ToTable("BranchWorkingDays", (string)null);
+                    b.ToTable("BranchWorkingDays");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Branchs", b =>
@@ -346,7 +349,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Branches", (string)null);
+                    b.ToTable("Branches");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Car", b =>
@@ -462,7 +465,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("TypeId");
 
-                    b.ToTable("Cars", (string)null);
+                    b.ToTable("Cars");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.CarColor", b =>
@@ -518,7 +521,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("ColorId");
 
-                    b.ToTable("CarColors", null, t =>
+                    b.ToTable("CarColors", t =>
                         {
                             t.HasCheckConstraint("CK_CarColors_DiscountType", "[DiscountType] IN (0,1)");
                         });
@@ -573,7 +576,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("CarId");
 
-                    b.ToTable("CarExtraDetails", (string)null);
+                    b.ToTable("CarExtraDetails");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.CarGalleryImage", b =>
@@ -622,7 +625,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("CarId");
 
-                    b.ToTable("CarGalleryImages", (string)null);
+                    b.ToTable("CarGalleryImages");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.CarModel", b =>
@@ -670,7 +673,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("BrandId");
 
-                    b.ToTable("CarModels", (string)null);
+                    b.ToTable("CarModels");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Color", b =>
@@ -717,7 +720,7 @@ namespace CarGalary.Infrastructure.Migrations
                     b.HasIndex("ColorNameEn")
                         .IsUnique();
 
-                    b.ToTable("Colors", (string)null);
+                    b.ToTable("Colors");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.CompanyInformation", b =>
@@ -788,7 +791,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CompanyInformations", (string)null);
+                    b.ToTable("CompanyInformations");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.ContactSalesOfficer", b =>
@@ -838,7 +841,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("BranchsId");
 
-                    b.ToTable("ContactSalesOfficers", (string)null);
+                    b.ToTable("ContactSalesOfficers");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Department", b =>
@@ -884,7 +887,7 @@ namespace CarGalary.Infrastructure.Migrations
                     b.HasIndex("NameEn")
                         .IsUnique();
 
-                    b.ToTable("Departments", (string)null);
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Employee", b =>
@@ -987,7 +990,7 @@ namespace CarGalary.Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Employees", (string)null);
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.FAQ", b =>
@@ -1035,7 +1038,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FAQs", (string)null);
+                    b.ToTable("FAQs");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.LookupDetails", b =>
@@ -1089,7 +1092,7 @@ namespace CarGalary.Infrastructure.Migrations
                     b.HasIndex("MasterCode", "DetailCode")
                         .IsUnique();
 
-                    b.ToTable("LookupDetails", (string)null);
+                    b.ToTable("LookupDetails");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.MemberService", b =>
@@ -1133,7 +1136,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MemberServices", (string)null);
+                    b.ToTable("MemberServices");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Offer", b =>
@@ -1182,7 +1185,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Offers", (string)null);
+                    b.ToTable("Offers");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Request", b =>
@@ -1275,7 +1278,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("VehicleOwnerType");
 
-                    b.ToTable("Requests", (string)null);
+                    b.ToTable("Requests");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.RequestHistory", b =>
@@ -1321,7 +1324,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("RequestHistories", (string)null);
+                    b.ToTable("RequestHistories");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.Services", b =>
@@ -1376,7 +1379,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Services", (string)null);
+                    b.ToTable("Services");
                 });
 
             modelBuilder.Entity("CarGalary.Domain.Entities.UserFavorite", b =>
@@ -1402,7 +1405,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasIndex("CarId");
 
-                    b.ToTable("UserFavorites", (string)null);
+                    b.ToTable("UserFavorites");
                 });
 
             modelBuilder.Entity("CarType", b =>
@@ -1442,7 +1445,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CarTypes", (string)null);
+                    b.ToTable("CarTypes");
                 });
 
             modelBuilder.Entity("ContactUs", b =>
@@ -1489,7 +1492,7 @@ namespace CarGalary.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactUs", (string)null);
+                    b.ToTable("ContactUs");
                 });
 
             modelBuilder.Entity("Feature", b =>
@@ -1532,7 +1535,7 @@ namespace CarGalary.Infrastructure.Migrations
                     b.HasIndex("NameEn")
                         .IsUnique();
 
-                    b.ToTable("Features", (string)null);
+                    b.ToTable("Features");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

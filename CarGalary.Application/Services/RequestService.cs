@@ -109,6 +109,12 @@ namespace CarGalary.Application.Services
                 throw new ArgumentException("CarId is invalid");
             }
 
+            var selectedCarColor = await _unitOfWork.CarCarColors.GetByIdAsync(dto.CarId, dto.ColorId);
+            if (selectedCarColor == null || !selectedCarColor.IsAvailable)
+            {
+                throw new ArgumentException("ColorId is invalid for selected car");
+            }
+
             EnsureBranchAccess(car.BranchId);
 
             await EnsureLookupExistsAsync("PAYMENT_METHOD", dto.PaymentMethod);

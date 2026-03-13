@@ -17,6 +17,8 @@ namespace CarGalary.Domain.Entities
         public string MobileNo { get; set; } = string.Empty;
         public int CarId { get; set; }
         public Car Car { get; set; } = default!;
+        public int ColorId { get; set; }
+        public Color Color { get; set; } = default!;
         public string? Notes { get; set; }
 
         public LookupDetails? VehicleOwnerTypeLookup { get; set; }

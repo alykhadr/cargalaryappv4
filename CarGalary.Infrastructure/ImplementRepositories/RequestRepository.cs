@@ -20,6 +20,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
                 .AsNoTracking()
                 .Include(x => x.Car)
                 .ThenInclude(x => x.CarImages)
+                .Include(x => x.Color)
                 .Include(x => x.CurrentStatusLookup)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
@@ -31,6 +32,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
                 .AsNoTracking()
                 .Include(x => x.Car)
                 .ThenInclude(x => x.CarImages)
+                .Include(x => x.Color)
                 .Include(x => x.CurrentStatusLookup)
                 .Where(x => x.Car.BranchId == branchId)
                 .OrderByDescending(x => x.CreatedAt)
@@ -49,6 +51,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
                 .AsNoTracking()
                 .Include(x => x.Car)
                 .ThenInclude(x => x.CarImages)
+                .Include(x => x.Color)
                 .Include(x => x.CurrentStatusLookup)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -59,6 +62,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
                 .AsNoTracking()
                 .Include(x => x.Car)
                 .ThenInclude(x => x.CarImages)
+                .Include(x => x.Color)
                 .Include(x => x.CurrentStatusLookup)
                 .FirstOrDefaultAsync(x => x.Id == id && x.Car.BranchId == branchId);
         }
@@ -67,6 +71,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             return await _context.Requests
                 .Include(x => x.Car)
+                .Include(x => x.Color)
                 .Include(x => x.CurrentStatusLookup)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -75,6 +80,7 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             return await _context.Requests
                 .Include(x => x.Car)
+                .Include(x => x.Color)
                 .Include(x => x.CurrentStatusLookup)
                 .FirstOrDefaultAsync(x => x.Id == id && x.Car.BranchId == branchId);
         }

@@ -26,6 +26,9 @@ namespace CarGalary.Application.Validations.Request
             RuleFor(x => x.CarId)
                 .GreaterThan(0).WithMessage("CarId is required.");
 
+            RuleFor(x => x.ColorId)
+                .GreaterThan(0).WithMessage("ColorId is required.");
+
             RuleFor(x => x.PaymentMethod)
                 .GreaterThan(0).WithMessage("PaymentMethod is required.");
 

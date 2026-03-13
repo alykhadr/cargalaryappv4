@@ -8,6 +8,7 @@ namespace CarGalary.Application.Dtos.Request.Command
         public string Email { get; set; } = string.Empty;
         public string MobileNo { get; set; } = string.Empty;
         public int CarId { get; set; }
+        public int ColorId { get; set; }
         public int PaymentMethod { get; set; }
         public int RegionId { get; set; }
         public int CityId { get; set; }
