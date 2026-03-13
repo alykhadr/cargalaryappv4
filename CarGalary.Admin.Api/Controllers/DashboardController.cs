@@ -4,6 +4,8 @@ using CarGalary.Infrastructure.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace CarGalary.Admin.Api.Controllers
 {
@@ -187,5 +189,195 @@ namespace CarGalary.Admin.Api.Controllers
                 items = pageItems
             });
         }
+
+        [HttpGet("request-status-counts")]
+        [PermissionAuthorize("dashboard.view")]
+        public async Task<IActionResult> GetRequestStatusCounts([FromQuery] string? period = "1m")
+        {
+            var periodOptions = await GetAvailablePeriodOptionsAsync();
+            var normalizedPeriod = NormalizePeriod(period, periodOptions);
+            var userBranchId = _currentUserService.BranchId;
+            var utcNow = DateTime.UtcNow;
+            var fromDate = ResolveFromDate(normalizedPeriod, utcNow);
+
+            var query = _context.Requests
+                .AsNoTracking()
+                .Include(x => x.Car)
+                .Include(x => x.CurrentStatusLookup)
+                .Where(x => x.IsAvailable)
+                .AsQueryable();
+
+            if (userBranchId.HasValue)
+            {
+                query = query.Where(x => x.Car.BranchId == userBranchId.Value);
+            }
+
+            if (fromDate.HasValue)
+            {
+                query = query.Where(x => x.CreatedAt >= fromDate.Value);
+            }
+
+            var groupedByDetailCode = await query
+                .GroupBy(x => x.CurrentStatusLookup != null ? x.CurrentStatusLookup.DetailCode : null)
+                .Select(g => new
+                {
+                    DetailCode = g.Key,
+                    Count = g.Count()
+                })
+                .ToListAsync();
+
+            int CountByCode(string code) => groupedByDetailCode
+                .Where(x => string.Equals(x.DetailCode, code, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.Count)
+                .FirstOrDefault();
+
+            var total = groupedByDetailCode.Sum(x => x.Count);
+            var closedSuccessCount = CountByCode("4");
+            var conversionRatio = total == 0
+                ? 0m
+                : Math.Round((decimal)closedSuccessCount * 100m / total, 2);
+
+            return Ok(new
+            {
+                period = normalizedPeriod,
+                periodOptions = periodOptions.Select(x => new
+                {
+                    code = x.Code,
+                    nameAr = x.NameAr,
+                    nameEn = x.NameEn
+                }),
+                fromDate,
+                toDate = utcNow,
+                total,
+                newCount = CountByCode("1"),
+                contactCount = CountByCode("2"),
+                inProgressCount = CountByCode("3"),
+                closedSuccessCount,
+                closedLossCount = CountByCode("5"),
+                conversionRatio
+            });
+        }
+
+        private async Task<List<PeriodOption>> GetAvailablePeriodOptionsAsync()
+        {
+            var rows = await _context.LookupDetails
+                .AsNoTracking()
+                .Where(x => x.IsAvailable && x.MasterCode.ToUpper() == "DASHBOARD_PERIOD")
+                .Select(x => new { x.DetailCode, x.NameAr, x.NameEn })
+                .ToListAsync();
+
+            var parsedRows = rows
+                .Select(x =>
+                {
+                    var normalizedCode = (x.DetailCode ?? string.Empty).Trim().ToLowerInvariant();
+                    var sortOrder = ResolveSortOrder(normalizedCode);
+                    if (sortOrder <= 0)
+                    {
+                        return null;
+                    }
+
+                    return new PeriodOption(
+                        normalizedCode,
+                        string.IsNullOrWhiteSpace(x.NameAr) ? normalizedCode.ToUpperInvariant() : x.NameAr,
+                        string.IsNullOrWhiteSpace(x.NameEn) ? normalizedCode.ToUpperInvariant() : x.NameEn,
+                        sortOrder
+                    );
+                })
+                .Where(x => x != null)
+                .Select(x => x!)
+                .OrderBy(x => x.SortOrder)
+                .ToList();
+
+            if (parsedRows.Count > 0)
+            {
+                return parsedRows;
+            }
+
+            // Fallback defaults when lookup rows are not seeded yet.
+            return new List<PeriodOption>
+            {
+                new("1w", "1W", "1W", ResolveSortOrder("1w")),
+                new("2w", "2W", "2W", ResolveSortOrder("2w")),
+                new("1m", "1M", "1M", ResolveSortOrder("1m")),
+                new("2m", "2M", "2M", ResolveSortOrder("2m")),
+                new("3m", "3M", "3M", ResolveSortOrder("3m")),
+                new("6m", "6M", "6M", ResolveSortOrder("6m")),
+                new("1y", "1Y", "1Y", ResolveSortOrder("1y"))
+            };
+        }
+
+        private static string NormalizePeriod(string? period, IReadOnlyCollection<PeriodOption> options)
+        {
+            var key = (period ?? string.Empty).Trim().ToLowerInvariant();
+            if (!string.IsNullOrWhiteSpace(key) && options.Any(x => string.Equals(x.Code, key, StringComparison.OrdinalIgnoreCase)))
+            {
+                return key;
+            }
+
+            return options
+                .Select(x => x.Code)
+                .FirstOrDefault(x => string.Equals(x, "1m", StringComparison.OrdinalIgnoreCase))
+                ?? options.First().Code;
+        }
+
+        private static DateTime? ResolveFromDate(string period, DateTime utcNow)
+        {
+            if (!TryParsePeriod(period, out var value, out var unit))
+            {
+                return utcNow.AddMonths(-1);
+            }
+
+            return unit switch
+            {
+                'd' => utcNow.AddDays(-value),
+                'w' => utcNow.AddDays(-(value * 7)),
+                'm' => utcNow.AddMonths(-value),
+                'y' => utcNow.AddYears(-value),
+                _ => utcNow.AddMonths(-1)
+            };
+        }
+
+        private static int ResolveSortOrder(string periodCode)
+        {
+            if (!TryParsePeriod(periodCode, out var value, out var unit))
+            {
+                return int.MaxValue;
+            }
+
+            var unitWeight = unit switch
+            {
+                'd' => 1,
+                'w' => 7,
+                'm' => 30,
+                'y' => 365,
+                _ => 10000
+            };
+
+            return checked(unitWeight * value);
+        }
+
+        private static bool TryParsePeriod(string periodCode, out int value, out char unit)
+        {
+            value = 0;
+            unit = '\0';
+
+            var normalized = (periodCode ?? string.Empty).Trim().ToLowerInvariant();
+            var match = Regex.Match(normalized, @"^(\d+)\s*([dwmy])$", RegexOptions.CultureInvariant);
+            if (!match.Success)
+            {
+                return false;
+            }
+
+            if (!int.TryParse(match.Groups[1].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedValue) || parsedValue <= 0)
+            {
+                return false;
+            }
+
+            value = parsedValue;
+            unit = match.Groups[2].Value[0];
+            return true;
+        }
+
+        private sealed record PeriodOption(string Code, string NameAr, string NameEn, int SortOrder);
     }
 }
