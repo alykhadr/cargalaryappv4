@@ -443,6 +443,11 @@ namespace CarGalary.Infrastructure.Identity
 
         private async Task<string> LoginInternalAsync(ApplicationUser user, string password, bool rememberMe = false)
         {
+            if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+            {
+                throw new UnauthorizedAccessException("User account is locked");
+            }
+
             if (!await _userManager.CheckPasswordAsync(user, password))
             {
                 throw new UnauthorizedAccessException("Invalid user name or password");

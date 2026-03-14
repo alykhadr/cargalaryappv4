@@ -6,6 +6,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace CarGalary.Admin.Api.Controllers
 {
@@ -52,14 +54,26 @@ namespace CarGalary.Admin.Api.Controllers
                 return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
 
-            var normalizedEmail = request.Email?.ToUpper().Trim() ?? string.Empty;
-            var normalizedUserName = request.UserName?.Trim() ?? string.Empty;
+            var trimmedEmail = request.Email?.Trim() ?? string.Empty;
+            var normalizedEmail = _userManager.NormalizeEmail(trimmedEmail) ?? string.Empty;
+            var trimmedUserName = request.UserName?.Trim() ?? string.Empty;
+            var normalizedUserName = _userManager.NormalizeName(trimmedUserName) ?? string.Empty;
             var password = request.Password ?? string.Empty;
 
-            var emailExist = await _identity.GetUserByEmailAsync(normalizedEmail);
-            if (!string.IsNullOrWhiteSpace(emailExist))
+            var emailExists = await _userManager.Users
+                .AsNoTracking()
+                .AnyAsync(u => u.NormalizedEmail == normalizedEmail);
+            if (emailExists)
             {
                 return BadRequest(new ApiErrorResponse(EmailAlreadyExistsCode, StatusCodes.Status400BadRequest));
+            }
+
+            var userNameExists = await _userManager.Users
+                .AsNoTracking()
+                .AnyAsync(u => u.NormalizedUserName == normalizedUserName);
+            if (userNameExists)
+            {
+                return BadRequest(BuildLocalizedValidationError($"Username '{trimmedUserName}' already exists"));
             }
 
             string? profileImageUrl = null;
@@ -68,14 +82,26 @@ namespace CarGalary.Admin.Api.Controllers
                 profileImageUrl = await SaveProfileImageAsync(request.ProfileImage);
             }
 
-            var user = await _identity.CreateUserAsync(
-                normalizedUserName,
-                normalizedEmail,
-                password,
-                request.NameEn?.Trim(),
-                request.NameAr?.Trim(),
-                request.BranchId,
-                profileImageUrl);
+            UserDto user;
+            try
+            {
+                user = await _identity.CreateUserAsync(
+                    trimmedUserName,
+                    trimmedEmail,
+                    password,
+                    request.NameEn?.Trim(),
+                    request.NameAr?.Trim(),
+                    request.BranchId,
+                    profileImageUrl);
+            }
+            catch (Exception ex) when (ex.Message.Contains("Username", StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(BuildLocalizedValidationError(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(BuildLocalizedValidationError(ex.Message));
+            }
 
             if (string.IsNullOrWhiteSpace(user.Id))
             {
@@ -95,7 +121,7 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex)
             {
                 await _identity.DeleteUserAsync(user.Id);
-                return BadRequest(new ApiErrorResponse(EmployeeOperationFailedCode, StatusCodes.Status400BadRequest));
+                return BadRequest(BuildLocalizedValidationError(ex.Message));
             }
 
             var userRoles = request.Roles ?? new List<string>();
@@ -136,80 +162,101 @@ namespace CarGalary.Admin.Api.Controllers
         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateEmployee(string userId, [FromForm] UpdateAdminUserRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Email))
+            try
             {
-                return BadRequest(new ApiErrorResponse(UserNameAndEmailRequiredCode, StatusCodes.Status400BadRequest));
-            }
-
-            if (string.IsNullOrWhiteSpace(request.NameEn) || string.IsNullOrWhiteSpace(request.NameAr))
-            {
-                return BadRequest(new ApiErrorResponse(
-                    ValidationFailedCode,
-                    StatusCodes.Status400BadRequest,
-                    new List<string> { "NameEn is required", "NameAr is required" }));
-            }
-
-            string? profileImageUrl = null;
-            if (request.ProfileImage != null)
-            {
-                var user = await _userManager.FindByIdAsync(userId);
-                if (user != null && !string.IsNullOrWhiteSpace(user.ProfileImageUrl))
+                if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Email))
                 {
-                    DeleteProfileImage(user.ProfileImageUrl);
+                    return BadRequest(new ApiErrorResponse(UserNameAndEmailRequiredCode, StatusCodes.Status400BadRequest));
                 }
-                profileImageUrl = await SaveProfileImageAsync(request.ProfileImage);
+
+                if (string.IsNullOrWhiteSpace(request.NameEn) || string.IsNullOrWhiteSpace(request.NameAr))
+                {
+                    return BadRequest(new ApiErrorResponse(
+                        ValidationFailedCode,
+                        StatusCodes.Status400BadRequest,
+                        new List<string> { "NameEn is required", "NameAr is required" }));
+                }
+
+                string? profileImageUrl = null;
+                if (request.ProfileImage != null)
+                {
+                    var user = await _userManager.FindByIdAsync(userId);
+                    if (user != null && !string.IsNullOrWhiteSpace(user.ProfileImageUrl))
+                    {
+                        DeleteProfileImage(user.ProfileImageUrl);
+                    }
+                    profileImageUrl = await SaveProfileImageAsync(request.ProfileImage);
+                }
+
+                await _identity.UpdateUserDetailsAsync(
+                    userId,
+                    request.UserName,
+                    request.Email,
+                    request.NameEn?.Trim(),
+                    request.NameAr?.Trim(),
+                    request.BranchId,
+                    profileImageUrl
+                );
+
+                if (Guid.TryParse(userId, out var parsedUserId))
+                {
+                    await _employeeService.UpdateEmployeeAsync(parsedUserId, request);
+                }
+
+                return Ok();
             }
-
-            await _identity.UpdateUserDetailsAsync(
-                userId,
-                request.UserName,
-                request.Email,
-                request.NameEn?.Trim(),
-                request.NameAr?.Trim(),
-                request.BranchId,
-                profileImageUrl
-            );
-
-            if (Guid.TryParse(userId, out var parsedUserId))
+            catch (Exception ex)
             {
-                await _employeeService.UpdateEmployeeAsync(parsedUserId, request);
+                return BadRequest(BuildLocalizedValidationError(ex.Message));
             }
-
-            return Ok();
         }
 
         [PermissionAuthorize("employees.edit")]
         [HttpPost("{userId}/change-password")]
         public async Task<IActionResult> ChangeEmployeePassword(string userId, [FromBody] ChangeUserPasswordByAdminRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.NewPassword))
+            try
             {
-                return BadRequest(new ApiErrorResponse(NewPasswordRequiredCode, StatusCodes.Status400BadRequest));
-            }
-            if (request.NewPassword.Length < 6)
-            {
-                return BadRequest(new ApiErrorResponse(NewPasswordMinLengthCode, StatusCodes.Status400BadRequest));
-            }
+                if (string.IsNullOrWhiteSpace(request.NewPassword))
+                {
+                    return BadRequest(new ApiErrorResponse(NewPasswordRequiredCode, StatusCodes.Status400BadRequest));
+                }
+                if (request.NewPassword.Length < 6)
+                {
+                    return BadRequest(new ApiErrorResponse(NewPasswordMinLengthCode, StatusCodes.Status400BadRequest));
+                }
 
-            await _identity.ChangeUserPasswordByAdminAsync(userId, request.NewPassword);
-            return Ok("Password changed successfully");
+                await _identity.ChangeUserPasswordByAdminAsync(userId, request.NewPassword);
+                return Ok("Password changed successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(BuildLocalizedValidationError(ex.Message));
+            }
         }
 
         [PermissionAuthorize("employees.delete")]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteEmployee(string userId)
         {
-            if (Guid.TryParse(userId, out var parsedUserId))
+            try
             {
-                await _employeeService.DeleteEmployeeAsync(parsedUserId);
+                if (Guid.TryParse(userId, out var parsedUserId))
+                {
+                    await _employeeService.DeleteEmployeeAsync(parsedUserId);
+                }
+
+                var result = await _identity.DeleteUserAsync(userId);
+
+                if (!result)
+                    return NotFound(new ApiErrorResponse(UserNotFoundCode, StatusCodes.Status404NotFound));
+
+                return NoContent();
             }
-
-            var result = await _identity.DeleteUserAsync(userId);
-
-            if (!result)
-                return NotFound(new ApiErrorResponse(UserNotFoundCode, StatusCodes.Status404NotFound));
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return BadRequest(BuildLocalizedValidationError(ex.Message));
+            }
         }
 
         [PermissionAuthorize("employees.delete")]
@@ -318,6 +365,50 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 System.IO.File.Delete(filePath);
             }
+        }
+
+        private static ApiErrorResponse BuildLocalizedValidationError(string message)
+        {
+            var safeMessage = string.IsNullOrWhiteSpace(message) ? "Validation failed." : message.Trim();
+            var messageEn = safeMessage;
+            var messageAr = safeMessage;
+
+            var usernameMatch = Regex.Match(safeMessage, "^Username\\s+'(.+)'\\s+already exists$", RegexOptions.IgnoreCase);
+            if (usernameMatch.Success)
+            {
+                var userName = usernameMatch.Groups[1].Value;
+                messageEn = $"Username '{userName}' already exists";
+                messageAr = $"اسم المستخدم '{userName}' مستخدم بالفعل.";
+            }
+            else
+            {
+                var emailMatch = Regex.Match(safeMessage, "^Email\\s+'(.+)'\\s+already exists$", RegexOptions.IgnoreCase);
+                if (emailMatch.Success)
+                {
+                    var email = emailMatch.Groups[1].Value;
+                    messageEn = $"Email '{email}' already exists";
+                    messageAr = $"البريد الإلكتروني '{email}' مستخدم بالفعل.";
+                }
+                else
+                {
+                    (messageEn, messageAr) = safeMessage switch
+                    {
+                        "Department is required" => ("Department is required.", "القسم مطلوب."),
+                        "Department not found" => ("Department not found.", "القسم غير موجود."),
+                        "National ID is required" => ("National ID is required.", "رقم الهوية مطلوب."),
+                        "Invalid Nationality" => ("Invalid nationality.", "الجنسية غير صحيحة."),
+                        "Invalid Employment Status" => ("Invalid employment status.", "حالة التوظيف غير صحيحة."),
+                        "User not found" => ("User not found.", "المستخدم غير موجود."),
+                        _ => (messageEn, messageAr)
+                    };
+                }
+            }
+
+            return new ApiErrorResponse(
+                messageEn,
+                StatusCodes.Status400BadRequest,
+                messageAr: messageAr,
+                messageEn: messageEn);
         }
     }
 }

@@ -184,6 +184,8 @@ namespace CarGalary.Application.Services
         private async Task<UserDto> ToUserDtoAsync(ApplicationUser user, string token)
         {
             var branch = await _unitOfWork.Branches.GetByIdAsync(user.BranchId);
+            var employee = await _unitOfWork.Employees.GetByUserIdAsync(user.Id);
+            var isLocked = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow;
 
             return new UserDto
             {
@@ -192,6 +194,8 @@ namespace CarGalary.Application.Services
                 Password = null,
                 NameEn = user.FullNameEn ?? string.Empty,
                 NameAr = user.FullNameAr ?? string.Empty,
+                EmployeeId = employee?.Id,
+                IsLocked = isLocked,
                 BranchId = user.BranchId,
                 BranchNameEn = branch?.BranchNameEn ?? string.Empty,
                 BranchNameAr = branch?.BranchNameAr ?? string.Empty,

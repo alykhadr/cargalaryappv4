@@ -144,6 +144,10 @@ namespace CarGalary.Api.Controllers
 
                 return Ok(user);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ApiErrorResponse(ex.Message, StatusCodes.Status401Unauthorized));
+            }
             catch
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,

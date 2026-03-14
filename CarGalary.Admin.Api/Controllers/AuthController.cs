@@ -24,6 +24,7 @@ namespace CarGalary.Admin.Api.Controllers
         private const string AuthNewPasswordMinLengthCode = "1106";
         private const string AuthInvalidResetRequestCode = "1107";
         private const string AuthResetPasswordFailedCode = "1108";
+        private const string AuthUnauthorizedCode = "1109";
         private const string AuthUserNotFoundCode = "1227";
 
         private readonly IIdentityService _identity;
@@ -63,6 +64,13 @@ namespace CarGalary.Admin.Api.Controllers
                     request.RememberMe);
 
                 return Ok(user);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ApiErrorResponse(
+                    ex.Message,
+                    StatusCodes.Status401Unauthorized,
+                    errorCode: AuthUnauthorizedCode));
             }
             catch
             {
