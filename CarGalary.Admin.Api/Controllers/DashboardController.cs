@@ -466,6 +466,106 @@ namespace CarGalary.Admin.Api.Controllers
             });
         }
 
+        [HttpGet("logged-in-users")]
+        [PermissionAuthorize("dashboard.view")]
+        public async Task<IActionResult> GetLoggedInUsers(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 5,
+            [FromQuery] string scope = "branch",
+            [FromQuery] int? branchId = null,
+            [FromQuery] int onlineWithinMinutes = 30)
+        {
+            var safePage = page <= 0 ? 1 : page;
+            var safePageSize = pageSize <= 0 ? 5 : Math.Min(pageSize, 100);
+            var activityWindowMinutes = Math.Clamp(onlineWithinMinutes, 1, 1440);
+            var requestedScope = (scope ?? "branch").Trim().ToLowerInvariant();
+            var canViewAllBranches = _currentUserService.IsInRole("Admin") || _currentUserService.IsInRole("Manager");
+            var normalizedScope = canViewAllBranches && requestedScope == "all" ? "all" : "branch";
+            var userBranchId = _currentUserService.BranchId;
+            var activityThreshold = DateTime.UtcNow.AddMinutes(-activityWindowMinutes);
+
+            var query = _context.Users
+                .AsNoTracking()
+                .Where(x =>
+                    x.IsAvailable &&
+                    x.LastLoginAt.HasValue &&
+                    x.LastActivityAt.HasValue &&
+                    x.LastActivityAt >= activityThreshold &&
+                    (!x.LockoutEnd.HasValue || x.LockoutEnd <= DateTimeOffset.UtcNow))
+                .AsQueryable();
+
+            if (normalizedScope == "branch")
+            {
+                var resolvedBranchId = canViewAllBranches && branchId.HasValue && branchId.Value > 0
+                    ? branchId
+                    : userBranchId;
+
+                if (!resolvedBranchId.HasValue || resolvedBranchId.Value <= 0)
+                {
+                    return Ok(new
+                    {
+                        page = safePage,
+                        pageSize = safePageSize,
+                        totalCount = 0,
+                        scope = "branch",
+                        branchId = (int?)null,
+                        canViewAllBranches,
+                        onlineWithinMinutes = activityWindowMinutes,
+                        items = Array.Empty<object>()
+                    });
+                }
+
+                query = query.Where(x => x.BranchId == resolvedBranchId.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(x => x.LastActivityAt)
+                .ThenByDescending(x => x.LastLoginAt)
+                .Skip((safePage - 1) * safePageSize)
+                .Take(safePageSize)
+                .Select(x => new
+                {
+                    id = x.Id,
+                    employeeId = _context.Employees
+                        .Where(e => e.IsAvailable && e.UserId == x.Id)
+                        .Select(e => (int?)e.Id)
+                        .FirstOrDefault(),
+                    userName = x.UserName,
+                    fullNameAr = x.FullNameAr,
+                    fullNameEn = x.FullNameEn,
+                    branchId = x.BranchId,
+                    branchNameAr = x.Branchs != null ? x.Branchs.BranchNameAr : null,
+                    branchNameEn = x.Branchs != null ? x.Branchs.BranchNameEn : null,
+                    profileImageUrl = x.ProfileImageUrl,
+                    email = _context.Employees
+                        .Where(e => e.IsAvailable && e.UserId == x.Id)
+                        .Select(e => e.WorkEmail)
+                        .FirstOrDefault() ?? x.Email,
+                    mobileNo = _context.Employees
+                        .Where(e => e.IsAvailable && e.UserId == x.Id)
+                        .Select(e => e.WorkPhone)
+                        .FirstOrDefault() ?? x.PhoneNumber,
+                    lastLoginAt = x.LastLoginAt,
+                    lastActivityAt = x.LastActivityAt
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                page = safePage,
+                pageSize = safePageSize,
+                totalCount,
+                scope = normalizedScope,
+                branchId = normalizedScope == "branch"
+                    ? (canViewAllBranches && branchId.HasValue && branchId.Value > 0 ? branchId.Value : userBranchId)
+                    : (int?)null,
+                canViewAllBranches,
+                onlineWithinMinutes = activityWindowMinutes,
+                items
+            });
+        }
+
         [HttpGet("best-seller-cars")]
         [PermissionAuthorize("dashboard.view")]
         public async Task<IActionResult> GetBestSellerCars([FromQuery] int page = 1, [FromQuery] int pageSize = 5)

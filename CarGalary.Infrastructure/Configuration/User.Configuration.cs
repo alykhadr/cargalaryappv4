@@ -32,6 +32,9 @@ public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
         builder.Property(u => u.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
 
+        builder.Property(u => u.LastLoginAt);
+        builder.Property(u => u.LastActivityAt);
+
         builder.HasOne(u => u.Branchs)
             .WithMany(b => b.ApplicationUsers)
             .HasForeignKey(u => u.BranchId)

@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using CarGalary.Admin.Api;
 using CarGalary.Admin.Api.Hubs;
 using CarGalary.Application.ErrorCatalog;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
@@ -89,6 +90,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 }
 
                 return Task.CompletedTask;
+            },
+            OnTokenValidated = async context =>
+            {
+                var userIdRaw = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!Guid.TryParse(userIdRaw, out var userId))
+                {
+                    return;
+                }
+
+                using var scopedProvider = context.HttpContext.RequestServices.CreateScope();
+                var dbContext = scopedProvider.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+                if (user == null)
+                {
+                    return;
+                }
+
+                var utcNow = DateTime.UtcNow;
+                if (!user.LastActivityAt.HasValue || (utcNow - user.LastActivityAt.Value).TotalMinutes >= 2)
+                {
+                    user.LastActivityAt = utcNow;
+                    await dbContext.SaveChangesAsync();
+                }
             }
         };
     });

@@ -448,6 +448,15 @@ namespace CarGalary.Infrastructure.Identity
                 throw new UnauthorizedAccessException("Invalid user name or password");
             }
 
+            var utcNow = DateTime.UtcNow;
+            user.LastLoginAt = utcNow;
+            user.LastActivityAt = utcNow;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                throw new InvalidOperationException("Unable to update user login activity.");
+            }
+
             var roles = await _userManager.GetRolesAsync(user);
             var permissions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
