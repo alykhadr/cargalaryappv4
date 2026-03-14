@@ -484,14 +484,16 @@ namespace CarGalary.Admin.Api.Controllers
             var userBranchId = _currentUserService.BranchId;
             var activityThreshold = DateTime.UtcNow.AddMinutes(-activityWindowMinutes);
 
-            var query = _context.Users
+            var query = _context.Employees
                 .AsNoTracking()
                 .Where(x =>
                     x.IsAvailable &&
-                    x.LastLoginAt.HasValue &&
-                    x.LastActivityAt.HasValue &&
-                    x.LastActivityAt >= activityThreshold &&
-                    (!x.LockoutEnd.HasValue || x.LockoutEnd <= DateTimeOffset.UtcNow))
+                    x.User != null &&
+                    x.User.IsAvailable &&
+                    x.User.LastLoginAt.HasValue &&
+                    x.User.LastActivityAt.HasValue &&
+                    x.User.LastActivityAt >= activityThreshold &&
+                    (!x.User.LockoutEnd.HasValue || x.User.LockoutEnd <= DateTimeOffset.UtcNow))
                 .AsQueryable();
 
             if (normalizedScope == "branch")
@@ -520,34 +522,25 @@ namespace CarGalary.Admin.Api.Controllers
 
             var totalCount = await query.CountAsync();
             var items = await query
-                .OrderByDescending(x => x.LastActivityAt)
-                .ThenByDescending(x => x.LastLoginAt)
+                .OrderByDescending(x => x.User.LastActivityAt)
+                .ThenByDescending(x => x.User.LastLoginAt)
                 .Skip((safePage - 1) * safePageSize)
                 .Take(safePageSize)
                 .Select(x => new
                 {
-                    id = x.Id,
-                    employeeId = _context.Employees
-                        .Where(e => e.IsAvailable && e.UserId == x.Id)
-                        .Select(e => (int?)e.Id)
-                        .FirstOrDefault(),
-                    userName = x.UserName,
-                    fullNameAr = x.FullNameAr,
-                    fullNameEn = x.FullNameEn,
+                    id = x.UserId,
+                    employeeId = (int?)x.Id,
+                    userName = x.User.UserName,
+                    fullNameAr = x.User.FullNameAr,
+                    fullNameEn = x.User.FullNameEn,
                     branchId = x.BranchId,
-                    branchNameAr = x.Branchs != null ? x.Branchs.BranchNameAr : null,
-                    branchNameEn = x.Branchs != null ? x.Branchs.BranchNameEn : null,
-                    profileImageUrl = x.ProfileImageUrl,
-                    email = _context.Employees
-                        .Where(e => e.IsAvailable && e.UserId == x.Id)
-                        .Select(e => e.WorkEmail)
-                        .FirstOrDefault() ?? x.Email,
-                    mobileNo = _context.Employees
-                        .Where(e => e.IsAvailable && e.UserId == x.Id)
-                        .Select(e => e.WorkPhone)
-                        .FirstOrDefault() ?? x.PhoneNumber,
-                    lastLoginAt = x.LastLoginAt,
-                    lastActivityAt = x.LastActivityAt
+                    branchNameAr = x.Branch != null ? x.Branch.BranchNameAr : null,
+                    branchNameEn = x.Branch != null ? x.Branch.BranchNameEn : null,
+                    profileImageUrl = x.User.ProfileImageUrl,
+                    email = string.IsNullOrWhiteSpace(x.WorkEmail) ? x.User.Email : x.WorkEmail,
+                    mobileNo = string.IsNullOrWhiteSpace(x.WorkPhone) ? x.User.PhoneNumber : x.WorkPhone,
+                    lastLoginAt = x.User.LastLoginAt,
+                    lastActivityAt = x.User.LastActivityAt
                 })
                 .ToListAsync();
 
