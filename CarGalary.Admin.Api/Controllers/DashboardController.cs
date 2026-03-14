@@ -218,6 +218,245 @@ namespace CarGalary.Admin.Api.Controllers
             });
         }
 
+        [HttpGet("offers")]
+        [PermissionAuthorize("dashboard.view")]
+        public async Task<IActionResult> GetOffers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var safePage = page <= 0 ? 1 : page;
+            var safePageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
+            var utcNow = DateTime.UtcNow;
+
+            var query = _context.Offers
+                .AsNoTracking()
+                .Where(x =>
+                    x.IsAvailable &&
+                    (x.ExpiredAt == null || x.ExpiredAt >= utcNow))
+                .OrderByDescending(x => x.CreatedAt);
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((safePage - 1) * safePageSize)
+                .Take(safePageSize)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.OfferNameAr,
+                    x.OfferNameEn,
+                    x.DescriptionAr,
+                    x.DescriptionEn,
+                    x.OfferImageUrl,
+                    x.ExpiredAt,
+                    x.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                page = safePage,
+                pageSize = safePageSize,
+                totalCount,
+                items
+            });
+        }
+
+        [HttpGet("member-services")]
+        [PermissionAuthorize("dashboard.view")]
+        public async Task<IActionResult> GetMemberServices([FromQuery] int page = 1, [FromQuery] int pageSize = 6)
+        {
+            var safePage = page <= 0 ? 1 : page;
+            var safePageSize = pageSize <= 0 ? 6 : Math.Min(pageSize, 100);
+
+            var query = _context.MemberServices
+                .AsNoTracking()
+                .Where(x => x.IsAvailable)
+                .OrderByDescending(x => x.CreatedAt);
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((safePage - 1) * safePageSize)
+                .Take(safePageSize)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.NameAr,
+                    x.NameEn,
+                    x.DescriptionAr,
+                    x.DescriptionEn,
+                    x.ImageUrl,
+                    x.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                page = safePage,
+                pageSize = safePageSize,
+                totalCount,
+                items
+            });
+        }
+
+        [HttpGet("sales-contacts")]
+        [PermissionAuthorize("dashboard.view")]
+        public async Task<IActionResult> GetSalesContacts([FromQuery] int page = 1, [FromQuery] int pageSize = 6)
+        {
+            var safePage = page <= 0 ? 1 : page;
+            var safePageSize = pageSize <= 0 ? 6 : Math.Min(pageSize, 100);
+            var userBranchId = _currentUserService.BranchId;
+
+            var query = _context.ContactSalesOfficers
+                .AsNoTracking()
+                .Where(x => x.IsAvailable)
+                .AsQueryable();
+
+            if (userBranchId.HasValue)
+            {
+                query = query.Where(x => x.BranchId == userBranchId.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+            var pageItems = await query
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((safePage - 1) * safePageSize)
+                .Take(safePageSize)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.ContactValue,
+                    x.ContactType,
+                    x.ContactIconUrl,
+                    x.BranchId,
+                    x.CreatedAt
+                })
+                .ToListAsync();
+
+            var lookupRows = await _context.LookupDetails
+                .AsNoTracking()
+                .Where(x => x.IsAvailable && x.MasterCode.ToUpper() == "CONTACT_TYPE")
+                .Select(x => new
+                {
+                    x.DetailCode,
+                    x.NameAr,
+                    x.NameEn
+                })
+                .ToListAsync();
+
+            var lookupMap = lookupRows
+                .Select(x => new
+                {
+                    Parsed = int.TryParse(x.DetailCode, out var parsedCode) ? parsedCode : (int?)null,
+                    x.NameAr,
+                    x.NameEn
+                })
+                .Where(x => x.Parsed.HasValue)
+                .ToDictionary(
+                    x => x.Parsed!.Value,
+                    x => new
+                    {
+                        x.NameAr,
+                        x.NameEn
+                    });
+
+            var items = pageItems.Select(x =>
+            {
+                var typeLabel = lookupMap.TryGetValue(x.ContactType, out var typeInfo)
+                    ? typeInfo
+                    : null;
+
+                return new
+                {
+                    x.Id,
+                    x.ContactValue,
+                    x.ContactType,
+                    x.ContactIconUrl,
+                    x.BranchId,
+                    x.CreatedAt,
+                    TypeNameAr = typeLabel?.NameAr ?? x.ContactType.ToString(CultureInfo.InvariantCulture),
+                    TypeNameEn = typeLabel?.NameEn ?? x.ContactType.ToString(CultureInfo.InvariantCulture)
+                };
+            });
+
+            return Ok(new
+            {
+                page = safePage,
+                pageSize = safePageSize,
+                totalCount,
+                items
+            });
+        }
+
+        [HttpGet("active-employees")]
+        [PermissionAuthorize("dashboard.view")]
+        public async Task<IActionResult> GetActiveEmployees(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 6,
+            [FromQuery] string scope = "branch")
+        {
+            var safePage = page <= 0 ? 1 : page;
+            var safePageSize = pageSize <= 0 ? 6 : Math.Min(pageSize, 100);
+            var requestedScope = (scope ?? "branch").Trim().ToLowerInvariant();
+            var canViewAllBranches = _currentUserService.IsInRole("Admin") || _currentUserService.IsInRole("Manager");
+            var normalizedScope = canViewAllBranches && requestedScope == "all" ? "all" : "branch";
+            var userBranchId = _currentUserService.BranchId;
+
+            var query = _context.Employees
+                .AsNoTracking()
+                .Include(x => x.User)
+                .Include(x => x.Department)
+                .Where(x =>
+                    x.IsAvailable &&
+                    x.User != null &&
+                    x.User.IsAvailable)
+                .AsQueryable();
+
+            if (normalizedScope == "branch")
+            {
+                if (!userBranchId.HasValue || userBranchId.Value <= 0)
+                {
+                    return Ok(new
+                    {
+                        page = safePage,
+                        pageSize = safePageSize,
+                        totalCount = 0,
+                        scope = "branch",
+                        canViewAllBranches,
+                        items = Array.Empty<object>()
+                    });
+                }
+
+                query = query.Where(x => x.BranchId == userBranchId.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((safePage - 1) * safePageSize)
+                .Take(safePageSize)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.UserId,
+                    x.BranchId,
+                    x.CreatedAt,
+                    ProfileImageUrl = x.User != null ? x.User.ProfileImageUrl : null,
+                    FullNameAr = x.User != null ? x.User.FullNameAr : null,
+                    FullNameEn = x.User != null ? x.User.FullNameEn : null,
+                    DepartmentNameAr = x.Department != null ? x.Department.NameAr : null,
+                    DepartmentNameEn = x.Department != null ? x.Department.NameEn : null
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                page = safePage,
+                pageSize = safePageSize,
+                totalCount,
+                scope = normalizedScope,
+                canViewAllBranches,
+                items
+            });
+        }
+
         [HttpGet("best-seller-cars")]
         [PermissionAuthorize("dashboard.view")]
         public async Task<IActionResult> GetBestSellerCars([FromQuery] int page = 1, [FromQuery] int pageSize = 5)

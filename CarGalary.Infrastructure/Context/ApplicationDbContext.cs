@@ -47,6 +47,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<LookupDetails> LookupDetails { get; set; }
     public DbSet<Request> Requests { get; set; }
     public DbSet<RequestHistory> RequestHistories { get; set; }
+    public DbSet<UserRate> UserRates { get; set; }
 
 
 
@@ -83,6 +84,7 @@ namespace CarGalary.Infrastructure.Context;
               modelBuilder.ApplyConfiguration(new LookupDetailsConfiguration());
               modelBuilder.ApplyConfiguration(new RequestConfiguration());
               modelBuilder.ApplyConfiguration(new RequestHistoryConfiguration());
+              modelBuilder.ApplyConfiguration(new UserRateConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }
