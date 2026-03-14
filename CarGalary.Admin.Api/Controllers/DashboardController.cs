@@ -390,7 +390,8 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> GetActiveEmployees(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 6,
-            [FromQuery] string scope = "branch")
+            [FromQuery] string scope = "branch",
+            [FromQuery] int? branchId = null)
         {
             var safePage = page <= 0 ? 1 : page;
             var safePageSize = pageSize <= 0 ? 6 : Math.Min(pageSize, 100);
@@ -411,7 +412,11 @@ namespace CarGalary.Admin.Api.Controllers
 
             if (normalizedScope == "branch")
             {
-                if (!userBranchId.HasValue || userBranchId.Value <= 0)
+                var resolvedBranchId = canViewAllBranches && branchId.HasValue && branchId.Value > 0
+                    ? branchId
+                    : userBranchId;
+
+                if (!resolvedBranchId.HasValue || resolvedBranchId.Value <= 0)
                 {
                     return Ok(new
                     {
@@ -419,12 +424,13 @@ namespace CarGalary.Admin.Api.Controllers
                         pageSize = safePageSize,
                         totalCount = 0,
                         scope = "branch",
+                        branchId = (int?)null,
                         canViewAllBranches,
                         items = Array.Empty<object>()
                     });
                 }
 
-                query = query.Where(x => x.BranchId == userBranchId.Value);
+                query = query.Where(x => x.BranchId == resolvedBranchId.Value);
             }
 
             var totalCount = await query.CountAsync();
@@ -452,6 +458,9 @@ namespace CarGalary.Admin.Api.Controllers
                 pageSize = safePageSize,
                 totalCount,
                 scope = normalizedScope,
+                branchId = normalizedScope == "branch"
+                    ? (canViewAllBranches && branchId.HasValue && branchId.Value > 0 ? branchId.Value : userBranchId)
+                    : (int?)null,
                 canViewAllBranches,
                 items
             });
