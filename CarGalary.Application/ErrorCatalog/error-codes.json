@@ -45,6 +45,11 @@
     "messageEn": "Password reset failed."
   },
   {
+    "errorCode": "1109",
+    "messageAr": "اسم المستخدم أو كلمة المرور غير صحيحة.",
+    "messageEn": "Invalid username or password."
+  },
+  {
     "errorCode": "1201",
     "messageAr": "الإجراء مطلوب.",
     "messageEn": "Action is required"
@@ -333,5 +338,10 @@
     "errorCode": "1332",
     "messageAr": "السؤال الشائع غير موجود.",
     "messageEn": "FAQ not found"
+  },
+  {
+    "errorCode": "1333",
+    "messageAr": "لا يمكن تعيين دور المسؤول ذاتيًا.",
+    "messageEn": "Admin role cannot be self-assigned."
   }
 ]

@@ -16,23 +16,23 @@ namespace CarGalary.Api
 
         public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
-            context.Result = WrapErrorResult(context.Result);
+            context.Result = WrapErrorResult(context.Result, context.HttpContext);
             await next();
         }
 
-        private IActionResult WrapErrorResult(IActionResult result)
+        private IActionResult WrapErrorResult(IActionResult result, HttpContext httpContext)
         {
             if (result is ObjectResult objectResult && IsErrorStatusCode(objectResult.StatusCode))
             {
                 if (objectResult.Value is ApiErrorResponse existingError)
                 {
-                    var enriched = EnrichErrorResponse(existingError, objectResult.StatusCode ?? StatusCodes.Status400BadRequest);
+                    var enriched = EnrichErrorResponse(existingError, objectResult.StatusCode ?? StatusCodes.Status400BadRequest, httpContext);
                     return new ObjectResult(enriched) { StatusCode = enriched.StatusCode };
                 }
 
                 var statusCode = objectResult.StatusCode ?? StatusCodes.Status400BadRequest;
                 var (message, errors) = ExtractMessageAndErrors(objectResult.Value, statusCode);
-                return new ObjectResult(EnrichErrorResponse(new ApiErrorResponse(message, statusCode, errors), statusCode))
+                return new ObjectResult(EnrichErrorResponse(new ApiErrorResponse(message, statusCode, errors), statusCode, httpContext))
                 {
                     StatusCode = statusCode
                 };
@@ -41,7 +41,7 @@ namespace CarGalary.Api
             if (result is StatusCodeResult statusCodeResult && IsErrorStatusCode(statusCodeResult.StatusCode))
             {
                 var message = GetDefaultMessage(statusCodeResult.StatusCode);
-                return new ObjectResult(EnrichErrorResponse(new ApiErrorResponse(message, statusCodeResult.StatusCode), statusCodeResult.StatusCode))
+                return new ObjectResult(EnrichErrorResponse(new ApiErrorResponse(message, statusCodeResult.StatusCode), statusCodeResult.StatusCode, httpContext))
                 {
                     StatusCode = statusCodeResult.StatusCode
                 };
@@ -54,7 +54,7 @@ namespace CarGalary.Api
                     ? GetDefaultMessage(statusCode)
                     : contentResult.Content;
 
-                return new ObjectResult(EnrichErrorResponse(new ApiErrorResponse(message, statusCode), statusCode))
+                return new ObjectResult(EnrichErrorResponse(new ApiErrorResponse(message, statusCode), statusCode, httpContext))
                 {
                     StatusCode = statusCode
                 };
@@ -175,10 +175,11 @@ namespace CarGalary.Api
             };
         }
 
-        private ApiErrorResponse EnrichErrorResponse(ApiErrorResponse response, int statusCode)
+        private ApiErrorResponse EnrichErrorResponse(ApiErrorResponse response, int statusCode, HttpContext httpContext)
         {
             var code = ResolveCode(response.ErrorCode, response.Message, statusCode, _errorCatalogService);
             var entry = _errorCatalogService.GetByCode(code);
+            var isArabic = IsArabicRequest(httpContext);
 
             response.StatusCode = statusCode;
             response.ErrorCode = code;
@@ -187,6 +188,9 @@ namespace CarGalary.Api
             {
                 response.MessageAr = entry.MessageAr;
                 response.MessageEn = entry.MessageEn;
+                response.Message = isArabic
+                    ? (entry.MessageAr ?? response.Message)
+                    : (entry.MessageEn ?? response.Message);
             }
             else
             {
@@ -209,6 +213,19 @@ namespace CarGalary.Api
                 return message.Trim();
             }
             return $"HTTP_{statusCode}";
+        }
+
+        private static bool IsArabicRequest(HttpContext httpContext)
+        {
+            var acceptLanguage = httpContext.Request.Headers.AcceptLanguage.ToString();
+            if (string.IsNullOrWhiteSpace(acceptLanguage))
+            {
+                return false;
+            }
+
+            return acceptLanguage
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(lang => lang.StartsWith("ar", StringComparison.OrdinalIgnoreCase));
         }
     }
 }
