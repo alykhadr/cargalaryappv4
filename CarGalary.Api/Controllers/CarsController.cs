@@ -26,6 +26,18 @@ namespace CarGalary.Api.Controllers
             return Ok(cars);
         }
 
+        [HttpGet("latest")]
+        public async Task<ActionResult<IEnumerable<CarResponseDto>>> GetLatestCars()
+        {
+            var cars = await _carService.GetAllAsync();
+            var latestCars = cars
+                .OrderByDescending(c => c.CreatedAt)
+                .Take(10)
+                .ToList();
+
+            return Ok(latestCars);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<CarResponseDto>> GetCar(int id)
         {
