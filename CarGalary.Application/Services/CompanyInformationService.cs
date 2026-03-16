@@ -21,7 +21,12 @@ namespace CarGalary.Application.Services
         public async Task<List<CompanyInformationResponseDto>> GetAllAsync()
         {
             var items = await _unitOfWork.CompanyInformations.GetAllAsync();
-            return _mapper.Map<List<CompanyInformationResponseDto>>(items);
+            var latestItem = items
+                .OrderByDescending(i => i.Id)
+                .Take(1)
+                .ToList();
+
+            return _mapper.Map<List<CompanyInformationResponseDto>>(latestItem);
         }
 
         public async Task<CompanyInformationResponseDto?> GetByIdAsync(int id)

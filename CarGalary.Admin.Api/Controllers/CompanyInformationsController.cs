@@ -27,7 +27,8 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet]
-        [PermissionAuthorize("companyinfo.view")]
+        [AllowAnonymous]
+       // [PermissionAuthorize("companyinfo.view")]
         public async Task<IActionResult> GetAll()
         {
             var items = await _service.GetAllAsync();
@@ -35,7 +36,8 @@ namespace CarGalary.Admin.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
-        [PermissionAuthorize("companyinfo.view")]
+        [AllowAnonymous]
+        //[PermissionAuthorize("companyinfo.view")]
         public async Task<IActionResult> GetById(int id)
         {
             var item = await _service.GetByIdAsync(id);

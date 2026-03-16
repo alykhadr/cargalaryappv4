@@ -30,7 +30,11 @@ namespace CarGalary.Infrastructure.ImplementRepositories
 
         public async Task<IEnumerable<CompanyInformation>> GetAllAsync()
         {
-            return await _context.CompanyInformations.ToListAsync();
+            return await _context.CompanyInformations
+                .AsNoTracking()
+                .OrderByDescending(c => c.Id)
+                .Take(1)
+                .ToListAsync();
         }
 
         public async Task<CompanyInformation> GetByIdAsync(int id)
