@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace CarGalary.Api.Controllers
 {
     [ApiController]
-    [Route("api/member-services")]
-    public class MemberServicesController : ControllerBase
+    [Route("api/subscribers")]
+    public class SubscribersController : ControllerBase
     {
         private readonly IMemberServiceService _memberServiceService;
 
-        public MemberServicesController(IMemberServiceService memberServiceService)
+        public SubscribersController(IMemberServiceService memberServiceService)
         {
             _memberServiceService = memberServiceService;
         }

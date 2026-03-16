@@ -1,6 +1,4 @@
 
-
-using CarGalary.Application.Dtos;
 using CarGalary.Application.Dtos.UserProfile;
 using CarGalary.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -21,16 +19,6 @@ namespace CarGalary.Api.Controllers
             _profileService = profileService;
             this._identityService = identityService;
         }
-
-    [HttpPost("change-password")]
-    public async Task<IActionResult> ChangePassword(ChangePasswordCommand command)
-    {
-        // Use current user id if you want
-        
-
-        await _identityService.ChangePasswordAsync(command.UserId, command.CurrentPassword, command.NewPassword);
-        return Ok("Password changed successfully");
-    }
 
     [HttpPost("update-email")]
     public async Task<IActionResult> UpdateEmail([FromBody] string newEmail)
