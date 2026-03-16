@@ -5,9 +5,11 @@ using CarGalary.Domain.Entities;
 using CarGalary.Infrastructure.Auth;
 using CarGalary.Infrastructure.Context;
 using CarGalary.Application.ErrorCatalog;
+using CarGalary.Application.Dtos.Auth;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using System.Threading.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -35,6 +37,43 @@ builder.Services.AddSingleton<IErrorCatalogService, ErrorCatalogService>();
 
 // Authorization & Authentication
 builder.Services.AddAuthorization();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.ContentType = "application/json";
+        var response = new ApiErrorResponse(
+            "Too many requests. Please try again later.",
+            StatusCodes.Status429TooManyRequests);
+        await context.HttpContext.Response.WriteAsJsonAsync(response, cancellationToken: token);
+    };
+
+    options.AddPolicy("AuthLoginPolicy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetClientIp(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+
+    options.AddPolicy("AuthRegisterPolicy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetClientIp(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromMinutes(10),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+});
 
 
 builder.Services.Configure<JwtSettings>(
@@ -97,6 +136,7 @@ app.UseHttpsRedirection();
 
 // 3. Routing
 app.UseRouting();
+app.UseRateLimiter();
 
 
 
@@ -120,3 +160,17 @@ app.MapControllers();
 
 
 app.Run();
+
+static string GetClientIp(HttpContext httpContext)
+{
+    if (httpContext.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))
+    {
+        var first = forwardedFor.ToString().Split(',')[0].Trim();
+        if (!string.IsNullOrWhiteSpace(first))
+        {
+            return first;
+        }
+    }
+
+    return httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+}

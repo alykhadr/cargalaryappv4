@@ -12,6 +12,8 @@ using CarGalary.Admin.Api;
 using CarGalary.Admin.Api.Hubs;
 using CarGalary.Application.ErrorCatalog;
 using System.Security.Claims;
+using CarGalary.Application.Dtos.Auth;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
@@ -49,6 +51,42 @@ builder.Services.AddSingleton<IErrorCatalogService, ErrorCatalogService>();
 
 // Authorization & Authentication
 builder.Services.AddAuthorization();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.ContentType = "application/json";
+        var response = new ApiErrorResponse(
+            "Too many requests. Please try again later.",
+            StatusCodes.Status429TooManyRequests);
+        await context.HttpContext.Response.WriteAsJsonAsync(response, cancellationToken: token);
+    };
+
+    options.AddPolicy("AuthLoginPolicy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetClientIp(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+
+    options.AddPolicy("AuthRegisterPolicy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetClientIp(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromMinutes(10),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+});
 
 builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationPolicyProvider, CarGalary.Admin.Api.Security.PermissionPolicyProvider>();
 builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, CarGalary.Admin.Api.Security.PermissionAuthorizationHandler>();
@@ -158,6 +196,7 @@ app.UseStaticFiles();
 
 // 3. Routing
 app.UseRouting();
+app.UseRateLimiter();
 
 
 
@@ -184,3 +223,17 @@ app.MapHub<CarHub>("/hubs/cars");
 
 
 app.Run();
+
+static string GetClientIp(HttpContext httpContext)
+{
+    if (httpContext.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))
+    {
+        var first = forwardedFor.ToString().Split(',')[0].Trim();
+        if (!string.IsNullOrWhiteSpace(first))
+        {
+            return first;
+        }
+    }
+
+    return httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+}

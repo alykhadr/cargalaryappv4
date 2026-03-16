@@ -6,6 +6,7 @@ using CarGalary.Domain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarGalary.Api.Controllers
@@ -37,6 +38,7 @@ namespace CarGalary.Api.Controllers
         // ================= REGISTER =================
 
         [HttpPost("register")]
+        [EnableRateLimiting("AuthRegisterPolicy")]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
             try
@@ -88,6 +90,7 @@ namespace CarGalary.Api.Controllers
 
         // [Authorize(Roles = "Admin")]
         [HttpPost("register/admin")]
+        [EnableRateLimiting("AuthRegisterPolicy")]
         public async Task<IActionResult> RegisterByAdmin(RegisterRequest request)
         {
             try
@@ -126,6 +129,7 @@ namespace CarGalary.Api.Controllers
         // ================= LOGIN =================
 
         [HttpPost("login")]
+        [EnableRateLimiting("AuthLoginPolicy")]
         public async Task<IActionResult> Login(LoginRequest request,
         [FromServices] IValidator<LoginRequest> _validator)
         {

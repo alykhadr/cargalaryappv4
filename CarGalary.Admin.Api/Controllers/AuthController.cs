@@ -6,6 +6,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using CarGalary.Domain.Entities;
 
@@ -46,6 +47,7 @@ namespace CarGalary.Admin.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
+        [EnableRateLimiting("AuthLoginPolicy")]
         public async Task<IActionResult> Login(LoginRequest request,
                                 [FromServices] IValidator<LoginRequest> validator)
         {
