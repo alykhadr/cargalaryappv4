@@ -7,8 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CarGalary.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    [Route("api/Quotations")]
+    [Route("api/Requests")]
     public class RequestsController : ControllerBase
     {
         private readonly IRequestService _requestService;
