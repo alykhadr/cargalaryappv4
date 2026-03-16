@@ -1,6 +1,8 @@
 using CarGalary.Application.Dtos.Auth;
+using CarGalary.Application.Dtos.UserFavoriteAdmin.Command;
 using CarGalary.Application.Dtos.UserFavoriteAdmin.Query;
 using CarGalary.Application.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +12,7 @@ namespace CarGalary.Api.Controllers
     [Route("api/favorites")]
     public class FavoritesController : ControllerBase
     {
+        private const string ValidationFailedCode = "1101";
         private const string UserNotFoundCode = "1227";
 
         private readonly IFavoritesService _favoritesService;
@@ -42,6 +45,51 @@ namespace CarGalary.Api.Controllers
             var favorites = await _favoritesService.GetAllAsync();
             var myFavorites = favorites.Where(x => x.UserId == userId).ToList();
             return Ok(myFavorites);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> CreateFavorite(
+            [FromBody] CreateMyFavoriteRequest request,
+            [FromServices] IValidator<CreateUserFavoriteAdminRequestDto> validator)
+        {
+            if (!Guid.TryParse(_currentUserService.UserId, out var userId))
+            {
+                return BadRequest(new ApiErrorResponse(UserNotFoundCode, StatusCodes.Status400BadRequest));
+            }
+
+            var dto = new CreateUserFavoriteAdminRequestDto
+            {
+                UserId = userId,
+                CarId = request.CarId,
+                Notes = request.Notes,
+                Priority = request.Priority
+            };
+
+            var validation = validator.Validate(dto);
+            if (!validation.IsValid)
+            {
+                return BadRequest(new ApiErrorResponse(
+                    ValidationFailedCode,
+                    StatusCodes.Status400BadRequest,
+                    validation.Errors.Select(e => e.ErrorMessage).ToList()));
+            }
+
+            var existing = await _favoritesService.GetByIdAsync(userId, request.CarId);
+            if (existing != null)
+            {
+                return Conflict(new ApiErrorResponse("Favorite already exists", StatusCodes.Status409Conflict));
+            }
+
+            var created = await _favoritesService.CreateAsync(dto);
+            return Ok(created);
+        }
+
+        public class CreateMyFavoriteRequest
+        {
+            public int CarId { get; set; }
+            public string? Notes { get; set; }
+            public int Priority { get; set; }
         }
     }
 }
