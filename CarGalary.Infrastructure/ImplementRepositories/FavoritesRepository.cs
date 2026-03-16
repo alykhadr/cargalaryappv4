@@ -19,12 +19,20 @@ namespace CarGalary.Infrastructure.ImplementRepositories
 
         public async Task<IEnumerable<UserFavorite>> GetAllAsync()
         {
-            return await _context.UserFavorites.ToListAsync();
+            return await _context.UserFavorites
+                .Include(f => f.Car)
+                    .ThenInclude(c => c.CarModel)
+                        .ThenInclude(m => m.Brand)
+                .ToListAsync();
         }
 
         public async Task<UserFavorite> GetByIdAsync(Guid userId, int carId)
         {
-            return await _context.UserFavorites.FirstOrDefaultAsync(x => x.UserId == userId && x.CarId == carId);
+            return await _context.UserFavorites
+                .Include(f => f.Car)
+                    .ThenInclude(c => c.CarModel)
+                        .ThenInclude(m => m.Brand)
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.CarId == carId);
         }
 
         public async Task CreateAsync(UserFavorite userFavorite)
@@ -59,6 +67,9 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         public async Task<List<UserFavorite>> GetMyFavoritesAsync(Guid userId)
         {
             return await _context.UserFavorites
+                .Include(f => f.Car)
+                    .ThenInclude(c => c.CarModel)
+                        .ThenInclude(m => m.Brand)
                 .Where(f => f.UserId == userId)
                 .ToListAsync();
         }

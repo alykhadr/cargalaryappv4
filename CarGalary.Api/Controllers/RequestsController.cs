@@ -1,5 +1,6 @@
 using CarGalary.Application.Dtos.Request.Command;
 using CarGalary.Application.Dtos.Auth;
+using CarGalary.Application.Dtos.Brand;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -11,13 +12,15 @@ namespace CarGalary.Api.Controllers
     public class RequestsController : ControllerBase
     {
         private readonly IRequestService _requestService;
+        private readonly IBrandService _brandService;
 
-        public RequestsController(IRequestService requestService)
+        public RequestsController(IRequestService requestService, IBrandService brandService)
         {
             _requestService = requestService;
+            _brandService = brandService;
         }
 
-       
+        
 
         [HttpPost]
         public async Task<IActionResult> Create(

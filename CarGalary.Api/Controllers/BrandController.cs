@@ -1,6 +1,7 @@
 
 
 using CarGalary.Application.Dtos.Brand;
+using CarGalary.Application.Dtos.CarModel.Query;
 using CarGalary.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,22 @@ namespace CarGalary.Api.Controllers
 
             }
            
+        }
+
+
+        [HttpGet("{brandId:int}/models")]
+        public async Task<ActionResult<IEnumerable<CarModelByBrandResponseDto>>> GetModelsByBrand(int brandId)
+        {
+            try
+            {
+                var models = await brandService.GetCarModelsByBrandAsync(brandId);
+                return Ok(models);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message.ToString());
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
         }
 
 
