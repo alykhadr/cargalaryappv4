@@ -48,6 +48,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<Request> Requests { get; set; }
     public DbSet<RequestHistory> RequestHistories { get; set; }
     public DbSet<UserRate> UserRates { get; set; }
+    public DbSet<Packages> Packages { get; set; }
 
 
 
@@ -85,6 +86,7 @@ namespace CarGalary.Infrastructure.Context;
               modelBuilder.ApplyConfiguration(new RequestConfiguration());
               modelBuilder.ApplyConfiguration(new RequestHistoryConfiguration());
               modelBuilder.ApplyConfiguration(new UserRateConfiguration());
+              modelBuilder.ApplyConfiguration(new PackagesConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

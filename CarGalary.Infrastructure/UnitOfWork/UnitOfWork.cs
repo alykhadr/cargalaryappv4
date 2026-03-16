@@ -36,6 +36,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
         public ILookupDetailsRepository LookupDetails { get; }
         public IRequestRepository Requests { get; }
         public IRequestHistoryRepository RequestHistories { get; }
+        public IPackagesRepository Packages { get; }
 
 
 
@@ -66,7 +67,8 @@ namespace CarGalary.Infrastructure.UnitOfWork
             IDepartmentRepository departmentRepository,
             ILookupDetailsRepository lookupDetailsRepository,
             IRequestRepository requestRepository,
-            IRequestHistoryRepository requestHistoryRepository)
+            IRequestHistoryRepository requestHistoryRepository,
+            IPackagesRepository packagesRepository)
         {
             _context = context;
             CarColors = carColorRepository;
@@ -94,6 +96,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             LookupDetails = lookupDetailsRepository;
             Requests = requestRepository;
             RequestHistories = requestHistoryRepository;
+            Packages = packagesRepository;
 
             MemberServices=memberServiceRepository;
 

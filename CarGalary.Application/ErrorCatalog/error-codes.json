@@ -200,6 +200,11 @@
     "messageEn": "roleIds must contain valid values"
   },
   {
+    "errorCode": "1231",
+    "messageAr": "معرفات الباقات مطلوبة.",
+    "messageEn": "Package IDs are required"
+  },
+  {
     "errorCode": "1301",
     "messageAr": "الفرع غير موجود.",
     "messageEn": "Branch not found"
@@ -343,5 +348,10 @@
     "errorCode": "1333",
     "messageAr": "لا يمكن تعيين دور المسؤول ذاتيًا.",
     "messageEn": "Admin role cannot be self-assigned."
+  },
+  {
+    "errorCode": "1334",
+    "messageAr": "الباقة غير موجودة.",
+    "messageEn": "Package not found"
   }
 ]

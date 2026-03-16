@@ -14,6 +14,7 @@ namespace CarGalary.Domain.UnitOfWork
         public ILookupDetailsRepository LookupDetails { get; }
         public IRequestRepository Requests { get; }
         public IRequestHistoryRepository RequestHistories { get; }
+        public IPackagesRepository Packages { get; }
         public ICarColorRepository CarColors { get; }
         public ICarFeatureRepository CarFeatures { get; }
         public ICarGalleryImageRepository CarGalleryImages { get; }

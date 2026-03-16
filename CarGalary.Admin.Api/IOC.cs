@@ -39,6 +39,7 @@ namespace CarGalary.Admin.Api
       
             services.AddScoped<IMemberServiceRepository, MemberServiceRepository>();
             services.AddScoped<IOfferRepository, OfferRepository>();
+            services.AddScoped<IPackagesRepository, PackagesRepository>();
 
             services.AddScoped<IServicesRepository, ServicesRepository>();
 
@@ -81,6 +82,7 @@ namespace CarGalary.Admin.Api
 
             services.AddScoped<IMemberServiceService, MemberServiceService>();
             services.AddScoped<IOfferService, OfferService>();
+            services.AddScoped<IPackageService, PackageService>();
 
             services.AddScoped<IServicesService, ServicesService>();
 
