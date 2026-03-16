@@ -5,6 +5,8 @@ namespace CarGalary.Application.Dtos.ContactUs.Query
         public int Id { get; set; }
         public string? ContactValue { get; set; }
         public int ContactType { get; set; }
+        public string? ContactTypeNameAr { get; set; }
+        public string? ContactTypeNameEn { get; set; }
         public string? ContactIconUrl { get; set; }
         public string? MessageAr { get; set; }
         public string? MessageEn { get; set; }

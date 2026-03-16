@@ -66,12 +66,16 @@ namespace CarGalary.Api
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IBrandService, BrandService>();
+            services.AddScoped<IBranchService, BranchService>();
             services.AddScoped<ICarModelService, CarModelService>();
             services.AddScoped<ICarExtraDetailsService, CarExtraDetailsService>();
             services.AddScoped<ICarColorService, CarColorService>();
             services.AddScoped<ICarCarColorService, CarCarColorService>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<ICompanyInformationService, CompanyInformationService>();
+            services.AddScoped<IContactSalesOfficerService, ContactSalesOfficerService>();
+            services.AddScoped<IContactUsService, ContactUsService>();
+            services.AddScoped<IFAQService, FAQService>();
             services.AddScoped<IFavoritesService, FavoritesService>();
             services.AddScoped<IOfferService, OfferService>();
             services.AddScoped<IPackageService, PackageService>();

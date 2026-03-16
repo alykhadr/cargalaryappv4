@@ -4,6 +4,7 @@ using CarGalary.Application.Dtos.ContactSalesOfficer.Query;
 using CarGalary.Application.Interfaces;
 using CarGalary.Domain.Entities;
 using CarGalary.Domain.UnitOfWork;
+using System.Globalization;
 
 namespace CarGalary.Application.Services
 {
@@ -21,13 +22,22 @@ namespace CarGalary.Application.Services
         public async Task<List<ContactSalesOfficerResponseDto>> GetAllAsync()
         {
             var items = await _unitOfWork.ContactSalesOfficers.GetAllAsync();
-            return _mapper.Map<List<ContactSalesOfficerResponseDto>>(items);
+            var response = _mapper.Map<List<ContactSalesOfficerResponseDto>>(items);
+            await PopulateContactTypeNamesAsync(response);
+            return response;
         }
 
         public async Task<ContactSalesOfficerResponseDto?> GetByIdAsync(int id)
         {
             var item = await _unitOfWork.ContactSalesOfficers.GetByIdAsync(id);
-            return item == null ? null : _mapper.Map<ContactSalesOfficerResponseDto>(item);
+            if (item == null)
+            {
+                return null;
+            }
+
+            var response = _mapper.Map<ContactSalesOfficerResponseDto>(item);
+            await PopulateContactTypeNamesAsync(new List<ContactSalesOfficerResponseDto> { response });
+            return response;
         }
 
         public async Task<ContactSalesOfficerResponseDto> CreateAsync(CreateContactSalesOfficerRequestDto dto)
@@ -45,7 +55,9 @@ namespace CarGalary.Application.Services
             await _unitOfWork.ContactSalesOfficers.CreateAsync(entity);
             await _unitOfWork.SaveChangesAsync();
 
-            return _mapper.Map<ContactSalesOfficerResponseDto>(entity);
+            var response = _mapper.Map<ContactSalesOfficerResponseDto>(entity);
+            await PopulateContactTypeNamesAsync(new List<ContactSalesOfficerResponseDto> { response });
+            return response;
         }
 
         public async Task UpdateAsync(int id, UpdateContactSalesOfficerRequestDto dto)
@@ -78,6 +90,34 @@ namespace CarGalary.Application.Services
 
             await _unitOfWork.ContactSalesOfficers.DeleteAsync(existing);
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        private async Task PopulateContactTypeNamesAsync(List<ContactSalesOfficerResponseDto> responses)
+        {
+            if (responses.Count == 0)
+            {
+                return;
+            }
+
+            var lookupMap = await BuildLookupMapAsync("CONTACT_TYPE");
+            foreach (var item in responses)
+            {
+                var key = item.ContactType.ToString(CultureInfo.InvariantCulture);
+                if (lookupMap.TryGetValue(key, out var lookup))
+                {
+                    item.ContactTypeNameAr = lookup.NameAr;
+                    item.ContactTypeNameEn = lookup.NameEn;
+                }
+            }
+        }
+
+        private async Task<Dictionary<string, LookupDetails>> BuildLookupMapAsync(string masterCode)
+        {
+            var values = await _unitOfWork.LookupDetails.GetByMasterCodeAsync(masterCode);
+            return values
+                .Where(x => !string.IsNullOrWhiteSpace(x.DetailCode))
+                .GroupBy(x => x.DetailCode.Trim())
+                .ToDictionary(x => x.Key, x => x.First());
         }
     }
 }

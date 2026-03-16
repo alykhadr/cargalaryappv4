@@ -19,7 +19,9 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             return await _context.Cars
                 .Include(c => c.CarModel)
+                .ThenInclude(m => m.Brand)
                 .Include(c => c.Type)
+                .Include(c => c.Branchs)
                 .OrderByDescending(c => c.Id)
                 .ToListAsync();
         }
@@ -28,7 +30,9 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             return await _context.Cars
                 .Include(c => c.CarModel)
+                .ThenInclude(m => m.Brand)
                 .Include(c => c.Type)
+                .Include(c => c.Branchs)
                 .Where(c => c.BranchId == branchId)
                 .OrderByDescending(c => c.Id)
                 .ToListAsync();
@@ -38,7 +42,9 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             return await _context.Cars
                 .Include(c => c.CarModel)
+                .ThenInclude(m => m.Brand)
                 .Include(c => c.Type)
+                .Include(c => c.Branchs)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
@@ -46,7 +52,9 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             return await _context.Cars
                 .Include(c => c.CarModel)
+                .ThenInclude(m => m.Brand)
                 .Include(c => c.Type)
+                .Include(c => c.Branchs)
                 .FirstOrDefaultAsync(c => c.Id == id && c.BranchId == branchId);
         }
 
@@ -79,7 +87,9 @@ namespace CarGalary.Infrastructure.ImplementRepositories
         {
             var query = _context.Cars
                 .Include(c => c.CarModel)
+                .ThenInclude(m => m.Brand)
                 .Include(c => c.Type)
+                .Include(c => c.Branchs)
                 .AsQueryable();
 
             if (modelId.HasValue) query = query.Where(c => c.ModelId == modelId.Value);

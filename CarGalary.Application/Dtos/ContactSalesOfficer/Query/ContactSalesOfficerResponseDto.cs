@@ -5,6 +5,8 @@ namespace CarGalary.Application.Dtos.ContactSalesOfficer.Query
         public int Id { get; set; }
         public string? ContactValue { get; set; }
         public int ContactType { get; set; }
+        public string? ContactTypeNameAr { get; set; }
+        public string? ContactTypeNameEn { get; set; }
         public string? ContactIconUrl { get; set; }
         public string? CreatedBy { get; set; }
         public bool IsAvailable { get; set; }

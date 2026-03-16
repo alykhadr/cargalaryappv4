@@ -20,16 +20,16 @@ namespace CarGalary.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CarResponseDto>>> GetCars()
+        public async Task<ActionResult<IEnumerable<CarApiResponseDto>>> GetCars()
         {
-            var cars = await _carService.GetAllAsync();
+            var cars = await _carService.GetAllForApiAsync();
             return Ok(cars);
         }
 
         [HttpGet("latest")]
-        public async Task<ActionResult<IEnumerable<CarResponseDto>>> GetLatestCars()
+        public async Task<ActionResult<IEnumerable<CarApiResponseDto>>> GetLatestCars()
         {
-            var cars = await _carService.GetAllAsync();
+            var cars = await _carService.GetAllForApiAsync();
             var latestCars = cars
                 .OrderByDescending(c => c.CreatedAt)
                 .Take(10)
@@ -39,17 +39,17 @@ namespace CarGalary.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CarResponseDto>> GetCar(int id)
+        public async Task<ActionResult<CarApiResponseDto>> GetCar(int id)
         {
-            var car = await _carService.GetByIdAsync(id);
+            var car = await _carService.GetByIdForApiAsync(id);
             if (car == null) return NotFound();
             return Ok(car);
         }
 
         [HttpGet("by-model/{modelId:int}")]
-        public async Task<ActionResult<IEnumerable<CarResponseDto>>> GetCarsByModel(int modelId)
+        public async Task<ActionResult<IEnumerable<CarApiResponseDto>>> GetCarsByModel(int modelId)
         {
-            var cars = await _carService.FilterAsync(modelId: modelId);
+            var cars = await _carService.FilterForApiAsync(modelId: modelId);
             return Ok(cars);
         }
 

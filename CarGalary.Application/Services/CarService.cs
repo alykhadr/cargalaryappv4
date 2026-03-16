@@ -1,6 +1,8 @@
 using AutoMapper;
 using CarGalary.Application.Dtos.Car.Command;
 using CarGalary.Application.Dtos.Car.Query;
+using CarGalary.Application.Dtos.CarCarColor.Query;
+using CarGalary.Application.Dtos.CarFeature.Query;
 using CarGalary.Application.Interfaces;
 using CarGalary.Domain.Entities;
 using CarGalary.Domain.UnitOfWork;
@@ -48,6 +50,32 @@ namespace CarGalary.Application.Services
                 ? await _unitOfWork.Cars.GetByIdAsync(id, userBranchId.Value)
                 : await _unitOfWork.Cars.GetByIdAsync(id);
             return car == null ? null : _mapper.Map<CarResponseDto>(car);
+        }
+
+        public async Task<List<CarApiResponseDto>> GetAllForApiAsync()
+        {
+            var userBranchId = GetCurrentUserBranchId();
+            var cars = userBranchId.HasValue
+                ? await _unitOfWork.Cars.GetAllByBranchAsync(userBranchId.Value)
+                : await _unitOfWork.Cars.GetAllAsync();
+
+            return await BuildApiCarResponsesAsync(cars);
+        }
+
+        public async Task<CarApiResponseDto?> GetByIdForApiAsync(int id)
+        {
+            var userBranchId = GetCurrentUserBranchId();
+            var car = userBranchId.HasValue
+                ? await _unitOfWork.Cars.GetByIdAsync(id, userBranchId.Value)
+                : await _unitOfWork.Cars.GetByIdAsync(id);
+
+            if (car == null)
+            {
+                return null;
+            }
+
+            var mapped = await BuildApiCarResponsesAsync(new List<Car> { car });
+            return mapped.FirstOrDefault();
         }
 
         public async Task<CarResponseDto> CreateAsync(CreateCarRequestDto dto)
@@ -493,6 +521,188 @@ namespace CarGalary.Application.Services
         {
             var cars = await _unitOfWork.Cars.FilterAsync(modelId, typeId, isAvailable, GetCurrentUserBranchId());
             return _mapper.Map<List<CarResponseDto>>(cars);
+        }
+
+        public async Task<List<CarApiResponseDto>> FilterForApiAsync(int? modelId = null, int? typeId = null, bool? isAvailable = null)
+        {
+            var cars = await _unitOfWork.Cars.FilterAsync(modelId, typeId, isAvailable, GetCurrentUserBranchId());
+            return await BuildApiCarResponsesAsync(cars);
+        }
+
+        private async Task<List<CarApiResponseDto>> BuildApiCarResponsesAsync(List<Car> cars)
+        {
+            if (cars.Count == 0)
+            {
+                return new List<CarApiResponseDto>();
+            }
+
+            var conditionLookup = await BuildLookupMapAsync("CAR_CONDITION");
+            var trimLookup = await BuildLookupMapAsync("CAR_TRIM_LEVEL");
+            var vehicleClassLookup = await BuildLookupMapAsync("CAR_VEHICLE_CLASS");
+            var transmissionLookup = await BuildLookupMapAsync("CAR_TRANSMISION_TYPE");
+            var drivetrainLookup = await BuildLookupMapAsync("CAR_DRIVETRAIN");
+            var fuelTypeLookup = await BuildLookupMapAsync("CAR_FUEL_TYPE");
+            var countryLookup = await BuildLookupMapAsync("COUNTRY");
+            var extraTypeLookup = await BuildLookupMapAsync("EXTRA_TYPE");
+            var imageTypeLookup = await BuildLookupMapAsync("IMAGE_TYPE");
+
+            var featuresCatalog = await _unitOfWork.CarFeatures.GetAllAsync();
+            var featureById = featuresCatalog
+                .Where(x => x.IsAvailable)
+                .ToDictionary(x => x.Id, x => x);
+
+            var result = new List<CarApiResponseDto>(cars.Count);
+            foreach (var car in cars)
+            {
+                var featureAssignments = await _unitOfWork.CarFeatures.GetCarFeatureAssignmentsByCarIdAsync(car.Id);
+                var carFeatures = featureAssignments
+                    .Where(x => x.IsAvailable && featureById.ContainsKey(x.FeatureId))
+                    .Select(x =>
+                    {
+                        var feature = featureById[x.FeatureId];
+                        return new CarFeatureResponseDto
+                        {
+                            Id = feature.Id,
+                            NameAr = feature.NameAr,
+                            NameEn = feature.NameEn,
+                            IsAvailable = feature.IsAvailable
+                        };
+                    })
+                    .ToList();
+
+                var carColors = await _unitOfWork.CarCarColors.GetByCarIdAsync(car.Id);
+                var mappedColors = _mapper.Map<List<CarCarColorResponseDto>>(carColors);
+
+                var extraDetails = await _unitOfWork.CarExtraDetails.GetByCarIdAsync(car.Id);
+                var mappedExtraDetails = extraDetails.Select(x =>
+                {
+                    var typeLookup = ResolveLookup(extraTypeLookup, x.CarExtraDetailsType);
+                    return new CarExtraDetailApiDto
+                    {
+                        Id = x.Id,
+                        NameAr = x.NameAr,
+                        NameEn = x.NameEn,
+                        DescriptionAr = x.DescriptionAr,
+                        DescriptionEn = x.DescriptionEn,
+                        CarExtraDetailsType = x.CarExtraDetailsType,
+                        CarExtraDetailsTypeNameAr = typeLookup?.NameAr,
+                        CarExtraDetailsTypeNameEn = typeLookup?.NameEn,
+                        CreatedBy = x.CreatedBy,
+                        IsAvailable = x.IsAvailable,
+                        CarId = x.CarId
+                    };
+                }).ToList();
+
+                var galleryImages = await _unitOfWork.CarGalleryImages.GetImagesByCarAsync(car.Id);
+                var mappedGalleryImages = galleryImages
+                    .Where(x => x.IsAvailable)
+                    .Select(x =>
+                    {
+                        var typeLookup = ResolveLookup(imageTypeLookup, x.ImageType);
+                        return new CarGalleryImageApiDto
+                        {
+                            Id = x.Id,
+                            CarId = x.CarId,
+                            ImageUrl = x.ImageUrl,
+                            ImageType = x.ImageType,
+                            ImageTypeNameAr = typeLookup?.NameAr,
+                            ImageTypeNameEn = typeLookup?.NameEn,
+                            IsPrimary = x.IsPrimary,
+                            CreatedBy = x.CreatedBy,
+                            IsAvailable = x.IsAvailable
+                        };
+                    })
+                    .ToList();
+
+                var condition = ResolveLookup(conditionLookup, car.ConditionId);
+                var trim = ResolveLookup(trimLookup, car.TrimLevel);
+                var vehicleClass = ResolveLookup(vehicleClassLookup, car.VehicleClass);
+                var transmission = ResolveLookup(transmissionLookup, car.TransmisionType);
+                var drivetrain = ResolveLookup(drivetrainLookup, car.Drivetrain);
+                var fuelType = ResolveLookup(fuelTypeLookup, car.FuelType);
+                var country = ResolveLookup(countryLookup, car.ManufactureCountryId);
+
+                result.Add(new CarApiResponseDto
+                {
+                    Id = car.Id,
+                    NameAr = car.NameAr,
+                    NameEn = car.NameEn,
+                    ModelId = car.ModelId,
+                    ModelNameAr = car.CarModel?.NameAr,
+                    ModelNameEn = car.CarModel?.NameEn,
+                    BrandId = car.CarModel?.BrandId,
+                    BrandNameAr = car.CarModel?.Brand?.NameAr,
+                    BrandNameEn = car.CarModel?.Brand?.NameEn,
+                    TypeId = car.TypeId,
+                    TypeNameAr = car.Type?.NameAr,
+                    TypeNameEn = car.Type?.NameEn,
+                    BranchId = car.BranchId,
+                    BranchNameAr = car.Branchs?.BranchNameAr,
+                    BranchNameEn = car.Branchs?.BranchNameEn,
+                    Year = car.Year,
+                    Mileage = car.Mileage,
+                    Vat = car.Vat,
+                    ConditionId = car.ConditionId,
+                    ConditionNameAr = condition?.NameAr,
+                    ConditionNameEn = condition?.NameEn,
+                    SeatingCapacity = car.SeatingCapacity,
+                    WeelSizeInch = car.WeelSizeInch,
+                    FuelTankCapacityLiter = car.FuelTankCapacityLiter,
+                    TrimLevel = car.TrimLevel,
+                    TrimLevelNameAr = trim?.NameAr,
+                    TrimLevelNameEn = trim?.NameEn,
+                    VehicleClass = car.VehicleClass,
+                    VehicleClassNameAr = vehicleClass?.NameAr,
+                    VehicleClassNameEn = vehicleClass?.NameEn,
+                    PlateNumberAr = car.PlateNumberAr,
+                    PlateNumberEn = car.PlateNumberEn,
+                    TransmisionType = car.TransmisionType,
+                    TransmisionTypeNameAr = transmission?.NameAr,
+                    TransmisionTypeNameEn = transmission?.NameEn,
+                    Drivetrain = car.Drivetrain,
+                    DrivetrainNameAr = drivetrain?.NameAr,
+                    DrivetrainNameEn = drivetrain?.NameEn,
+                    Cylenders = car.Cylenders,
+                    FuelType = car.FuelType,
+                    FuelTypeNameAr = fuelType?.NameAr,
+                    FuelTypeNameEn = fuelType?.NameEn,
+                    ManufactureCountryId = car.ManufactureCountryId,
+                    ManufactureCountryNameAr = country?.NameAr,
+                    ManufactureCountryNameEn = country?.NameEn,
+                    EnginNumber = car.EnginNumber,
+                    DescriptionAr = car.DescriptionAr,
+                    DescriptionEn = car.DescriptionEn,
+                    CreatedAt = car.CreatedAt,
+                    CreatedBy = car.CreatedBy,
+                    IsAvailable = car.IsAvailable,
+                    Features = carFeatures,
+                    Colors = mappedColors,
+                    ExtraDetails = mappedExtraDetails,
+                    GalleryImages = mappedGalleryImages
+                });
+            }
+
+            return result;
+        }
+
+        private async Task<Dictionary<string, LookupDetails>> BuildLookupMapAsync(string masterCode)
+        {
+            var values = await _unitOfWork.LookupDetails.GetByMasterCodeAsync(masterCode);
+            return values
+                .Where(x => !string.IsNullOrWhiteSpace(x.DetailCode))
+                .GroupBy(x => x.DetailCode.Trim())
+                .ToDictionary(x => x.Key, x => x.First());
+        }
+
+        private static LookupDetails? ResolveLookup(Dictionary<string, LookupDetails> map, int? idValue)
+        {
+            if (!idValue.HasValue)
+            {
+                return null;
+            }
+
+            var key = idValue.Value.ToString(CultureInfo.InvariantCulture);
+            return map.TryGetValue(key, out var value) ? value : null;
         }
 
         private int? GetCurrentUserBranchId()

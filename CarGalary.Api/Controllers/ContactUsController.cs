@@ -1,26 +1,25 @@
+using CarGalary.Application.Dtos.ContactUs.Query;
+using CarGalary.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
+namespace CarGalary.Api.Controllers
+{
+    [ApiController]
+    [Route("api/contact-us")]
+    public class ContactUsController : ControllerBase
+    {
+        private readonly IContactUsService _contactUsService;
 
-// using CarGalary.Application.Interfaces;
-// using Microsoft.AspNetCore.Mvc;
+        public ContactUsController(IContactUsService contactUsService)
+        {
+            _contactUsService = contactUsService;
+        }
 
-// namespace CarGalary.Api.Controllers
-// {
-//     [Route("api/[controller]")]
-//     [ApiController]
-//     public class ContactUsController : ControllerBase
-//     {
-//         private readonly IContactUsService _service;
-
-//         public ContactUsController(IContactUsService service)
-//         {
-//             _service = service;
-//         }
-
-//         [HttpGet]
-//         public async Task<IActionResult> GetAll()
-//         {
-//             var contacts = await _service.GetAllAsync();
-//             return Ok(contacts);
-//         }
-//     }
-// }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ContactUsResponseDto>>> GetContactUs()
+        {
+            var items = await _contactUsService.GetAllAsync();
+            return Ok(items);
+        }
+    }
+}

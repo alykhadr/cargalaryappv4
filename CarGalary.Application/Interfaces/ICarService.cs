@@ -16,5 +16,8 @@ namespace CarGalary.Application.Interfaces
         Task DeleteAsync(int id);
         Task<BulkDeleteCarsResponseDto> BulkDeleteAsync(List<int> carIds);
         Task<List<CarResponseDto>> FilterAsync(int? modelId = null, int? typeId = null, bool? isAvailable = null);
+        Task<List<CarApiResponseDto>> GetAllForApiAsync();
+        Task<CarApiResponseDto?> GetByIdForApiAsync(int id);
+        Task<List<CarApiResponseDto>> FilterForApiAsync(int? modelId = null, int? typeId = null, bool? isAvailable = null);
     }
 }
