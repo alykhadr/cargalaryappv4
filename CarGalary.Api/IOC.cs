@@ -80,7 +80,8 @@ namespace CarGalary.Api
             services.AddScoped<IDepartmentService, DepartmentService>();
             services.AddScoped<ILookupDetailsService, LookupDetailsService>();
             services.AddScoped<IRequestService, RequestService>();
-            // services.AddScoped<IBranchService, BranchService>();
+              services.AddScoped<ICarService, CarService>();
+            
             return services;
         }
 

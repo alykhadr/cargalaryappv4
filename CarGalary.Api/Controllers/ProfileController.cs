@@ -1,5 +1,4 @@
 
-using CarGalary.Application.Dtos.UserProfile;
 using CarGalary.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +10,10 @@ namespace CarGalary.Api.Controllers
     [ApiController]
     public class ProfileController : ControllerBase
     {
-        private readonly IUserProfileService _profileService;
         private readonly IIdentityService _identityService;
 
         public ProfileController(IUserProfileService profileService, IIdentityService identityService)
         {
-            _profileService = profileService;
             this._identityService = identityService;
         }
 
