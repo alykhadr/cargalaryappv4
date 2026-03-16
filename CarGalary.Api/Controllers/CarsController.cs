@@ -41,33 +41,6 @@ namespace CarGalary.Api.Controllers
             return Ok(cars);
         }
 
-         [Authorize(Roles="Admin,Manager")]
-        [HttpPost]
-        public async Task<ActionResult<CarResponseDto>> CreateCar(CreateCarRequestDto car)
-        {
-            var createdCar = await _carService.CreateAsync(car);
-            return CreatedAtAction(nameof(GetCar), new { id = createdCar.Id }, createdCar);
-        }
-         [Authorize(Roles="Admin,Manager")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCar(int id, UpdateCarRequestDto car)
-        {
-            await _carService.UpdateAsync(id, car);
-            return NoContent();
-        }
-         [Authorize(Roles="Admin,Manager")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCar(int id)
-        {
-            await _carService.DeleteAsync(id);
-            return NoContent();
-        }
-
-        [HttpGet("filter")]
-        public async Task<ActionResult<IEnumerable<CarResponseDto>>> FilterCars([FromQuery] int? modelId, [FromQuery] int? typeId, [FromQuery] bool? isAvailable)
-        {
-            var cars = await _carService.FilterAsync(modelId, typeId, isAvailable);
-            return Ok(cars);
-        }
+        
     }
 }

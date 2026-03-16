@@ -70,6 +70,7 @@ namespace CarGalary.Api
             services.AddScoped<ICarColorService, CarColorService>();
             services.AddScoped<ICarCarColorService, CarCarColorService>();
             services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped<ICompanyInformationService, CompanyInformationService>();
             services.AddScoped<IDepartmentService, DepartmentService>();
             services.AddScoped<ILookupDetailsService, LookupDetailsService>();
             services.AddScoped<IRequestService, RequestService>();

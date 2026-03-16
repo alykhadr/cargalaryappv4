@@ -22,7 +22,7 @@ namespace CarGalary.Api.Controllers
             this._identityService = identityService;
         }
 
- [HttpPost("change-password")]
+    [HttpPost("change-password")]
     public async Task<IActionResult> ChangePassword(ChangePasswordCommand command)
     {
         // Use current user id if you want
@@ -48,53 +48,6 @@ namespace CarGalary.Api.Controllers
         return Ok("Username updated successfully");
     }
 
-    [HttpDelete("delete")]
-    public async Task<IActionResult> DeleteAccount()
-    {
-        var userId = "";
-        await _identityService.DeleteUserAsync(userId!);
-        return NoContent();
-    }
-        // // GET: api/UserProfiles/me
-        // [HttpGet("me")]
-        // public async Task<IActionResult> GetMyProfile()
-        // {
-        //     // Example: get UserId from JWT claims
-        //     var userId = int.Parse(User.FindFirst("id")!.Value);
-        //     var profile = await _profileService.GetProfileByUserIdAsync(userId);
-        //     if (profile == null) return NotFound(new { message = "Profile not found" });
-
-        //     return Ok(profile);
-        // }
-
-        // // POST: api/UserProfiles
-        // [HttpPost]
-        // public async Task<IActionResult> CreateProfile([FromBody] CreateUserProfileRequestDto dto)
-        // {
-        //     var userId = int.Parse(User.FindFirst("id")!.Value);
-        //     var profile = await _profileService.CreateProfileAsync(userId, dto, User.Identity?.Name);
-        //     return Ok(profile);
-        // }
-
-        // // PUT: api/UserProfiles
-        // [HttpPut]
-        // public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileRequestDto dto)
-        // {
-        //     var userId = int.Parse(User.FindFirst("id")!.Value);
-        //     var profile = await _profileService.UpdateProfileAsync(userId, dto);
-        //     if (profile == null) return NotFound(new { message = "Profile not found" });
-
-        //     return Ok(profile);
-        // }
-
-        // // DELETE: api/UserProfiles
-        // [HttpDelete]
-        // public async Task<IActionResult> DeleteProfile()
-        // {
-        //     var userId = int.Parse(User.FindFirst("id")!.Value);
-        //     var deleted = await _profileService.DeleteProfileAsync(userId);
-        //     if (!deleted) return NotFound(new { message = "Profile not found" });
-        //     return NoContent();
-        // }
+   
     }
 }
