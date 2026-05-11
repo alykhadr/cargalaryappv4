@@ -15,7 +15,6 @@ namespace CarGalary.Admin.Api.Controllers
     public class CarExtraDetailsController : ControllerBase
     {
         private const string ValidationFailedCode = "1101";
-        private const string InternalServerErrorCode = "1102";
         private const string CarExtraNotFoundCode = "1208";
         private const string CarIdInvalidCode = "1211";
         private const string ExtraDetailIdsRequiredCode = "1214";
@@ -31,16 +30,8 @@ namespace CarGalary.Admin.Api.Controllers
         [PermissionAuthorize("carextradetails.view")]
         public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var items = await _service.GetAllAsync();
-                return Ok(items);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
+            var items = await _service.GetAllAsync();
+            return Ok(items);
         }
 
         [HttpGet("{id:int}")]
@@ -56,7 +47,7 @@ namespace CarGalary.Admin.Api.Controllers
                 }
                 return Ok(item);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex.Message == "CarExtraDetails not found")
             {
                 return NotFound(new ApiErrorResponse(CarExtraNotFoundCode, StatusCodes.Status404NotFound));
             }
@@ -66,16 +57,8 @@ namespace CarGalary.Admin.Api.Controllers
         [PermissionAuthorize("carextradetails.view")]
         public async Task<IActionResult> GetByCarId(int carId)
         {
-            try
-            {
-                var items = await _service.GetByCarIdAsync(carId);
-                return Ok(items);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
+            var items = await _service.GetByCarIdAsync(carId);
+            return Ok(items);
         }
 
         [HttpPost]
@@ -99,11 +82,6 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex) when (ex.Message == "Car not found")
             {
                 return BadRequest(new ApiErrorResponse(CarIdInvalidCode, StatusCodes.Status400BadRequest));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -140,11 +118,6 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return BadRequest(new ApiErrorResponse(CarIdInvalidCode, StatusCodes.Status400BadRequest));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
         }
 
         [HttpDelete("{id:int}")]
@@ -166,47 +139,34 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return NotFound(new ApiErrorResponse(CarExtraNotFoundCode, StatusCodes.Status404NotFound));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
         }
 
         [HttpPost("bulk-delete")]
         [PermissionAuthorize("carextradetails.delete")]
         public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteCarExtraDetailsRequest request)
         {
-            try
+            if (request.Ids == null || !request.Ids.Any())
             {
-                if (request.Ids == null || !request.Ids.Any())
-                {
-                    return BadRequest(new ApiErrorResponse(ExtraDetailIdsRequiredCode, StatusCodes.Status400BadRequest));
-                }
-
-                var deletedCount = 0;
-                var failedIds = new List<int>();
-
-                foreach (var id in request.Ids)
-                {
-                    try
-                    {
-                        await _service.DeleteAsync(id);
-                        deletedCount++;
-                    }
-                    catch
-                    {
-                        failedIds.Add(id);
-                    }
-                }
-
-                return Ok(new { deletedCount, failedIds });
+                return BadRequest(new ApiErrorResponse(ExtraDetailIdsRequiredCode, StatusCodes.Status400BadRequest));
             }
-            catch (Exception ex)
+
+            var deletedCount = 0;
+            var failedIds = new List<int>();
+
+            foreach (var id in request.Ids)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
+                try
+                {
+                    await _service.DeleteAsync(id);
+                    deletedCount++;
+                }
+                catch
+                {
+                    failedIds.Add(id);
+                }
             }
+
+            return Ok(new { deletedCount, failedIds });
         }
     }
 }

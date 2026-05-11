@@ -52,7 +52,7 @@ namespace CarGalary.Admin.Api.Controllers
                 var item = await _requestService.GetByIdAsync(id);
                 return Ok(item);
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
                 return NotFound(new ApiErrorResponse(RequestNotFoundCode, StatusCodes.Status404NotFound));
             }
@@ -66,7 +66,7 @@ namespace CarGalary.Admin.Api.Controllers
                 var items = await _requestService.GetHistoryAsync(id);
                 return Ok(items);
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
                 return NotFound(new ApiErrorResponse(RequestNotFoundCode, StatusCodes.Status404NotFound));
             }
@@ -121,13 +121,9 @@ namespace CarGalary.Admin.Api.Controllers
                 var code = !string.IsNullOrWhiteSpace(ex.Message) && ex.Message.All(char.IsDigit) ? ex.Message : RequestOperationFailedCode;
                 return BadRequest(new ApiErrorResponse(code, StatusCodes.Status400BadRequest));
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
                 return NotFound(new ApiErrorResponse(RequestNotFoundCode, StatusCodes.Status404NotFound));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ApiErrorResponse(RequestOperationFailedCode, StatusCodes.Status400BadRequest));
             }
         }
     }

@@ -10,7 +10,7 @@ namespace CarGalary.Api.Controllers
 {
     [ApiController]
     [Route("api/favorites")]
-    public class FavoritesController : ControllerBase
+    public class FavoritesController : ApiControllerBase
     {
         private const string ValidationFailedCode = "1101";
         private const string UserNotFoundCode = "1227";
@@ -39,7 +39,7 @@ namespace CarGalary.Api.Controllers
         {
             if (!Guid.TryParse(_currentUserService.UserId, out var userId))
             {
-                return BadRequest(new ApiErrorResponse(UserNotFoundCode, StatusCodes.Status400BadRequest));
+                return BadRequestErrorResponse(UserNotFoundCode);
             }
 
             var favorites = await _favoritesService.GetAllAsync();
@@ -55,7 +55,7 @@ namespace CarGalary.Api.Controllers
         {
             if (!Guid.TryParse(_currentUserService.UserId, out var userId))
             {
-                return BadRequest(new ApiErrorResponse(UserNotFoundCode, StatusCodes.Status400BadRequest));
+                return BadRequestErrorResponse(UserNotFoundCode);
             }
 
             var dto = new CreateUserFavoriteAdminRequestDto
@@ -69,16 +69,15 @@ namespace CarGalary.Api.Controllers
             var validation = validator.Validate(dto);
             if (!validation.IsValid)
             {
-                return BadRequest(new ApiErrorResponse(
+                return BadRequestErrorResponse(
                     ValidationFailedCode,
-                    StatusCodes.Status400BadRequest,
-                    validation.Errors.Select(e => e.ErrorMessage).ToList()));
+                    validation.Errors.Select(e => e.ErrorMessage));
             }
 
             var existing = await _favoritesService.GetByIdAsync(userId, request.CarId);
             if (existing != null)
             {
-                return Conflict(new ApiErrorResponse("Favorite already exists", StatusCodes.Status409Conflict));
+                return BadRequestErrorResponse(errors: new[] { "Favorite already exists" });
             }
 
             var created = await _favoritesService.CreateAsync(dto);

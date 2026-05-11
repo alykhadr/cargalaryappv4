@@ -17,7 +17,6 @@ namespace CarGalary.Api.Controllers
     public class AuthController : ControllerBase
     {
         private const string AuthValidationFailedCode = "1101";
-        private const string AuthInternalServerErrorCode = "1102";
         private const string AuthUserNameOrEmailRequiredCode = "1103";
         private const string AuthResetTokenRequiredCode = "1104";
         private const string AuthNewPasswordRequiredCode = "1105";
@@ -92,14 +91,9 @@ namespace CarGalary.Api.Controllers
                     tokenDetails = BuildTokenDetails(user.Token)
                 });
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex.Message.Contains("already exists", StringComparison.OrdinalIgnoreCase))
             {
-                if (ex.Message.Contains("already exists", StringComparison.OrdinalIgnoreCase))
-                {
-                    return BadRequest(new ApiErrorResponse(AuthEmailAlreadyExistsCode));
-                }
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(AuthInternalServerErrorCode, StatusCodes.Status500InternalServerError));
+                return BadRequest(new ApiErrorResponse(AuthEmailAlreadyExistsCode));
             }
         }
 
@@ -138,11 +132,6 @@ namespace CarGalary.Api.Controllers
                     StatusCodes.Status401Unauthorized,
                     errorCode: AuthUnauthorizedCode));
             }
-            catch
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(AuthInternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
         }
 
         // ================= FORGOT/RESET PASSWORD =================
@@ -150,7 +139,7 @@ namespace CarGalary.Api.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.UserNameOrEmail))
+            if (request == null || string.IsNullOrWhiteSpace(request.UserNameOrEmail))
             {
                 return BadRequest(new ApiErrorResponse(AuthUserNameOrEmailRequiredCode));
             }
@@ -183,7 +172,7 @@ namespace CarGalary.Api.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.UserNameOrEmail))
+            if (request == null || string.IsNullOrWhiteSpace(request.UserNameOrEmail))
             {
                 return BadRequest(new ApiErrorResponse(AuthUserNameOrEmailRequiredCode));
             }

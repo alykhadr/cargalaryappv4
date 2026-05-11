@@ -15,7 +15,6 @@ namespace CarGalary.Admin.Api.Controllers
     public class BranchesController : ControllerBase
     {
         private const string ValidationFailedCode = "1101";
-        private const string InternalServerErrorCode = "1102";
         private const string BranchNotFoundCode = "1301";
 
         private readonly IBranchService _service;
@@ -42,7 +41,7 @@ namespace CarGalary.Admin.Api.Controllers
                 var branch = await _service.GetByIdAsync(id);
                 return Ok(branch);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex.Message == "Branch not found")
             {
                 return NotFound(new ApiErrorResponse(BranchNotFoundCode, StatusCodes.Status404NotFound));
             }
@@ -53,22 +52,15 @@ namespace CarGalary.Admin.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateBrancRequestDto createBrancRequestDto,
          [FromServices] IValidator<CreateBrancRequestDto> _validator)
         {
-            try
+            var validator = _validator.Validate(createBrancRequestDto);
+            if (!validator.IsValid)
             {
-                var validator = _validator.Validate(createBrancRequestDto);
-                if (!validator.IsValid)
-                {
-                    var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
-                }
-                var response = await _service.CreateAsync(createBrancRequestDto);
-                return Ok(response);
+                var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
+
+            var response = await _service.CreateAsync(createBrancRequestDto);
+            return Ok(response);
         }
 
         [HttpPut("{id}")]
@@ -87,10 +79,9 @@ namespace CarGalary.Admin.Api.Controllers
                 var updated = await _service.UpdateAsync(id, updateBranchRequestDto);
                 return Ok(updated);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex.Message == "Branch not found")
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
+                return NotFound(new ApiErrorResponse(BranchNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -103,10 +94,9 @@ namespace CarGalary.Admin.Api.Controllers
                 var deleted = await _service.DeleteAsync(id);
                 return Ok(deleted);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex.Message == "Branch not found")
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
+                return NotFound(new ApiErrorResponse(BranchNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 
@@ -119,10 +109,9 @@ namespace CarGalary.Admin.Api.Controllers
                 var updated = await _service.ActiveAsync(updateBranchWorkingDayRequestDto);
                 return Ok(updated);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex.Message == "Branch not found")
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
+                return NotFound(new ApiErrorResponse(BranchNotFoundCode, StatusCodes.Status404NotFound));
             }
         }
 

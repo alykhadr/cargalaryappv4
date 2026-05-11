@@ -7,7 +7,7 @@ namespace CarGalary.Api.Controllers
 {
     [ApiController]
     [Route("api/company-information")]
-    public class CompanyInformationController : ControllerBase
+    public class CompanyInformationController : ApiControllerBase
     {
         private const string CompanyInfoNotFoundCode = "1304";
 
@@ -25,7 +25,7 @@ namespace CarGalary.Api.Controllers
             var company = (await _service.GetAllAsync()).FirstOrDefault();
             if (company == null)
             {
-                return NotFound(new ApiErrorResponse(CompanyInfoNotFoundCode, StatusCodes.Status404NotFound));
+                return NotFoundErrorResponse(CompanyInfoNotFoundCode);
             }
 
             return Ok(company);

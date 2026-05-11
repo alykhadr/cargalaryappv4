@@ -15,7 +15,6 @@ namespace CarGalary.Admin.Api.Controllers
     public class BrandsController : ControllerBase
     {
         private const string ValidationFailedCode = "1101";
-        private const string InternalServerErrorCode = "1102";
         private const string BrandNotFoundCode = "1204";
         private const string BrandIdsRequiredCode = "1203";
 
@@ -40,19 +39,13 @@ namespace CarGalary.Admin.Api.Controllers
         [PermissionAuthorize("brands.view")]
         public async Task<IActionResult> GetById(int id)
         {
-            try
-            {
-                var brand = await _brandService.GetByIdAsync(id);
-                if (brand == null)
-                {
-                    return NotFound(new ApiErrorResponse(BrandNotFoundCode, StatusCodes.Status404NotFound));
-                }
-                return Ok(brand);
-            }
-            catch (Exception ex)
+            var brand = await _brandService.GetByIdAsync(id);
+            if (brand == null)
             {
                 return NotFound(new ApiErrorResponse(BrandNotFoundCode, StatusCodes.Status404NotFound));
             }
+
+            return Ok(brand);
         }
 
         [HttpGet("{brandId:int}/models")]
@@ -69,28 +62,20 @@ namespace CarGalary.Admin.Api.Controllers
             [FromForm] CreateBrandRequestDto createBrandRequestDto,
             [FromServices] IValidator<CreateBrandRequestDto> validator)
         {
-            try
+            var validationResult = validator.Validate(createBrandRequestDto);
+            if (!validationResult.IsValid)
             {
-                var validationResult = validator.Validate(createBrandRequestDto);
-                if (!validationResult.IsValid)
-                {
-                    var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                    return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
-                }
-
-                if (createBrandRequestDto.ImageFile != null)
-                {
-                    createBrandRequestDto.ImageUrl = await SaveBrandImageAsync(createBrandRequestDto.ImageFile);
-                }
-
-                var created = await _brandService.CreateAsync(createBrandRequestDto);
-                return Ok(created);
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new ApiErrorResponse(ValidationFailedCode, StatusCodes.Status400BadRequest, errors));
             }
-            catch (Exception ex)
+
+            if (createBrandRequestDto.ImageFile != null)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
+                createBrandRequestDto.ImageUrl = await SaveBrandImageAsync(createBrandRequestDto.ImageFile);
             }
+
+            var created = await _brandService.CreateAsync(createBrandRequestDto);
+            return Ok(created);
         }
 
         [HttpPut("{id:int}")]
@@ -132,11 +117,6 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return NotFound(new ApiErrorResponse(BrandNotFoundCode, StatusCodes.Status404NotFound));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
         }
 
         [HttpDelete("{id:int}")]
@@ -158,47 +138,34 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return NotFound(new ApiErrorResponse(BrandNotFoundCode, StatusCodes.Status404NotFound));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
         }
 
         [HttpPost("bulk-delete")]
         [PermissionAuthorize("brands.delete")]
         public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteBrandsRequest request)
         {
-            try
+            if (request.BrandIds == null || !request.BrandIds.Any())
             {
-                if (request.BrandIds == null || !request.BrandIds.Any())
-                {
-                    return BadRequest(new ApiErrorResponse(BrandIdsRequiredCode, StatusCodes.Status400BadRequest));
-                }
-
-                var deletedCount = 0;
-                var failedIds = new List<int>();
-
-                foreach (var brandId in request.BrandIds)
-                {
-                    try
-                    {
-                        await _brandService.DeleteAsync(brandId);
-                        deletedCount++;
-                    }
-                    catch
-                    {
-                        failedIds.Add(brandId);
-                    }
-                }
-
-                return Ok(new { deletedCount, failedIds });
+                return BadRequest(new ApiErrorResponse(BrandIdsRequiredCode, StatusCodes.Status400BadRequest));
             }
-            catch (Exception ex)
+
+            var deletedCount = 0;
+            var failedIds = new List<int>();
+
+            foreach (var brandId in request.BrandIds)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
+                try
+                {
+                    await _brandService.DeleteAsync(brandId);
+                    deletedCount++;
+                }
+                catch
+                {
+                    failedIds.Add(brandId);
+                }
             }
+
+            return Ok(new { deletedCount, failedIds });
         }
 
         private void DeleteBrandImageIfExists(string? imageUrl)

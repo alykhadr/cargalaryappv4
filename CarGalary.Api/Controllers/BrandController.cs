@@ -14,47 +14,25 @@ namespace CarGalary.Api.Controllers
     public class BrandController : ControllerBase
     {
         private readonly IBrandService brandService;
-        private readonly ILogger<BrandController> _logger;
 
-        public BrandController(IBrandService brandService,ILogger<BrandController> logger)
+        public BrandController(IBrandService brandService)
         {
-            this._logger = logger;
             this.brandService = brandService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BrandDto>>> GetBrands()
         {
-            try
-            {
-            
-            
             var brands = await brandService.GetAllAsync();
             return Ok(brands);
-            }
-             catch(Exception ex)
-            {
-                _logger.LogError(ex,ex.Message.ToString());
-                return StatusCode(StatusCodes.Status500InternalServerError,ex);
-
-            }
-           
         }
 
 
         [HttpGet("{brandId:int}/models")]
         public async Task<ActionResult<IEnumerable<CarModelByBrandResponseDto>>> GetModelsByBrand(int brandId)
         {
-            try
-            {
-                var models = await brandService.GetCarModelsByBrandAsync(brandId);
-                return Ok(models);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message.ToString());
-                return StatusCode(StatusCodes.Status500InternalServerError, ex);
-            }
+            var models = await brandService.GetCarModelsByBrandAsync(brandId);
+            return Ok(models);
         }
 
 

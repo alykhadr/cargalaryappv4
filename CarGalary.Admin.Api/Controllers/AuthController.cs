@@ -15,10 +15,9 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("api/auth")]
-    public class AuthController : ControllerBase
+        public class AuthController : ControllerBase
     {
         private const string AuthValidationFailedCode = "1101";
-        private const string AuthInternalServerErrorCode = "1102";
         private const string AuthUserNameOrEmailRequiredCode = "1103";
         private const string AuthResetTokenRequiredCode = "1104";
         private const string AuthNewPasswordRequiredCode = "1105";
@@ -73,11 +72,6 @@ namespace CarGalary.Admin.Api.Controllers
                     ex.Message,
                     StatusCodes.Status401Unauthorized,
                     errorCode: AuthUnauthorizedCode));
-            }
-            catch
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(AuthInternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
 

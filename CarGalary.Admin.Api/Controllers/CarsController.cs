@@ -43,68 +43,37 @@ namespace CarGalary.Admin.Api.Controllers
         [PermissionAuthorize("cars.view")]
         public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var cars = await _carService.GetAllAsync();
-                return Ok(cars);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
+            var cars = await _carService.GetAllAsync();
+            return Ok(cars);
         }
 
         [HttpGet("{id:int}")]
         [PermissionAuthorize("cars.view")]
         public async Task<IActionResult> GetById(int id)
         {
-            try
+            var car = await _carService.GetByIdAsync(id);
+            if (car == null)
             {
-                var car = await _carService.GetByIdAsync(id);
-                if (car == null)
-                {
-                    return NotFound(new ApiErrorResponse("1209", StatusCodes.Status404NotFound));
-                }
-                return Ok(car);
+                return NotFound(new ApiErrorResponse("1209", StatusCodes.Status404NotFound));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
+
+            return Ok(car);
         }
 
         [HttpGet("filter")]
         [PermissionAuthorize("cars.view")]
         public async Task<IActionResult> Filter([FromQuery] int? modelId, [FromQuery] int? typeId, [FromQuery] bool? isAvailable)
         {
-            try
-            {
-                var cars = await _carService.FilterAsync(modelId, typeId, isAvailable);
-                return Ok(cars);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
+            var cars = await _carService.FilterAsync(modelId, typeId, isAvailable);
+            return Ok(cars);
         }
 
         [HttpGet("by-model/{modelId:int}")]
         [PermissionAuthorize("cars.view")]
         public async Task<IActionResult> GetCarsByModel(int modelId)
         {
-            try
-            {
-                var cars = await _carService.FilterAsync(modelId, null, null);
-                return Ok(cars);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
+            var cars = await _carService.FilterAsync(modelId, null, null);
+            return Ok(cars);
         }
 
         [HttpPost]
@@ -143,11 +112,6 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex) when (ex.Message == "Branch not found")
             {
                 return BadRequest(new ApiErrorResponse("1202", StatusCodes.Status400BadRequest));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -203,11 +167,6 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return BadRequest(new ApiErrorResponse("1202", StatusCodes.Status400BadRequest));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
         }
 
         [HttpDelete("{id:int}")]
@@ -243,11 +202,6 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return BadRequest(new ApiErrorResponse("1206", StatusCodes.Status400BadRequest));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
         }
 
         [HttpPut("{id:int}/availability")]
@@ -274,11 +228,6 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return NotFound(new ApiErrorResponse("1209", StatusCodes.Status404NotFound));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
         }
 
         [HttpPost("{id:int}/copy")]
@@ -295,49 +244,37 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return NotFound(new ApiErrorResponse("1209", StatusCodes.Status404NotFound));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
         }
 
         [HttpPost("bulk-delete")]
         [PermissionAuthorize("cars.delete")]
         public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteCarsRequest request)
         {
-            try
+            if (request.CarIds == null || !request.CarIds.Any())
             {
-                if (request.CarIds == null || !request.CarIds.Any())
-                {
-                    return BadRequest(new ApiErrorResponse("1207", StatusCodes.Status400BadRequest));
-                }
+                return BadRequest(new ApiErrorResponse("1207", StatusCodes.Status400BadRequest));
+            }
 
-                var result = await _carService.BulkDeleteAsync(request.CarIds);
-                var deletedIds = request.CarIds
-                    .Except(result.FailedIds ?? new List<int>())
-                    .Distinct()
-                    .ToList();
+            var result = await _carService.BulkDeleteAsync(request.CarIds);
+            var deletedIds = request.CarIds
+                .Except(result.FailedIds ?? new List<int>())
+                .Distinct()
+                .ToList();
 
-                if (deletedIds.Count > 0)
+            if (deletedIds.Count > 0)
+            {
+                foreach (var deletedId in deletedIds)
                 {
-                    foreach (var deletedId in deletedIds)
+                    await _hubContext.Clients.All.SendAsync("carDeleted", new
                     {
-                        await _hubContext.Clients.All.SendAsync("carDeleted", new
-                        {
-                            Id = deletedId,
-                            NameEn = string.Empty,
-                            NameAr = string.Empty
-                        });
-                    }
+                        Id = deletedId,
+                        NameEn = string.Empty,
+                        NameAr = string.Empty
+                    });
                 }
-                return Ok(result);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
+
+            return Ok(result);
         }
 
         [HttpPost("save-all")]
@@ -418,7 +355,7 @@ namespace CarGalary.Admin.Api.Controllers
                 await _hubContext.Clients.All.SendAsync("carCreated", createdCar);
                 return Ok(createdCar);
             }
-            catch (JsonException ex)
+            catch (JsonException)
             {
                 return BadRequest(new ApiErrorResponse("1306", StatusCodes.Status400BadRequest));
             }
@@ -434,14 +371,9 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return BadRequest(new ApiErrorResponse("1202", StatusCodes.Status400BadRequest));
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
                 return BadRequest(new ApiErrorResponse("1307", StatusCodes.Status400BadRequest));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
             }
         }
 
@@ -450,80 +382,48 @@ namespace CarGalary.Admin.Api.Controllers
         [PermissionAuthorize("cars.view")]
         public async Task<IActionResult> GetCarImages(int carId)
         {
-            try
-            {
-                var images = await _carImageService.GetByCarIdAsync(carId);
-                return Ok(images);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
+            var images = await _carImageService.GetByCarIdAsync(carId);
+            return Ok(images);
         }
 
         [HttpPost("{carId:int}/images")]
         [PermissionAuthorize("cars.edit")]
         public async Task<IActionResult> UploadCarImage(int carId, IFormFile imageFile, [FromQuery] bool isPrimary = false, [FromQuery] int? imageType = null)
         {
-            try
+            if (imageFile == null || imageFile.Length == 0)
             {
-                if (imageFile == null || imageFile.Length == 0)
-                {
-                    return BadRequest(new ApiErrorResponse("1216", StatusCodes.Status400BadRequest));
-                }
-
-                var fileName = await SaveCarImageAsync(imageFile);
-                var imageUrl = $"/uploads/cars/{fileName}";
-
-                var dto = new CreateCarGalleryImageRequestDto
-                {
-                    CarId = carId,
-                    ImageUrl = imageUrl,
-                    IsPrimary = isPrimary,
-                    ImageType = imageType
-                };
-
-                var created = await _carImageService.CreateAsync(dto);
-                return Ok(created);
+                return BadRequest(new ApiErrorResponse("1216", StatusCodes.Status400BadRequest));
             }
-            catch (Exception ex)
+
+            var fileName = await SaveCarImageAsync(imageFile);
+            var imageUrl = $"/uploads/cars/{fileName}";
+
+            var dto = new CreateCarGalleryImageRequestDto
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
+                CarId = carId,
+                ImageUrl = imageUrl,
+                IsPrimary = isPrimary,
+                ImageType = imageType
+            };
+
+            var created = await _carImageService.CreateAsync(dto);
+            return Ok(created);
         }
 
         [HttpDelete("images/{imageId:int}")]
         [PermissionAuthorize("cars.edit")]
         public async Task<IActionResult> DeleteCarImage(int imageId)
         {
-            try
-            {
-                await _carImageService.DeleteAsync(imageId);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
+            await _carImageService.DeleteAsync(imageId);
+            return Ok();
         }
 
         [HttpPut("images/{imageId:int}/primary")]
         [PermissionAuthorize("cars.edit")]
         public async Task<IActionResult> SetPrimaryImage(int imageId, [FromBody] UpdateCarGalleryImageRequestDto dto)
         {
-            try
-            {
-                await _carImageService.UpdateAsync(imageId, dto);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse("1102", StatusCodes.Status500InternalServerError));
-            }
+            await _carImageService.UpdateAsync(imageId, dto);
+            return Ok();
         }
 
         private async Task<string> SaveCarImageAsync(IFormFile file)

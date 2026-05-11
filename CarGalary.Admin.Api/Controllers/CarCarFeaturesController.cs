@@ -13,7 +13,6 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class CarCarFeaturesController : ControllerBase
     {
-        private const string InternalServerErrorCode = "1102";
         private const string FeatureIdRequiredCode = "1308";
         private const string CarIdInvalidCode = "1309";
         private const string FeatureIdInvalidCode = "1310";
@@ -60,11 +59,6 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return Conflict(new ApiErrorResponse(FeatureAlreadyAssignedCode, StatusCodes.Status409Conflict));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
         }
 
         [HttpPut("{carId:int}/{featureId:int}")]
@@ -80,11 +74,6 @@ namespace CarGalary.Admin.Api.Controllers
             {
                 return NotFound(new ApiErrorResponse(CarFeatureAssignmentNotFoundCode, StatusCodes.Status404NotFound));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
         }
 
         [HttpDelete("{carId:int}/{featureId:int}")]
@@ -99,11 +88,6 @@ namespace CarGalary.Admin.Api.Controllers
             catch (Exception ex) when (ex.Message == "Car feature assignment not found")
             {
                 return NotFound(new ApiErrorResponse(CarFeatureAssignmentNotFoundCode, StatusCodes.Status404NotFound));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
             }
         }
     }

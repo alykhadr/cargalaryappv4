@@ -6,8 +6,10 @@ namespace CarGalary.Api.Controllers
 {
     [ApiController]
     [Route("api/branches")]
-    public class BranchesController : ControllerBase
+    public class BranchesController : ApiControllerBase
     {
+        private const string BranchNotFoundCode = "1301";
+
         private readonly IBranchService _branchService;
 
         public BranchesController(IBranchService branchService)
@@ -30,9 +32,9 @@ namespace CarGalary.Api.Controllers
                 var branch = await _branchService.GetByIdAsync(id);
                 return Ok(branch);
             }
-            catch (Exception)
+            catch (Exception ex) when (ex.Message == "Branch not found")
             {
-                return NotFound();
+                return NotFoundErrorResponse(BranchNotFoundCode);
             }
         }
     }

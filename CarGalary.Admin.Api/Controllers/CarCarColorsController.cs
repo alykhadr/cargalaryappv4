@@ -11,8 +11,6 @@ namespace CarGalary.Admin.Api.Controllers
     [Authorize]
     public class CarCarColorsController : ControllerBase
     {
-        private const string InternalServerErrorCode = "1102";
-
         private readonly ICarCarColorService _carCarColorService;
 
         public CarCarColorsController(ICarCarColorService carCarColorService)
@@ -24,16 +22,8 @@ namespace CarGalary.Admin.Api.Controllers
         [PermissionAuthorize("cars.view")]
         public async Task<IActionResult> GetByCarId(int carId)
         {
-            try
-            {
-                var items = await _carCarColorService.GetByCarIdAsync(carId);
-                return Ok(items);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiErrorResponse(InternalServerErrorCode, StatusCodes.Status500InternalServerError));
-            }
+            var items = await _carCarColorService.GetByCarIdAsync(carId);
+            return Ok(items);
         }
     }
 }

@@ -41,7 +41,7 @@ namespace CarGalary.Admin.Api.Controllers
                 var department = await _departmentService.GetByIdAsync(id);
                 return Ok(department);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex.Message == "Department not found")
             {
                 return NotFound(new ApiErrorResponse(DepartmentNotFoundCode, StatusCodes.Status404NotFound));
             }
@@ -65,7 +65,7 @@ namespace CarGalary.Admin.Api.Controllers
                 var response = await _departmentService.CreateAsync(request);
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (IsDepartmentOperationError(ex))
             {
                 return BadRequest(new ApiErrorResponse(DepartmentOperationFailedCode, StatusCodes.Status400BadRequest));
             }
@@ -90,7 +90,7 @@ namespace CarGalary.Admin.Api.Controllers
                 var result = await _departmentService.UpdateAsync(id, request);
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (IsDepartmentOperationError(ex))
             {
                 return BadRequest(new ApiErrorResponse(DepartmentOperationFailedCode, StatusCodes.Status400BadRequest));
             }
@@ -105,10 +105,17 @@ namespace CarGalary.Admin.Api.Controllers
                 var result = await _departmentService.DeleteAsync(id);
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (IsDepartmentOperationError(ex))
             {
                 return BadRequest(new ApiErrorResponse(DepartmentOperationFailedCode, StatusCodes.Status400BadRequest));
             }
+        }
+
+        private static bool IsDepartmentOperationError(Exception ex)
+        {
+            return ex.Message == "Department not found"
+                || ex.Message == "Name (AR) already exists"
+                || ex.Message == "Name (EN) already exists";
         }
     }
 }

@@ -9,8 +9,10 @@ namespace CarGalary.Api.Controllers
 {
     [ApiController]
     [Route("api/Requests")]
-    public class RequestsController : ControllerBase
+    public class RequestsController : ApiControllerBase
     {
+        private const string RequestOperationFailedCode = "1322";
+
         private readonly IRequestService _requestService;
         private readonly IBrandService _brandService;
 
@@ -27,17 +29,22 @@ namespace CarGalary.Api.Controllers
             [FromBody] CreateRequestDto dto,
             [FromServices] IValidator<CreateRequestDto> validator)
         {
+            var validation = validator.Validate(dto);
+            if (!validation.IsValid)
+            {
+                return BadRequestErrorResponse(
+                    errors: validation.Errors.Select(e => e.ErrorMessage));
+            }
+
             try
             {
                 var created = await _requestService.CreateAsync(dto);
                 return Ok(created);
             }
-            catch (Exception ex)
+            catch (ArgumentException ex)
             {
-                return BadRequest(new ApiErrorResponse(ex.Message, StatusCodes.Status400BadRequest));
+                return BadRequestErrorResponse(ResolveBadRequestCode(ex, RequestOperationFailedCode));
             }
-
-
         }
 
         

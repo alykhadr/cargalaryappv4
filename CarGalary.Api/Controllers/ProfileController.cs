@@ -8,7 +8,7 @@ namespace CarGalary.Api.Controllers
     [Route("api/profile")]
     [Authorize]
     [ApiController]
-    public class ProfileController : ControllerBase
+    public class ProfileController : ApiControllerBase
     {
         private readonly IIdentityService _identityService;
 
@@ -17,21 +17,31 @@ namespace CarGalary.Api.Controllers
             this._identityService = identityService;
         }
 
-    [HttpPost("update-email")]
-    public async Task<IActionResult> UpdateEmail([FromBody] string newEmail)
-    {
-        string userId="";
-        await _identityService.UpdateEmailAsync(userId!, newEmail);
-        return Ok("Email updated successfully");
-    }
+        [HttpPost("update-email")]
+        public async Task<IActionResult> UpdateEmail([FromBody] string newEmail)
+        {
+            if (string.IsNullOrWhiteSpace(newEmail))
+            {
+                return BadRequestErrorResponse();
+            }
 
-    [HttpPost("update-username")]
-    public async Task<IActionResult> UpdateUsername([FromBody] string newUsername)
-    {
-        var userId = "";
-        await _identityService.UpdateUsernameAsync(userId!, newUsername);
-        return Ok("Username updated successfully");
-    }
+            string userId = "";
+            await _identityService.UpdateEmailAsync(userId!, newEmail);
+            return Ok("Email updated successfully");
+        }
+
+        [HttpPost("update-username")]
+        public async Task<IActionResult> UpdateUsername([FromBody] string newUsername)
+        {
+            if (string.IsNullOrWhiteSpace(newUsername))
+            {
+                return BadRequestErrorResponse();
+            }
+
+            var userId = "";
+            await _identityService.UpdateUsernameAsync(userId!, newUsername);
+            return Ok("Username updated successfully");
+        }
 
    
     }

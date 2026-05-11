@@ -10,8 +10,10 @@ namespace CarGalary.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CarsController : ControllerBase
+    public class CarsController : ApiControllerBase
     {
+        private const string CarNotFoundCode = "1209";
+
         private readonly ICarService _carService;
 
         public CarsController(ICarService carService)
@@ -42,7 +44,11 @@ namespace CarGalary.Api.Controllers
         public async Task<ActionResult<CarApiResponseDto>> GetCar(int id)
         {
             var car = await _carService.GetByIdForApiAsync(id);
-            if (car == null) return NotFound();
+            if (car == null)
+            {
+                return NotFoundErrorResponse(CarNotFoundCode);
+            }
+
             return Ok(car);
         }
 

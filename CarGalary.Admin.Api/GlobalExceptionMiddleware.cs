@@ -6,6 +6,9 @@ namespace CarGalary.Admin.Api
 {
     public class GlobalExceptionMiddleware
     {
+        private const string ValidationFailedCode = "1101";
+        private const string InternalServerErrorCode = "1102";
+
         private readonly RequestDelegate _next;
         private readonly IErrorCatalogService _errorCatalogService;
 
@@ -41,29 +44,40 @@ namespace CarGalary.Admin.Api
 
         private ApiErrorResponse BuildErrorResponse(string message, int statusCode)
         {
-            var hasNumericMessage = !string.IsNullOrWhiteSpace(message) && message.All(char.IsDigit);
-            var code = hasNumericMessage
-                ? message
-                : $"HTTP_{statusCode}";
-            var baseMessage = string.IsNullOrWhiteSpace(message) ? code : message;
+            var code = ResolveErrorCode(message, statusCode);
 
             var entry = _errorCatalogService.GetByCode(code);
             if (entry == null)
             {
                 return new ApiErrorResponse(
-                    baseMessage,
+                    code,
                     statusCode,
                     errorCode: code,
-                    messageAr: baseMessage,
-                    messageEn: baseMessage);
+                    messageAr: code,
+                    messageEn: code);
             }
 
             return new ApiErrorResponse(
-                baseMessage,
+                code,
                 statusCode,
                 errorCode: entry.ErrorCode,
                 messageAr: entry.MessageAr,
                 messageEn: entry.MessageEn);
+        }
+
+        private static string ResolveErrorCode(string message, int statusCode)
+        {
+            if (!string.IsNullOrWhiteSpace(message) && message.All(char.IsDigit))
+            {
+                return message;
+            }
+
+            return statusCode switch
+            {
+                StatusCodes.Status400BadRequest => ValidationFailedCode,
+                StatusCodes.Status500InternalServerError => InternalServerErrorCode,
+                _ => $"HTTP_{statusCode}"
+            };
         }
     }
 }

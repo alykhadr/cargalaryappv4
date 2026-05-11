@@ -212,7 +212,13 @@ namespace CarGalary.Api
             {
                 return message.Trim();
             }
-            return $"HTTP_{statusCode}";
+
+            return statusCode switch
+            {
+                StatusCodes.Status400BadRequest => "1101",
+                StatusCodes.Status500InternalServerError => "1102",
+                _ => $"HTTP_{statusCode}"
+            };
         }
 
         private static bool IsArabicRequest(HttpContext httpContext)
