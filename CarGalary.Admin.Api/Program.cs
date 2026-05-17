@@ -13,6 +13,8 @@ using CarGalary.Admin.Api.Hubs;
 using CarGalary.Application.ErrorCatalog;
 using System.Security.Claims;
 using CarGalary.Application.Dtos.Auth;
+using ElmahCore;
+using ElmahCore.Mvc;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +50,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IErrorCatalogService, ErrorCatalogService>();
+builder.Services.AddElmah<XmlFileErrorLog>(options =>
+{
+    options.Path = "admin-elmah";
+    options.LogPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Elmah");
+    options.OnPermissionCheck = context =>
+        builder.Environment.IsDevelopment() ||
+        (context.User.Identity?.IsAuthenticated ?? false);
+});
 
 // Authorization & Authentication
 builder.Services.AddAuthorization();
@@ -213,6 +223,7 @@ app.MapGet("/api/version", () => Results.Ok(new { vers = "1.0" }));
 // 4. Authentication / Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseElmah();
 // 6. Endpoints
 app.MapControllers();
 app.MapHub<RequestHub>("/hubs/requests");

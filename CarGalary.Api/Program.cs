@@ -6,6 +6,8 @@ using CarGalary.Infrastructure.Auth;
 using CarGalary.Infrastructure.Context;
 using CarGalary.Application.ErrorCatalog;
 using CarGalary.Application.Dtos.Auth;
+using ElmahCore;
+using ElmahCore.Mvc;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +36,14 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IErrorCatalogService, ErrorCatalogService>();
+builder.Services.AddElmah<XmlFileErrorLog>(options =>
+{
+    options.Path = "elmah";
+    options.LogPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Elmah");
+    options.OnPermissionCheck = context =>
+        builder.Environment.IsDevelopment() ||
+        (context.User.Identity?.IsAuthenticated ?? false);
+});
 
 // Authorization & Authentication
 builder.Services.AddAuthorization();
@@ -153,6 +163,7 @@ app.MapGet("/api/version", () => Results.Ok(new { vers = "1.0" }));
 // 4. Authentication / Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseElmah();
 // 6. Endpoints
 app.MapControllers();
 
