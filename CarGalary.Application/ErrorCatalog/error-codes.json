@@ -205,6 +205,11 @@
     "messageEn": "Package IDs are required"
   },
   {
+    "errorCode": "1232",
+    "messageAr": "معرفات سياسات الخصوصية مطلوبة.",
+    "messageEn": "Privacy policy IDs are required"
+  },
+  {
     "errorCode": "1301",
     "messageAr": "الفرع غير موجود.",
     "messageEn": "Branch not found"
@@ -353,5 +358,10 @@
     "errorCode": "1334",
     "messageAr": "الباقة غير موجودة.",
     "messageEn": "Package not found"
+  },
+  {
+    "errorCode": "1335",
+    "messageAr": "سياسة الخصوصية غير موجودة.",
+    "messageEn": "Privacy policy not found"
   }
 ]

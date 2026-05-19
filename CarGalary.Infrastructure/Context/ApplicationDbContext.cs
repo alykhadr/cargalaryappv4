@@ -49,6 +49,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<RequestHistory> RequestHistories { get; set; }
     public DbSet<UserRate> UserRates { get; set; }
     public DbSet<Packages> Packages { get; set; }
+    public DbSet<PrivacyPolicy> PrivacyPolicies { get; set; }
 
 
 
@@ -87,6 +88,7 @@ namespace CarGalary.Infrastructure.Context;
               modelBuilder.ApplyConfiguration(new RequestHistoryConfiguration());
               modelBuilder.ApplyConfiguration(new UserRateConfiguration());
               modelBuilder.ApplyConfiguration(new PackagesConfiguration());
+              modelBuilder.ApplyConfiguration(new PrivacyPolicyConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

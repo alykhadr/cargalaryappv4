@@ -40,6 +40,7 @@ namespace CarGalary.Admin.Api
             services.AddScoped<IMemberServiceRepository, MemberServiceRepository>();
             services.AddScoped<IOfferRepository, OfferRepository>();
             services.AddScoped<IPackagesRepository, PackagesRepository>();
+            services.AddScoped<IPrivacyPolicyRepository, PrivacyPolicyRepository>();
 
             services.AddScoped<IServicesRepository, ServicesRepository>();
 
@@ -83,6 +84,7 @@ namespace CarGalary.Admin.Api
             services.AddScoped<IMemberServiceService, MemberServiceService>();
             services.AddScoped<IOfferService, OfferService>();
             services.AddScoped<IPackageService, PackageService>();
+            services.AddScoped<IPrivacyPolicyService, PrivacyPolicyService>();
 
             services.AddScoped<IServicesService, ServicesService>();
 
@@ -104,10 +106,10 @@ namespace CarGalary.Admin.Api
         /// </summary>
         public static IServiceCollection AddMapper(this IServiceCollection services)
         {
-            services.AddAutoMapper(cfg =>
-            {
-                cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies());
-            });
+           services.AddAutoMapper(cfg =>
+                {
+                    cfg.AddMaps(typeof(IOC).Assembly);
+                });
             return services;
         }
 

@@ -1,0 +1,160 @@
+﻿<error errorId="623811ab-6f8a-4172-a299-2f1f8b58f7c4" application="CarGalary.Admin.Api" host="alis-MacBook-Air" type="System.Reflection.ReflectionTypeLoadException" message="Unable to load one or more of the requested types.&#xA;Could not load type 'SqlGuidCaster' from assembly 'System.Data.SqlClient, Version=4.6.1.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' because it contains an object field at offset 0 that is incorrectly aligned or overlapped by a non-object field." source="System.Private.CoreLib" detail="# caller: @C:\Sources\ElmahCore\ElmahCore\ElmahCore\Internal$\CallerInfo.cs:9&#xA;System.Reflection.ReflectionTypeLoadException: Unable to load one or more of the requested types.&#xA;Could not load type 'SqlGuidCaster' from assembly 'System.Data.SqlClient, Version=4.6.1.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' because it contains an object field at offset 0 that is incorrectly aligned or overlapped by a non-object field.&#xA;   at System.Reflection.RuntimeModule.GetDefinedTypes()&#xA;   at System.Reflection.RuntimeModule.GetTypes()&#xA;   at AutoMapper.MapperConfigurationExpression.&lt;&gt;c.&lt;AddMapsCore&gt;b__48_1(Assembly a)&#xA;   at System.Linq.Enumerable.SelectManySingleSelectorIterator`2.MoveNext()&#xA;   at AutoMapper.MapperConfigurationExpression.AddMapsCore(IEnumerable`1 assembliesToScan)&#xA;   at AutoMapper.MapperConfigurationExpression.AddMaps(Assembly[] assembliesToScan)&#xA;   at CarGalary.Admin.Api.IOC.&lt;&gt;c.&lt;AddMapper&gt;b__3_0(IMapperConfigurationExpression cfg) in /Users/alikhadr/Projects/CarGalaryService/CarGalary.Admin.Api/IOC.cs:line 111&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.&lt;&gt;c__DisplayClass1_0.&lt;AddAutoMapper&gt;b__0(IServiceProvider sp, IMapperConfigurationExpression cfg)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.&lt;&gt;c__DisplayClass10_0.&lt;AddAutoMapperClasses&gt;b__0(MapperConfigurationExpression options, IServiceProvider sp)&#xA;   at Microsoft.Extensions.Options.OptionsFactory`1.Create(String name)&#xA;   at Microsoft.Extensions.Options.UnnamedOptionsManager`1.get_Value()&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.&lt;&gt;c.&lt;AddAutoMapperClasses&gt;b__10_4(IServiceProvider sp)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)&#xA;   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.&lt;&gt;c.&lt;AddAutoMapperClasses&gt;b__10_5(IServiceProvider sp)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitDisposeCache(ServiceCallSite transientCallSite, RuntimeResolverContext context)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)&#xA;   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.&lt;&gt;c__DisplayClass2_0.&lt;RealizeService&gt;b__0(ServiceProviderEngineScope scope)&#xA;   at lambda_method1745(Closure, IServiceProvider, Object[])&#xA;   at Microsoft.AspNetCore.Mvc.Controllers.ControllerFactoryProvider.&lt;&gt;c__DisplayClass6_0.&lt;CreateControllerFactory&gt;g__CreateController|0(ControllerContext controllerContext)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State&amp; next, Scope&amp; scope, Object&amp; state, Boolean&amp; isCompleted)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()&#xA;--- End of stack trace from previous location ---&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeFilterPipelineAsync&gt;g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeAsync&gt;g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeAsync&gt;g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)&#xA;   at ElmahCore.Mvc.ErrorLogMiddleware.InvokeAsync(HttpContext context)&#xA;System.TypeLoadException: Could not load type 'SqlGuidCaster' from assembly 'System.Data.SqlClient, Version=4.6.1.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' because it contains an object field at offset 0 that is incorrectly aligned or overlapped by a non-object field." user="aly" time="2026-05-19T16:45:02.1207410Z" statusCode="500">
+  <serverVariables>
+    <item name="RequestTimedOut">
+      <value string="False" />
+    </item>
+    <item name="MinResponseDataRate">
+      <value string="Bytes per second: 240, Grace Period: 00:00:05" />
+    </item>
+    <item name="ConnectionIdFeature">
+      <value string="0HNLLON0F86U6" />
+    </item>
+    <item name="HasStartedConsumingRequestBody">
+      <value string="False" />
+    </item>
+    <item name="MaxRequestBodySize">
+      <value string="30000000" />
+    </item>
+    <item name="MinRequestBodyDataRate">
+      <value string="Bytes per second: 240, Grace Period: 00:00:05" />
+    </item>
+    <item name="AllowSynchronousIO">
+      <value string="False" />
+    </item>
+    <item name="TraceIdentifier">
+      <value string="0HNLLON0F86U6:00000005" />
+    </item>
+    <item name="IsUpgradableRequest">
+      <value string="False" />
+    </item>
+    <item name="IsUpgraded">
+      <value string="False" />
+    </item>
+    <item name="IsExtendedConnectRequest">
+      <value string="False" />
+    </item>
+    <item name="IsExtendedConnectAccepted">
+      <value string="False" />
+    </item>
+    <item name="RemoteIpAddress">
+      <value string="::1" />
+    </item>
+    <item name="RemotePort">
+      <value string="53547" />
+    </item>
+    <item name="LocalIpAddress">
+      <value string="::1" />
+    </item>
+    <item name="LocalPort">
+      <value string="5087" />
+    </item>
+    <item name="Scheme">
+      <value string="http" />
+    </item>
+    <item name="Method">
+      <value string="Get" />
+    </item>
+    <item name="MethodText">
+      <value string="GET" />
+    </item>
+    <item name="Path">
+      <value string="/api/CompanyInformations" />
+    </item>
+    <item name="QueryString">
+      <value string="" />
+    </item>
+    <item name="RawTarget">
+      <value string="/api/CompanyInformations" />
+    </item>
+    <item name="HttpVersion">
+      <value string="HTTP/1.1" />
+    </item>
+    <item name="Header_Accept">
+      <value string="application/json, text/plain, */*" />
+    </item>
+    <item name="Header_Connection">
+      <value string="keep-alive" />
+    </item>
+    <item name="Header_Host">
+      <value string="localhost:5087" />
+    </item>
+    <item name="Header_User-Agent">
+      <value string="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" />
+    </item>
+    <item name="Header_Accept-Encoding">
+      <value string="gzip, deflate, br, zstd" />
+    </item>
+    <item name="Header_Accept-Language">
+      <value string="ar,en-US;q=0.9,en;q=0.8,ru;q=0.7" />
+    </item>
+    <item name="Header_Authorization">
+      <value string="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkY2M1Y2RlNy0xN2EyLTRjZjEtOTJmMy0wOGRlODE2NmUzOWEiLCJlbWFpbCI6ImFseS5raGFkcjQ0NEBnbWFpbC5jb20iLCJqdGkiOiJmODM5YTE4Ny1jN2ExLTRhMmQtOTZlYS1mNWFlOWY4NDk5MjQiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImRjYzVjZGU3LTE3YTItNGNmMS05MmYzLTA4ZGU4MTY2ZTM5YSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFseS5raGFkcjQ0NEBnbWFpbC5jb20iLCJicmFuY2hfaWQiOiIxIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6ImFseSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik1hbmFnZXIiLCJwZXJtaXNzaW9uIjpbInBlcm1pc3Npb25zLmNyZWF0ZSIsInBlcm1pc3Npb25zLmRlbGV0ZSIsInBlcm1pc3Npb25zLnZpZXciLCJ1c2Vycy52aWV3IiwidXNlcnMuZWRpdCIsInVzZXJzLmRlbGV0ZSIsInVzZXJzLmxvY2siLCJ1c2Vycy5yb2xlcyIsInVzZXJzLmNyZWF0ZSIsInJvbGVzLnZpZXciLCJyb2xlcy5jcmVhdGUiLCJyb2xlcy5lZGl0Iiwicm9sZXMuZGVsZXRlIiwiYnJhbmNoZXMudmlldyIsImJyYW5jaGVzLmNyZWF0ZSIsImJyYW5jaGVzLmVkaXQiLCJicmFuY2hlcy5kZWxldGUiLCJicmFuY2hlcy5hY3RpdmUiLCJuZXcuY3JlYXRlIiwiYnJhbmRzLnZpZXciLCJicmFuZHMuZWRpdCIsImJyYW5kcy5kZWxldGUiLCJicmFuZHMuY3JlYXRlIiwiY29sb3JzLnZpZXciLCJjb2xvcnMuZWRpdCIsImNvbG9ycy5jcmVhdGUiLCJjb2xvcnMuZGVsZXRlIiwiZ2FsbGVyeWltYWdlcy52aWV3IiwiZ2FsbGVyeWltYWdlcy5lZGl0IiwiZ2FsbGVyeWltYWdlcy5kZWxldGUiLCJnYWxsZXJ5aW1hZ2VzLmNyZWF0ZSIsImNvbXBhbnlpbmZvLnZpZXciLCJjb21wYW55aW5mby5jcmVhdGUiLCJjb21wYW55aW5mby5lZGl0IiwiY29tcGFueWluZm8uZGVsZXRlIiwiY29udGFjdHNhbGVzLmNyZWF0ZSIsImNvbnRhY3RzYWxlcy5lZGl0IiwiY29udGFjdHNhbGVzLmRlbGV0ZSIsImNvbnRhY3RzYWxlcy52aWV3IiwiY29udGFjdHVzLnZpZXciLCJjb250YWN0dXMuY3JlYXRlIiwiY29udGFjdHVzLmVkaXQiLCJjb250YWN0dXMuZGVsZXRlIiwiZmFxLnZpZXciLCJmYXEuZGVsZXRlIiwiZmFxLmNyZWF0ZSIsImZhcS5lZGl0IiwibWVtYmVyc2VydmljZXMudmlldyIsIm1lbWJlcnNlcnZpY2VzLmNyZWF0ZSIsIm1lbWJlcnNlcnZpY2VzLmRlbGV0ZSIsIm1lbWJlcnNlcnZpY2VzLmVkaXQiLCJvZmZlcnMudmlldyIsIm9mZmVycy5lZGl0Iiwib2ZmZXJzLmRlbGV0ZSIsIm9mZmVycy5jcmVhdGUiLCJzZXJ2aWNlcy52aWV3Iiwic2VydmljZXMuZWRpdCIsInNlcnZpY2VzLmRlbGV0ZSIsInNlcnZpY2VzLmNyZWF0ZSIsIm1vZGVscy52aWV3IiwibW9kZWxzLmVkaXQiLCJtb2RlbHMuY3JlYXRlIiwibW9kZWxzLmRlbGV0ZSIsImNhcmV4dHJhZGV0YWlscy52aWV3IiwiY2FyZXh0cmFkZXRhaWxzLmVkaXQiLCJjYXJleHRyYWRldGFpbHMuZGVsZXRlIiwiY2FyZXh0cmFkZXRhaWxzLmNyZWF0ZSIsInR5cGVzLnZpZXciLCJ0eXBlcy5lZGl0IiwidHlwZXMuZGVsZXRlIiwidHlwZXMuY3JlYXRlIiwiY2Fycy5jcmVhdGUiLCJjYXJzLmVkaXQiLCJjYXJzLmRlbGV0ZSIsImNhcnMudmlldyIsImVtcGxveWVlcy52aWV3IiwiZW1wbG95ZWVzLmVkaXQiLCJlbXBsb3llZXMuZGVsZXRlIiwiZW1wbG95ZWVzLmNyZWF0ZSIsImVtcGxveWVlcy5sb2NrIiwiZGVwYXJ0bWVudHMudmlldyIsImRlcGFydG1lbnRzLmVkaXQiLCJkZXBhcnRtZW50cy5jcmVhdGUiLCJkZXBhcnRtZW50cy5kZWxldGUiLCJkYWhzYm9hcmQudmlldyIsInJlcXVlc3RzLnZpZXciLCJyZXF1ZXN0cy5jcmVhdGUiLCJyZXF1ZXN0cy5kZWxldGUiLCJyZXF1ZXN0cy50cmFjayIsInJlcXVlc3RzLmVkaXQiLCJwYWNrYWdlcy52aWV3IiwicGFja2FnZXMuY3JlYXRlIiwicGFja2FnZXMuZWRpdCIsInBhY2thZ2VzLmRlbGV0ZSJdLCJleHAiOjE3NzkyOTUwMDQsImlzcyI6IkNhckFwaSIsImF1ZCI6IkNhckFwaVVzZXJzIn0.O2ytLKGn7DV6DwbDWJp3ZJ5o8gRXZSOUvEC1FxVLEtI" />
+    </item>
+    <item name="Header_Origin">
+      <value string="http://localhost:4200" />
+    </item>
+    <item name="Header_Referer">
+      <value string="http://localhost:4200/" />
+    </item>
+    <item name="Header_X-Branch-Id">
+      <value string="1" />
+    </item>
+    <item name="Header_sec-ch-ua-platform">
+      <value string="&quot;macOS&quot;" />
+    </item>
+    <item name="Header_sec-ch-ua">
+      <value string="&quot;Google Chrome&quot;;v=&quot;147&quot;, &quot;Not.A/Brand&quot;;v=&quot;8&quot;, &quot;Chromium&quot;;v=&quot;147&quot;" />
+    </item>
+    <item name="Header_sec-ch-ua-mobile">
+      <value string="?0" />
+    </item>
+    <item name="Header_Sec-Fetch-Site">
+      <value string="same-site" />
+    </item>
+    <item name="Header_Sec-Fetch-Mode">
+      <value string="cors" />
+    </item>
+    <item name="Header_Sec-Fetch-Dest">
+      <value string="empty" />
+    </item>
+    <item name="RequestTrailersAvailable">
+      <value string="True" />
+    </item>
+    <item name="StatusCode">
+      <value string="200" />
+    </item>
+    <item name="HasResponseStarted">
+      <value string="False" />
+    </item>
+    <item name="HasFlushedHeaders">
+      <value string="False" />
+    </item>
+    <item name="HasResponseCompleted">
+      <value string="False" />
+    </item>
+    <item name="UnflushedBytes">
+      <value string="0" />
+    </item>
+    <item name="IsWebTransportRequest">
+      <value string="False" />
+    </item>
+    <item name="Connection_Id">
+      <value string="0HNLLON0F86U6" />
+    </item>
+    <item name="Connection_RemoteIpAddress">
+      <value string="::1" />
+    </item>
+    <item name="Connection_RemotePort">
+      <value string="53547" />
+    </item>
+    <item name="Connection_LocalIpAddress">
+      <value string="::1" />
+    </item>
+    <item name="Connection_LocalPort">
+      <value string="5087" />
+    </item>
+    <item name="HttpStatusCode">
+      <value string="500" />
+    </item>
+  </serverVariables>
+</error>

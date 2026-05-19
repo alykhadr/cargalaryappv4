@@ -33,6 +33,7 @@ namespace CarGalary.Domain.UnitOfWork
         public IOfferRepository Offers { get; }
        
         public IServicesRepository Services { get; }
+        public IPrivacyPolicyRepository PrivacyPolicies { get; }
         
 
 
