@@ -1,0 +1,100 @@
+Starting project at C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\expo-router\entry.js ▓▓░░░░░░░░░░░░░░ 16.0% ( 4/10)
+λ node_modules\expo-router\node\render.js ▓▓▓▓░░░░░░░░░░░░ 25.1% (281/561)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules\expo-router\node\render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓░░░░░░░░░░░ 34.3% (319/545)
+λ node_modules\expo-router\node\render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 83.0% (1369/1503)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules\expo-router\node\render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 81.5% (1373/1523)
+λ node_modules\expo-router\node\render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.2% (1755/1828)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules\expo-router\node\render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 11561ms node_modules\expo-router\node\render.js (1922 modules)
+λ Bundled 11601ms node_modules\expo-router\node\render.js (1 module)
+"shadow*" style props are deprecated. Use "boxShadow".
+"shadow*" style props are deprecated. Use "boxShadow".
+λ  WARN  Image: style.tintColor is deprecated. Please use props.tintColor. 
+  console.warn (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\expo\node_modules\@expo\cli\src\start\server\serverLogLikeMetro.ts:161:21)
+  warnOnce (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-native-web\dist\modules\warnOnce\index.js:24:13)
+  extractNonStandardStyleProps (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-native-web\dist\exports\Image\index.js:62:13)
+  Component (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-native-web\dist\exports\Image\index.js:181:31)
+  Object.callComponentInDEV [as react-stack-bottom-frame] (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:8970:18)
+  renderWithHooks (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:4699:19)
+  run (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5539:39)
+  retryNode (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5899:31)
+  renderNodeDestructive (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5849:11)
+  renderNode (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:6306:18)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (1712/1715)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1715/1715)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 19380ms node_modules\expo-router\entry.js (1715 modules)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1715/1715)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Error: Premature close
+    at onclose (node:internal/streams/end-of-stream:171:30)
+    at processTicksAndRejections (node:internal/process/task_queues:84:11)
+Web Bundled 19393ms node_modules\expo-router\entry.js (1 module)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 88.9% (1492/1582)
+Web Bundled 4546ms node_modules\expo-router\entry.js (1716 modules)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 126ms node_modules\expo-router\node\render.js (1 module)
+"shadow*" style props are deprecated. Use "boxShadow".
+λ  WARN  Image: style.tintColor is deprecated. Please use props.tintColor. 
+  console.warn (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\expo\node_modules\@expo\cli\src\start\server\serverLogLikeMetro.ts:161:21)
+  warnOnce (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-native-web\dist\modules\warnOnce\index.js:24:13)
+  extractNonStandardStyleProps (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-native-web\dist\exports\Image\index.js:62:13)
+  Component (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-native-web\dist\exports\Image\index.js:181:31)
+  Object.callComponentInDEV [as react-stack-bottom-frame] (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:8970:18)
+  renderWithHooks (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:4699:19)
+  run (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5539:39)
+  retryNode (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5899:31)
+  renderNodeDestructive (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5849:11)
+  renderNode (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:6306:18)
+Web Bundled 3083ms node_modules\expo-router\entry.js (1 module)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 401ms node_modules\expo-router\node\render.js (1 module)
+"shadow*" style props are deprecated. Use "boxShadow".
+λ  WARN  Image: style.tintColor is deprecated. Please use props.tintColor. 
+  console.warn (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\expo\node_modules\@expo\cli\src\start\server\serverLogLikeMetro.ts:161:21)
+  warnOnce (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-native-web\dist\modules\warnOnce\index.js:24:13)
+  extractNonStandardStyleProps (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-native-web\dist\exports\Image\index.js:62:13)
+  Component (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-native-web\dist\exports\Image\index.js:181:31)
+  Object.callComponentInDEV [as react-stack-bottom-frame] (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:8970:18)
+  renderWithHooks (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:4699:19)
+  run (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5539:39)
+  retryNode (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5899:31)
+  renderNodeDestructive (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:5849:11)
+  renderNode (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\react-dom\cjs\react-dom-server-legacy.node.development.js:6306:18)
+Web Bundled 3026ms node_modules\expo-router\entry.js (1 module)
+C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\expo\node_modules\@expo\cli\build\src\utils\errors.js:130
+    throw error;
+    ^
+
+Error: ENOENT: no such file or directory, watch 'C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\expo-modules-core\android\.cxx\Debug\5p1t145n\arm64-v8a\CMakeFiles\CMakeTmp\CMakeFiles\cmTC_279da.dir'
+    at FSWatcher.<computed> (node:internal/fs/watchers:254:19)
+    at Object.watch (node:fs:2554:36)
+    at FallbackWatcher._watchdir (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\metro-file-map\src\watchers\FallbackWatcher.js:119:33)
+    at C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\metro-file-map\src\watchers\FallbackWatcher.js:219:22
+    at Walker.<anonymous> (C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\metro-file-map\src\watchers\FallbackWatcher.js:358:5)
+    at Walker.emit (node:events:519:28)
+    at C:\Users\shehz\Downloads\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\main\Carea\node_modules\walker\lib\walker.js:69:16
+    at FSReqCallback.oncomplete (node:fs:186:23)
+    at FSReqCallback.callbackTrampoline (node:internal/async_hooks:130:17) {
+  errno: -4058,
+  syscall: 'watch',
+  code: 'ENOENT',
+  path: 'C:\\Users\\shehz\\Downloads\\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\\main\\Carea\\node_modules\\expo-modules-core\\android\\.cxx\\Debug\\5p1t145n\\arm64-v8a\\CMakeFiles\\CMakeTmp\\CMakeFiles\\cmTC_279da.dir',
+  filename: 'C:\\Users\\shehz\\Downloads\\codecanyon-1wPDaV2i-carea-car-marketplace-react-native-expo-app-ui-kit\\main\\Carea\\node_modules\\expo-modules-core\\android\\.cxx\\Debug\\5p1t145n\\arm64-v8a\\CMakeFiles\\CMakeTmp\\CMakeFiles\\cmTC_279da.dir'
+}
+
+Node.js v22.22.2
