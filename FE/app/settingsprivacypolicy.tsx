@@ -1,46 +1,180 @@
-import { View, StyleSheet } from 'react-native';
-import React from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
 import Text from '@/components/LocalizedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../constants';
 import Header from '../components/Header';
 import { ScrollView } from 'react-native-virtualized-view';
 import { useTheme } from '../theme/ThemeProvider';
+import { WebView } from 'react-native-webview';
+import { api } from '@/services/api';
+import { PrivacyPolicy } from '@/types';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useDirection } from '@/theme/DirectionProvider';
 
-// Change the privacy data based on your data...
 const SettingsPrivacyPolicy = () => {
-    const { colors, dark } = useTheme()
+    const { colors, dark } = useTheme();
+    const { locale } = useTranslation();
+    const { isRTL } = useDirection();
+    const [privacyPolicy, setPrivacyPolicy] = useState<PrivacyPolicy | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [contentHeight, setContentHeight] = useState(1);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadPrivacyPolicy = async () => {
+            try {
+                const response = await api.getPrivacyPolicy();
+                if (isMounted) {
+                    setPrivacyPolicy(response);
+                    setError(null);
+                }
+            } catch (err) {
+                if (isMounted) {
+                    setError(err instanceof Error ? err.message : 'Unable to load privacy policy.');
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        loadPrivacyPolicy();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    const content = useMemo(() => {
+        if (!privacyPolicy) {
+            return '';
+        }
+
+        return locale === 'ar'
+            ? privacyPolicy.privacyPolicyAr || privacyPolicy.privacyPolicyEn || ''
+            : privacyPolicy.privacyPolicyEn || privacyPolicy.privacyPolicyAr || '';
+    }, [locale, privacyPolicy]);
+
+    const html = useMemo(() => buildHtml(content, dark, isRTL), [content, dark, isRTL]);
 
     return (
         <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
             <View style={[styles.container, { backgroundColor: colors.background }]}>
                 <Header title="Privacy Policy" />
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    <View>
-                        <Text style={[styles.settingsTitle, { color: dark ? COLORS.white : COLORS.black }]}>1. Types of Data We Collect</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>We may collect the following types of data:</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>Personal Information: This includes but is not limited to your name, email address, and other contact details provided during account registration or usage of our services.</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>Usage Information: We may collect information about how you interact with our services, including but not limited to IP addresses, device information, and browsing history.</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>Cookies and Similar Technologies: We use cookies and similar technologies to enhance your experience and gather information about your preferences.</Text>
-                    </View>
-                    <View>
-                        <Text style={[styles.settingsTitle, { color: dark ? COLORS.white : COLORS.black }]}>2. Use of Your Personal Data</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>We may use your personal data for the following purposes:</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>Service Delivery: To provide and maintain our services, including personalized content and features.</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>Communication: To communicate with you, respond to your inquiries, and provide important information about our services.</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>Analytics: To analyze usage patterns, improve our services, and customize content based on user preferences.</Text>
-                    </View>
-                    <View>
-                        <Text style={[styles.settingsTitle, { color: dark ? COLORS.white : COLORS.black }]}>3. Disclosure of Your Personal Data</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>We may disclose your personal data in the following situations:</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>Legal Obligations: To comply with legal obligations, such as responding to lawful requests or court orders.</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>Third-Party Service Providers: We may share your information with third-party service providers who assist us in delivering our services, subject to confidentiality agreements.</Text>
-                        <Text style={[styles.body, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>Business Transactions: In the event of a merger, acquisition, or sale of all or a portion of our assets, your personal data may be transferred as part of the transaction.</Text>
-                    </View>
+                    {isLoading ? (
+                        <View style={styles.stateContainer}>
+                            <ActivityIndicator size="large" color={COLORS.primary} />
+                        </View>
+                    ) : error ? (
+                        <View style={styles.stateContainer}>
+                            <Text style={[styles.message, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>
+                                {error}
+                            </Text>
+                        </View>
+                    ) : content ? (
+                        <WebView
+                            originWhitelist={['*']}
+                            source={{ html }}
+                            style={[styles.webView, { height: contentHeight }]}
+                            scrollEnabled={false}
+                            showsVerticalScrollIndicator={false}
+                            onMessage={(event) => {
+                                const nextHeight = Number(event.nativeEvent.data);
+                                if (Number.isFinite(nextHeight) && nextHeight > 0) {
+                                    setContentHeight(nextHeight);
+                                }
+                            }}
+                            injectedJavaScript={heightScript}
+                        />
+                    ) : (
+                        <View style={styles.stateContainer}>
+                            <Text style={[styles.message, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>
+                                Privacy policy is not available.
+                            </Text>
+                        </View>
+                    )}
                 </ScrollView>
             </View>
         </SafeAreaView>
-    )
+    );
+};
+
+const heightScript = `
+  setTimeout(function() {
+    var height = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight
+    );
+    window.ReactNativeWebView.postMessage(String(height));
+  }, 100);
+  true;
+`;
+
+const buildHtml = (content: string, dark: boolean, isRTL: boolean) => {
+    const textColor = dark ? '#F6F7FB' : '#212529';
+    const mutedColor = dark ? '#CED4DA' : '#495057';
+    const backgroundColor = dark ? '#000000' : '#FFFFFF';
+    const direction = isRTL ? 'rtl' : 'ltr';
+    const align = isRTL ? 'right' : 'left';
+
+    return `<!doctype html>
+<html dir="${direction}">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: ${backgroundColor};
+        color: ${textColor};
+        direction: ${direction};
+        text-align: ${align};
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+      }
+      body {
+        overflow: hidden;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        color: ${textColor};
+        line-height: 1.35;
+        margin: 22px 0 10px;
+      }
+      p {
+        margin: 0 0 14px;
+        color: ${mutedColor};
+      }
+      ul, ol {
+        margin: 0 0 16px;
+        padding-inline-start: 24px;
+      }
+      li {
+        margin-bottom: 8px;
+      }
+      a {
+        color: #405FF2;
+      }
+      img, table {
+        max-width: 100%;
+      }
+      blockquote {
+        border-inline-start: 4px solid #405FF2;
+        margin: 16px 0;
+        padding: 8px 14px;
+        color: ${mutedColor};
+      }
+    </style>
+  </head>
+  <body>${content}</body>
+</html>`;
 };
 
 const styles = StyleSheet.create({
@@ -53,18 +187,21 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.white,
         padding: 16
     },
-    settingsTitle: {
-        fontSize: 18,
-        fontFamily: "bold",
-        color: COLORS.black,
-        marginVertical: 26
+    stateContainer: {
+        minHeight: 220,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
-    body: {
-        fontSize: 14,
-        fontFamily: "regular",
+    message: {
+        fontSize: 16,
+        fontFamily: 'regular',
         color: COLORS.black,
-        marginTop: 4
+        textAlign: 'center'
+    },
+    webView: {
+        width: '100%',
+        backgroundColor: 'transparent'
     }
-})
+});
 
-export default SettingsPrivacyPolicy
+export default SettingsPrivacyPolicy;

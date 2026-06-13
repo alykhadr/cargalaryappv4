@@ -1,17 +1,23 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { Car, CarQueryParams, Inquiry, ProfilePayload, User } from '../types';
+import { Car, CarQueryParams, Inquiry, PrivacyPolicy, ProfilePayload, User } from '../types';
 
 const BASE_URL =
   Platform.OS === 'android'
     ? 'http://10.0.2.2:3000/api'
     : 'http://localhost:3000/api';
 
+const CARGALARY_API_URL =
+  process.env.EXPO_PUBLIC_CARGALARY_API_URL ||
+  (Platform.OS === 'android'
+    ? 'http://10.0.2.2:5121/api'
+    : 'http://localhost:5121/api');
+
 async function request<T>(
   path: string,
-  options: { method?: string; body?: object; requiresAuth?: boolean } = {}
+  options: { method?: string; body?: object; requiresAuth?: boolean; baseUrl?: string } = {}
 ): Promise<T> {
-  const { method = 'GET', body, requiresAuth = false } = options;
+  const { method = 'GET', body, requiresAuth = false, baseUrl = BASE_URL } = options;
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
 
   if (requiresAuth) {
@@ -19,14 +25,18 @@ async function request<T>(
     if (token) headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetch(`${baseUrl}${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+  if (!res.ok) {
+    throw new Error(data?.messageEn || data?.message || data?.error || `Request failed: ${res.status}`);
+  }
+
   return data as T;
 }
 
@@ -88,4 +98,8 @@ export const api = {
       body: { carId, name, phone, message },
       requiresAuth: true,
     }),
+
+  // Privacy policy
+  getPrivacyPolicy: () =>
+    request<PrivacyPolicy>('/privacy-policy', { baseUrl: CARGALARY_API_URL }),
 };

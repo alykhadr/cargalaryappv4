@@ -36,6 +36,13 @@ export interface Inquiry {
   createdAt: string;
 }
 
+export interface PrivacyPolicy {
+  id: number;
+  privacyPolicyAr?: string | null;
+  privacyPolicyEn?: string | null;
+  isAvailable: boolean;
+}
+
 export interface ProfilePayload {
   fullName?: string;
   nickname?: string;

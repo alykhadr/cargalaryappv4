@@ -42,6 +42,7 @@ namespace CarGalary.Infrastructure.Context;
     public DbSet<Services> Services { get; set; }
     public DbSet<MemberService>  MemberServices { get; set; }
        public DbSet<FAQ>   FAQs { get; set; }
+    public DbSet<PrivacyPolicy> PrivacyPolicies { get; set; }
     public DbSet<Employee> Employees { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<LookupDetails> LookupDetails { get; set; }
@@ -80,6 +81,7 @@ namespace CarGalary.Infrastructure.Context;
           modelBuilder.ApplyConfiguration(new MemberServiceConfiguration());
 
               modelBuilder.ApplyConfiguration(new FAQConfiguration());
+              modelBuilder.ApplyConfiguration(new PrivacyPolicyConfiguration());
               modelBuilder.ApplyConfiguration(new EmployeeConfiguration());
               modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
               modelBuilder.ApplyConfiguration(new LookupDetailsConfiguration());

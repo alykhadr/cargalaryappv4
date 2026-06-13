@@ -27,6 +27,7 @@ namespace CarGalary.Domain.UnitOfWork
         public IContactUsRepository ContactUs { get; }
        
         public IFAQRepository FAQs { get; }
+        public IPrivacyPolicyRepository PrivacyPolicies { get; }
         public IFavoritesRepository Favorites { get; }
       
         public IMemberServiceRepository MemberServices { get; }

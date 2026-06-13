@@ -1,6 +1,7 @@
 
 
 using CarGalary.Application.Interfaces;
+using CarGalary.Application.Mappings;
 using CarGalary.Application.Services;
 using CarGalary.Domain.RepositoryInterfaces;
 using CarGalary.Domain.UnitOfWork;
@@ -35,6 +36,7 @@ namespace CarGalary.Admin.Api
             services.AddScoped<IContactUsRepository, ContactUsRepository>();
  
             services.AddScoped<IFAQRepository, FAQRepository>();
+            services.AddScoped<IPrivacyPolicyRepository, PrivacyPolicyRepository>();
             services.AddScoped<IFavoritesRepository, FavoritesRepository>();
       
             services.AddScoped<IMemberServiceRepository, MemberServiceRepository>();
@@ -78,6 +80,7 @@ namespace CarGalary.Admin.Api
             services.AddScoped<IContactUsService, ContactUsService>();
 
             services.AddScoped<IFAQService, FAQService>();
+            services.AddScoped<IPrivacyPolicyService, PrivacyPolicyService>();
             services.AddScoped<IFavoritesService, FavoritesService>();
 
             services.AddScoped<IMemberServiceService, MemberServiceService>();
@@ -106,7 +109,7 @@ namespace CarGalary.Admin.Api
         {
             services.AddAutoMapper(cfg =>
             {
-                cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies());
+                cfg.AddMaps(typeof(MapperClass).Assembly);
             });
             return services;
         }

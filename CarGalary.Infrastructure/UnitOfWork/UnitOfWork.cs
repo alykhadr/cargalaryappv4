@@ -25,6 +25,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
         public IContactUsRepository ContactUs { get; }
 
         public IFAQRepository FAQs { get; }
+        public IPrivacyPolicyRepository PrivacyPolicies { get; }
         public IFavoritesRepository Favorites { get; }
 
         public IMemberServiceRepository MemberServices { get; }
@@ -59,6 +60,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             IContactSalesOfficerRepository contactSalesOfficerRepository,
             IContactUsRepository contactUsRepository,
             IFAQRepository fAQRepository,
+            IPrivacyPolicyRepository privacyPolicyRepository,
             IFavoritesRepository favoritesRepository,
             IMemberServiceRepository memberServiceRepository,
             IOfferRepository offerRepository,
@@ -86,6 +88,7 @@ namespace CarGalary.Infrastructure.UnitOfWork
             ContactUs=contactUsRepository;
 
             FAQs=fAQRepository;
+            PrivacyPolicies = privacyPolicyRepository;
             Favorites=favoritesRepository;
 
             Offers= offerRepository;
