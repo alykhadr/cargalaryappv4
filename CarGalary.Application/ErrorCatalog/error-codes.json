@@ -340,6 +340,16 @@
     "messageEn": "Service not found"
   },
   {
+    "errorCode": "1327",
+    "messageAr": "الفاتورة غير موجودة.",
+    "messageEn": "Invoice not found"
+  },
+  {
+    "errorCode": "1328",
+    "messageAr": "فشلت عملية الفاتورة.",
+    "messageEn": "Invoice operation failed"
+  },
+  {
     "errorCode": "1331",
     "messageAr": "فشلت عملية الموظف.",
     "messageEn": "Employee operation failed"

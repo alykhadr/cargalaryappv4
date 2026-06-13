@@ -51,6 +51,7 @@ namespace CarGalary.Admin.Api
             services.AddScoped<ILookupDetailsRepository, LookupDetailsRepository>();
             services.AddScoped<IRequestRepository, RequestRepository>();
             services.AddScoped<IRequestHistoryRepository, RequestHistoryRepository>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository>();
             return services;
         }
 
@@ -99,6 +100,7 @@ namespace CarGalary.Admin.Api
             services.AddScoped<IDepartmentService, DepartmentService>();
             services.AddScoped<ILookupDetailsService, LookupDetailsService>();
             services.AddScoped<IRequestService, RequestService>();
+            services.AddScoped<IInvoiceService, InvoiceService>();
             return services;
         }
 
