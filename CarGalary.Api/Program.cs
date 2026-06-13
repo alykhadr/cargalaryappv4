@@ -35,6 +35,13 @@ builder.Services.AddControllers(options =>
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
 builder.Services.AddSingleton<IErrorCatalogService, ErrorCatalogService>();
 builder.Services.AddElmah<XmlFileErrorLog>(options =>
 {
@@ -89,7 +96,28 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("Jwt"));
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+// DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+  builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+{
+    // Customize password rules
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6; // set your minimum length
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
     .AddJwtBearer(options =>
     {
         var jwt = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
@@ -107,22 +135,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.Zero
         };
     });
-
-// DbContext
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-  builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
-{
-    // Customize password rules
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6; // set your minimum length
-})
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
 
 
 // Dependency Injection
@@ -143,9 +155,11 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // 2. HTTPS
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 // 3. Routing
 app.UseRouting();
+app.UseCors("FrontendPolicy");
 app.UseRateLimiter();
 
 

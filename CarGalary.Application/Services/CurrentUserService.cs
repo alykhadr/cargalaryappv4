@@ -42,6 +42,10 @@ namespace CarGalary.Application.Services
 
                 var user = httpContext.User;
                 var canSwitchBranch = user.IsInRole("Admin") || user.IsInRole("Manager");
+                if (!canSwitchBranch && user.IsInRole("User"))
+                {
+                    return null;
+                }
 
                 if (canSwitchBranch &&
                     httpContext.Request.Headers.TryGetValue(BranchHeaderName, out var branchHeaderValues) &&

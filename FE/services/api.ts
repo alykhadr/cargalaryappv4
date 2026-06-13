@@ -4,8 +4,8 @@ import { Car, CarQueryParams, Inquiry, ProfilePayload, User } from '../types';
 
 const BASE_URL =
   Platform.OS === 'android'
-    ? 'http://10.0.2.2:3000/api'
-    : 'http://localhost:3000/api';
+    ? 'http://10.0.2.2:5121/api'
+    : 'http://localhost:5121/api';
 
 async function request<T>(
   path: string,
