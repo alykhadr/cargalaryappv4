@@ -1,0 +1,224 @@
+<header id="page-topbar" data-scroll-header (window:scroll)="windowScroll()">
+    <div class="layout-width">
+        <div class="navbar-header">
+            <div class="d-flex">
+                <!-- LOGO -->
+                <div class="navbar-brand-box horizontal-logo">
+                    <a href="javascript:void(0);" class="logo logo-dark">
+                        <span class="logo-sm">
+                            <img src="assets/images/logo-sm.png" alt="" height="22">
+                        </span>
+                        <span class="logo-lg">
+                            <img src="assets/images/logo-dark.png" alt="" width="140" height="34">
+                        </span>
+                    </a>
+
+                    <a href="javascript:void(0);" class="logo logo-light">
+                        <span class="logo-sm">
+                            <img src="assets/images/logo-sm.png" alt="" height="22">
+                        </span>
+                        <span class="logo-lg">
+                            <img [src]="companyLightLogoUrl" alt="" width="140" height="34">
+                        </span>
+                    </a>
+                </div>
+
+                <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger" id="topnav-hamburger-icon" (click)="toggleMobileMenu($event)">
+                    <span class="hamburger-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </button>
+
+                <!-- Header search section commented out by request -->
+
+                <div class="d-none d-md-flex align-items-center ms-3 header-welcome-text">
+                    <span class="welcome-chip" [attr.dir]="cookieValue === 'ar' ? 'rtl' : 'ltr'">
+                        <i class="ri-user-smile-line"></i>
+                        <span class="welcome-chip-text">{{ welcomeUserText }}</span>
+                    </span>
+                    @if (localizedBranchText) {
+                      <span class="branch-chip ms-2" [attr.dir]="cookieValue === 'ar' ? 'rtl' : 'ltr'">
+                          <img [src]="companyLightLogoUrl" alt="Company logo" class="branch-logo-image">
+                          <i class="ri-git-branch-line"></i>
+                          <span class="branch-chip-text">{{ localizedBranchText }}</span>
+                      </span>
+                    }
+                    <span class="date-chip ms-2" [attr.dir]="cookieValue === 'ar' ? 'rtl' : 'ltr'">
+                        <i class="ri-calendar-line"></i>
+                        <span class="date-chip-text">{{ currentDateText }}</span>
+                    </span>
+                    @if (canSwitchBranch) {
+                      <span class="ms-2 branch-switch-chip d-inline-flex" ngbDropdown container="body" #branchDropdown="ngbDropdown">
+                        <button type="button" class="btn btn-sm branch-switch-btn d-inline-flex align-items-center gap-2" ngbDropdownToggle>
+                          <i class="ri-git-branch-line"></i>
+                          <span class="branch-switch-btn-text">{{ selectedBranchDisplayName }}</span>
+                          <i class="ri-arrow-down-s-line"></i>
+                        </button>
+                        <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end branch-switch-menu p-2">
+                          <div class="mb-2">
+                            <input
+                              type="text"
+                              class="form-control form-control-sm"
+                              [placeholder]="'COMMON.SEARCH' | translate"
+                              [(ngModel)]="branchSearchTerm">
+                          </div>
+                          <div class="branch-switch-options">
+                            <button
+                              type="button"
+                              class="dropdown-item branch-switch-option"
+                              *ngFor="let branch of filteredBranches"
+                              [class.active]="branch.id === selectedBranchId"
+                              (click)="onSelectBranch(branch.id); branchDropdown.close()">
+                              {{ getBranchDisplayName(branch) }}
+                            </button>
+                            <div class="text-muted small px-2 py-1" *ngIf="filteredBranches.length === 0">
+                              {{ 'COMMON.NO_DATA_FOUND' | translate }}
+                            </div>
+                          </div>
+                        </div>
+                      </span>
+                    }
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center">
+
+                <!-- Mobile header search section commented out by request -->
+
+                <div class="ms-1 header-item d-none d-md-flex align-items-center topbar-language-logo-section">
+                    <img [src]="companyLightLogoUrl" alt="Company logo" class="topbar-language-logo-image">
+                </div>
+
+                <div class="dropdown ms-1 topbar-head-dropdown header-item" ngbDropdown>
+                    <button type="button" class="btn btn-topbar btn-ghost-secondary language-toggle-btn d-flex align-items-center gap-2 px-2 rounded-pill" dir="ltr" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
+                        @if (cookieValue === 'ar') {
+                          <span class="fw-medium d-none d-md-inline" dir="ltr">English</span>
+                          <img src="assets/images/flags/us.svg" alt="English" height="20" class="rounded language-flag">
+                        } @else {
+                          <img src="assets/images/flags/sa.svg" alt="العربية" height="20" class="rounded language-flag">
+                          <span class="fw-medium d-none d-md-inline" dir="rtl">العربية</span>
+                        }
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end language-menu p-2" ngbDropdownMenu>
+
+                        <!-- item-->
+                        @for(item of listLang;track $index){
+                        <a href="javascript:void(0);" class="dropdown-item notify-item language py-2 rounded-3 d-flex align-items-center" data-lang="eng" (click)="setLanguage(item.text, item.lang, item.flag)" [ngClass]="{'active': cookieValue === item.lang}">
+                            <img src="{{item.flag}}" alt="user-image" class="language-item-flag rounded" height="18"> <span class="align-middle fw-medium" [attr.dir]="item.lang === 'ar' ? 'rtl' : 'ltr'">{{item.text}}</span>
+                        </a>
+                        }
+                    </div>
+                </div>
+
+                <div class="ms-1 header-item d-none d-sm-flex">
+                    <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle" data-toggle="fullscreen" (click)="fullscreen()">
+                        <i class='bx bx-fullscreen fs-22'></i>
+                    </button>
+                </div>
+
+                <div class="ms-1 header-item d-none d-sm-flex">
+                    <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle light-dark-mode">
+                        <i class='bx bx-moon fs-22' (click)="changeMode('dark')"></i>
+                        <i class='bx bx-sun fs-22' (click)="changeMode('light')"></i>
+                    </button>
+                </div>
+
+                <div ngbDropdown #notificationsDropdown="ngbDropdown" [autoClose]="false" class="dropdown topbar-head-dropdown ms-1 header-item">
+                    <button type="button" ngbDropdownToggle class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class='bx bx-car fs-22'></i>
+                        @if (notificationCount > 0) {
+                          <span class="position-absolute topbar-badge fs-10 translate-middle badge rounded-pill bg-danger">{{ notificationCount }}<span class="visually-hidden">{{ 'HEADER.NOTIFICATIONS.UNREAD_MESSAGES' | translate }}</span></span>
+                        }
+                    </button>
+                    <div ngbDropdownMenu class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
+                        <div class="dropdown-head bg-secondary bg-pattern rounded-top">
+                          <div class="p-3">
+                            <div class="row align-items-center">
+                              <div class="col">
+                                <h6 class="m-0 fs-16 fw-semibold text-white">{{ 'HEADER.NOTIFICATIONS.TITLE' | translate }}</h6>
+                              </div>
+                              <div class="col-auto">
+                                @if (notificationCount > 0) {
+                                  <span class="badge bg-light-subtle text-body fs-13">{{ 'HEADER.NOTIFICATIONS.NEW_COUNT' | translate:{ count: notificationCount } }}</span>
+                                }
+                                <button
+                                  type="button"
+                                  class="btn btn-sm btn-icon notification-close-btn ms-2"
+                                  [attr.aria-label]="'HEADER.NOTIFICATIONS.CLOSE' | translate"
+                                  (click)="notificationsDropdown.close()">
+                                  <i class="bx bx-x fs-18"></i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="py-2 px-2">
+                          <ngx-simplebar style="max-height: 300px;">
+                            @if (isLoadingNotifications) {
+                              <div class="text-center py-4 text-muted">{{ 'HEADER.NOTIFICATIONS.LOADING' | translate }}</div>
+                            } @else if (notificationsLoadFailed) {
+                              <div class="text-center py-4">
+                                <div class="mb-2">
+                                  <i class="bx bx-error-circle fs-1 text-warning"></i>
+                                </div>
+                                <h6 class="fs-16 fw-semibold lh-base mb-0">{{ 'HEADER.NOTIFICATIONS.REALTIME_UNAVAILABLE' | translate }}</h6>
+                              </div>
+                            } @else if (notificationCount === 0) {
+                              <div class="text-center py-4">
+                                <div class="mb-2">
+                                  <i class="bx bx-car fs-1 text-muted"></i>
+                                </div>
+                                <h6 class="fs-16 fw-semibold lh-base mb-0">{{ 'HEADER.NOTIFICATIONS.EMPTY' | translate }}</h6>
+                              </div>
+                            } @else {
+                              @for (item of requestNotifications; track item.id) {
+                                <div class="text-reset notification-item d-block dropdown-item">
+                                  <div class="d-flex">
+                                    <div class="avatar-xs me-3">
+                                      @if (getNotificationCarImageUrl(item)) {
+                                        <img
+                                          [src]="getNotificationCarImageUrl(item)!"
+                                          alt="Car"
+                                          class="rounded-circle object-fit-cover"
+                                          width="32"
+                                          height="32">
+                                      } @else {
+                                        <span class="avatar-title bg-info-subtle text-info rounded-circle fs-16">
+                                          <i class="bx bx-car"></i>
+                                        </span>
+                                      }
+                                    </div>
+                                    <div class="flex-grow-1">
+                                      <h6 class="mt-0 mb-1 fs-13 fw-semibold">{{ 'HEADER.NOTIFICATIONS.REQUEST_LABEL' | translate:{ id: item.id } }}</h6>
+                                      <div class="fs-13 text-muted mb-1">{{ item.carName }}</div>
+                                      <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
+                                        <span><i class="mdi mdi-clock-outline"></i> {{ item.createdDate | date:'medium' }}</span>
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              }
+                            }
+                          </ngx-simplebar>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dropdown ms-sm-3 header-item topbar-user" ngbDropdown>
+                    <button type="button" class="btn" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
+                        <span class="d-flex align-items-center">
+                            <img class="rounded-circle header-profile-user" [src]="headerProfileImageUrl" alt="Header Avatar">
+                        </span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end topbar-user-menu" ngbDropdownMenu>
+                        <a class="dropdown-item" routerLink="/admin/my-profile"><i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> <span class="align-middle">{{ 'HEADER.USER_MENU.PROFILE' | translate }}</span></a>
+                        <a class="dropdown-item" href="javascript: void(0);" (click)="logout()"><i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span class="align-middle">{{ 'HEADER.USER_MENU.LOGOUT' | translate }}</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

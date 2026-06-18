@@ -1,0 +1,163 @@
+<app-breadcrumbs [title]="'INVOICE_PAGE.PRINT_REPORT' | translate" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="invoice-print-report-page">
+  <div class="no-print mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <button type="button" class="btn btn-light" (click)="backToList()">
+      <i class="ri-arrow-left-line me-1"></i>{{ 'INVOICE_PAGE.BACK_TO_INVOICE_LIST' | translate }}
+    </button>
+
+    <button type="button" class="btn btn-primary" [disabled]="isLoading || !invoice" (click)="printReport()">
+      <i class="ri-printer-line me-1"></i>{{ 'INVOICE_PAGE.PRINT_REPORT' | translate }}
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && invoice" class="report-sheet">
+    <div class="report-hero invoice-hero">
+      <div class="invoice-company" *ngIf="companyInfo">
+        <div class="company-header">
+          <img [src]="getCompanyLogoUrl()" alt="logo" class="company-header-logo" />
+          <div class="company-header-body">
+            <h6 class="mb-1">{{ getLocalizedValue(companyInfo.companyNameAr, companyInfo.companyNameEn) }}</h6>
+            <div class="company-lines">
+              <div><span>{{ 'REQUEST_PAGE.LIST.CR_NUMBER' | translate }}:</span> {{ companyInfo.crNumber || '-' }}</div>
+              <div><span>{{ 'COMMON.EMAIL' | translate }}:</span> {{ companyInfo.email || '-' }}</div>
+              <div><span>{{ 'COMMON.MOBILE' | translate }}:</span> {{ companyInfo.mobileNo || companyInfo.telNo || '-' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="invoice-doc" [class.full-width]="!companyInfo">
+        <h2 class="mb-1">{{ 'INVOICE_PAGE.PRINT_REPORT_TITLE' | translate }}</h2>
+        <p class="mb-0 text-muted report-subtitle">{{ 'INVOICE_PAGE.PRINT_REPORT_SUBTITLE' | translate }}</p>
+
+        <div class="invoice-meta-grid">
+          <div class="invoice-meta-item">
+            <small>{{ 'INVOICE_PAGE.INVOICE_NUMBER' | translate }}</small>
+            <strong>{{ invoice.invoiceNumber || '-' }}</strong>
+          </div>
+          <div class="invoice-meta-item">
+            <small>{{ 'INVOICE_PAGE.ISSUE_DATE' | translate }}</small>
+            <strong>{{ invoice.issueDate | date:'yyyy-MM-dd HH:mm' }}</strong>
+          </div>
+          <div class="invoice-meta-item">
+            <small>{{ 'INVOICE_PAGE.DUE_DATE' | translate }}</small>
+            <strong>{{ invoice.dueDate | date:'yyyy-MM-dd HH:mm' }}</strong>
+          </div>
+          <div class="invoice-meta-item">
+            <small>{{ 'REQUEST_PAGE.LIST.GENERATED_AT' | translate }}</small>
+            <strong>{{ generatedAt | date:'yyyy-MM-dd HH:mm' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-section customer-info-section">
+      <h5 class="section-label-table-header">{{ 'INVOICE_PAGE.CUSTOMER_INFO_TITLE' | translate }}</h5>
+      <div class="report-grid two-col">
+        <div><span>{{ 'INVOICE_PAGE.CUSTOMER_NAME' | translate }}</span><strong>{{ invoice.customerName || '-' }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.CUSTOMER_PHONE' | translate }}</span><strong>{{ invoice.customerPhone || '-' }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.CUSTOMER_EMAIL' | translate }}</span><strong>{{ invoice.customerEmail || '-' }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.CUSTOMER_ADDRESS' | translate }}</span><strong>{{ invoice.customerAddress || '-' }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.SELECTED_USER_LABEL' | translate }}</span><strong>{{ hasLinkedUser ? linkedUserDisplayName : '-' }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.USER_ID_OPTIONAL' | translate }}</span><strong>{{ invoice.userId || '-' }}</strong></div>
+        <div class="full-span"><span>{{ 'INVOICE_PAGE.INTERNAL_NOTES' | translate }}</span><strong>{{ invoice.notes || '-' }}</strong></div>
+      </div>
+    </div>
+
+    <div class="report-section invoice-details-section">
+      <h5 class="section-label-table-header">{{ 'INVOICE_PAGE.INVOICE_INFO_TITLE' | translate }}</h5>
+      <div class="report-grid two-col">
+        <div><span>{{ 'INVOICE_PAGE.INVOICE_NUMBER' | translate }}</span><strong>{{ invoice.invoiceNumber || '-' }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.ISSUE_DATE' | translate }}</span><strong>{{ invoice.issueDate | date:'yyyy-MM-dd HH:mm' }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.DUE_DATE' | translate }}</span><strong>{{ invoice.dueDate | date:'yyyy-MM-dd HH:mm' }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.BRANCH' | translate }}</span><strong>{{ getLocalizedValue(invoice.branchNameAr, invoice.branchNameEn) }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.PAYMENT_METHOD' | translate }}</span><strong>{{ getLocalizedValue(invoice.paymentMethodNameAr, invoice.paymentMethodNameEn) }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.ITEMS_COUNT' | translate }}</span><strong>{{ invoice.details.length }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.QTY' | translate }}</span><strong>{{ totalQuantity }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.SUBTOTAL' | translate }}</span><strong>{{ invoice.subtotal | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.LINE_DISCOUNT_TOTAL' | translate }}</span><strong>{{ lineDiscountTotal | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.VAT_TOTAL' | translate }}</span><strong>{{ invoice.vatTotal | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.SHIPPING_FEE' | translate }}</span><strong>{{ invoice.shippingFee | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.EXTRA_DISCOUNT' | translate }}</span><strong>{{ invoice.extraDiscount | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong></div>
+        <div><span>{{ 'INVOICE_PAGE.GRAND_TOTAL' | translate }}</span><strong>{{ invoice.grandTotal | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong></div>
+        <div><span>{{ 'REQUEST_PAGE.LIST.GENERATED_AT' | translate }}</span><strong>{{ generatedAt | date:'yyyy-MM-dd HH:mm' }}</strong></div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <h5>{{ 'INVOICE_PAGE.LINE_ITEMS_TITLE' | translate }}</h5>
+      <div class="invoice-line-items-list" *ngIf="invoice.details.length > 0; else noItemsTpl">
+        <div class="invoice-line-item-card" *ngFor="let detail of invoice.details; let i = index">
+          <div class="invoice-line-item-header">
+            <div class="invoice-line-item-heading">
+              <small class="invoice-line-item-kicker">{{ 'INVOICE_PAGE.CAR' | translate }} {{ i + 1 }}</small>
+              <h6 class="mb-1">{{ getLineItemName(detail.carNameAr, detail.carNameEn, detail.carId) }}</h6>
+              <div class="invoice-line-item-subtitle">{{ getLineItemBrandModel(detail.brandNameAr, detail.brandNameEn, detail.modelNameAr, detail.modelNameEn) }}</div>
+            </div>
+
+            <div class="invoice-line-item-total">
+              <small>{{ 'INVOICE_PAGE.TOTAL_WITH_VAT' | translate }}</small>
+              <strong>{{ detail.totalAmount | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong>
+            </div>
+          </div>
+
+          <div class="invoice-line-item-grid">
+            <div><span>{{ 'INVOICE_PAGE.COLOR' | translate }}</span><strong>{{ getLocalizedValue(detail.colorNameAr, detail.colorNameEn, detail.colorId ? ('#' + detail.colorId) : '-') }}</strong></div>
+            <div><span>{{ 'INVOICE_PAGE.YEAR' | translate }}</span><strong>{{ detail.year || '-' }}</strong></div>
+            <div><span>{{ 'INVOICE_PAGE.MILEAGE' | translate }}</span><strong>{{ detail.mileage || '-' }}</strong></div>
+            <div><span>{{ 'INVOICE_PAGE.PLATE' | translate }}</span><strong>{{ detail.plateNumberEn || detail.plateNumberAr || '-' }}</strong></div>
+            <div><span>{{ 'INVOICE_PAGE.QTY' | translate }}</span><strong>{{ detail.quantity || 0 }}</strong></div>
+            <div><span>{{ 'INVOICE_PAGE.UNIT_PRICE' | translate }}</span><strong>{{ detail.unitPrice | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong></div>
+            <div><span>{{ 'INVOICE_PAGE.DISCOUNT' | translate }}</span><strong>{{ detail.discountAmount | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong></div>
+            <div><span>{{ 'INVOICE_PAGE.VAT' | translate }}</span><strong>{{ detail.vatAmount | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong></div>
+          </div>
+
+          <div *ngIf="detail.notes" class="invoice-line-item-notes">
+            <span>{{ 'INVOICE_PAGE.LINE_NOTES' | translate }}:</span> {{ detail.notes }}
+          </div>
+        </div>
+      </div>
+      <ng-template #noItemsTpl>
+        <div class="text-muted">{{ 'COMMON.NO_DATA_FOUND' | translate }}</div>
+      </ng-template>
+    </div>
+
+    <div class="report-section invoice-qr-section">
+      <h5 class="section-label-table-header">{{ 'INVOICE_PAGE.ZATCA_QR_TITLE' | translate }}</h5>
+      <div class="invoice-qr-card">
+        <ng-container *ngIf="hasZatcaQrCode && getZatcaQrImageUrl() as zatcaQrImageUrl; else qrUnavailableTpl">
+          <div class="invoice-qr-header">
+            <small>{{ 'INVOICE_PAGE.ZATCA_QR_TITLE' | translate }}</small>
+          </div>
+
+          <div class="invoice-qr-content">
+            <div class="invoice-qr-image-wrap">
+              <img [src]="zatcaQrImageUrl" [alt]="'INVOICE_PAGE.ZATCA_QR_TITLE' | translate" class="invoice-qr-image" />
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #qrUnavailableTpl>
+          <div class="invoice-qr-empty">
+            <div class="invoice-qr-empty-icon">
+              <i class="ri-qr-code-line"></i>
+            </div>
+            <strong>{{ 'INVOICE_PAGE.ZATCA_QR_TITLE' | translate }}</strong>
+            <p class="mb-0">{{ zatcaQrStatusMessage }}</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

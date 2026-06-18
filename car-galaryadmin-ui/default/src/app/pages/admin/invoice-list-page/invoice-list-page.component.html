@@ -1,0 +1,233 @@
+<app-breadcrumbs [title]="'INVOICE_PAGE.LIST_TITLE' | translate" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="row g-4">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header border-bottom-dashed">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+          <div>
+            <h5 class="card-title mb-1">{{ 'INVOICE_PAGE.LIST_TITLE' | translate }}</h5>
+            <p class="text-muted mb-0">{{ 'INVOICE_PAGE.LIST_SUBTITLE' | translate }}</p>
+          </div>
+          <a class="btn btn-success" routerLink="/admin/invoices/create">
+            <i class="ri-add-line align-bottom me-1"></i>{{ 'MENUITEMS.REQUEST.LIST.CREATE_INVOICE' | translate }}
+          </a>
+        </div>
+      </div>
+
+      <div class="card-body border-bottom-dashed border-bottom">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="stat-card bg-primary-subtle text-primary-emphasis">
+              <span>{{ 'INVOICE_PAGE.TOTAL_INVOICES' | translate }}</span>
+              <strong>{{ filteredInvoices.length }}</strong>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card bg-success-subtle text-success-emphasis">
+              <span>{{ 'INVOICE_PAGE.TOTAL_VALUE' | translate }}</span>
+              <strong>{{ totalAmount | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</strong>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card bg-info-subtle text-info-emphasis">
+              <span>{{ 'INVOICE_PAGE.TOTAL_CARS' | translate }}</span>
+              <strong>{{ totalCarsCount }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body border-bottom-dashed border-bottom">
+        <div class="row g-3">
+          <div class="col-lg-10">
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-search-line"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                [placeholder]="'INVOICE_PAGE.SEARCH_PLACEHOLDER' | translate"
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="onSearch()">
+            </div>
+          </div>
+          <div class="col-lg-2">
+            <button type="button" class="btn btn-soft-secondary w-100" (click)="clearSearch()">
+              <i class="ri-filter-off-line me-1"></i>{{ 'COMMON.CLEAR' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoading && filteredInvoices.length === 0" class="text-center py-5">
+          <i class="ri-bill-line display-5 text-muted mb-3 d-inline-block"></i>
+          <h5 class="text-muted">{{ 'INVOICE_PAGE.EMPTY_TITLE' | translate }}</h5>
+          <p class="text-muted mb-3">{{ 'INVOICE_PAGE.EMPTY_DESC' | translate }}</p>
+          <a class="btn btn-primary" routerLink="/admin/invoices/create">
+            {{ 'MENUITEMS.REQUEST.LIST.CREATE_INVOICE' | translate }}
+          </a>
+        </div>
+
+        <div *ngIf="!isLoading && filteredInvoices.length > 0">
+          <div class="table-responsive table-card mb-1">
+            <table class="table align-middle table-nowrap table-hover mb-0">
+              <thead class="table-light text-muted">
+                <tr>
+                  <th>{{ 'REQUEST_PAGE.LIST.ID' | translate }}</th>
+                  <th>{{ 'INVOICE_PAGE.INVOICE_NUMBER' | translate }}</th>
+                  <th>{{ 'INVOICE_PAGE.CUSTOMER_NAME' | translate }}</th>
+                  <th>{{ 'INVOICE_PAGE.LINKED_USER' | translate }}</th>
+                  <th>{{ 'INVOICE_PAGE.BRANCH' | translate }}</th>
+                  <th>{{ 'COMMON.CREATED_BY' | translate }}</th>
+                  <th>{{ 'INVOICE_PAGE.ISSUE_DATE' | translate }}</th>
+                  <th>{{ 'INVOICE_PAGE.ITEMS_COUNT' | translate }}</th>
+                  <th>{{ 'INVOICE_PAGE.GRAND_TOTAL' | translate }}</th>
+                  <th>{{ 'COMMON.ACTION' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (invoice of pagedInvoices; track invoice.id) {
+                <tr>
+                  <td>{{ invoice.id }}</td>
+                  <td>
+                    <div class="fw-semibold">{{ invoice.invoiceNumber }}</div>
+                    <small class="text-muted">{{ getInvoiceCarsSummary(invoice) }}</small>
+                  </td>
+                  <td>
+                    <div class="fw-semibold">{{ invoice.customerName }}</div>
+                    <small class="text-muted">{{ invoice.customerPhone }}</small>
+                  </td>
+                  <td>{{ getInvoiceUserDisplayName(invoice) }}</td>
+                  <td>{{ getBranchDisplayName(invoice) }}</td>
+                  <td>{{ invoice.createdBy || ('COMMON.NOT_AVAILABLE' | translate) }}</td>
+                  <td>{{ invoice.issueDate | date:'mediumDate' }}</td>
+                  <td>{{ invoice.details.length }}</td>
+                  <td class="fw-semibold text-primary">{{ invoice.grandTotal | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</td>
+                  <td>
+                    <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-soft-secondary" (click)="printInvoice(invoice.id, true)">
+                      <i class="ri-printer-line me-1"></i>{{ 'INVOICE_PAGE.PRINT_REPORT' | translate }}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-soft-primary" (click)="openDetails(invoice)">
+                      <i class="ri-eye-line me-1"></i>{{ 'INVOICE_PAGE.VIEW_DETAILS' | translate }}
+                    </button>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row justify-content-md-between align-items-md-center">
+            <div class="col col-sm-5">
+              <div class="dataTables_info mb-2" role="status" aria-live="polite">
+                {{ 'COMMON.PAGINATION_SUMMARY' | translate:{ start: (service.startIndex), end: (service.endIndex), total: (filteredInvoices.length) } }}
+              </div>
+            </div>
+            <div class="col col-sm-5">
+              <div class="text-sm-right float-sm-end listjs-pagination">
+                <ngb-pagination
+                  [collectionSize]="filteredInvoices.length"
+                  [(page)]="service.page"
+                  [pageSize]="service.pageSize"
+                  (pageChange)="onPageChange($event)">
+                </ngb-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade show" tabindex="-1" [ngStyle]="{ display: isDetailsModalOpen ? 'block' : 'none' }" *ngIf="isDetailsModalOpen && selectedInvoice">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title">{{ 'INVOICE_PAGE.DETAILS_TITLE' | translate }} #{{ selectedInvoice.invoiceNumber }}</h5>
+          <small class="text-muted">{{ selectedInvoice.customerName }} • {{ getBranchDisplayName(selectedInvoice) }}</small>
+        </div>
+        <button class="btn-close" type="button" (click)="closeDetails()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="border rounded p-3 h-100">
+              <div class="text-muted small">{{ 'INVOICE_PAGE.CUSTOMER_NAME' | translate }}</div>
+              <div class="fw-semibold">{{ selectedInvoice.customerName }}</div>
+              <div class="small text-muted">{{ selectedInvoice.customerPhone }}</div>
+              <div class="small text-muted">{{ selectedInvoice.customerEmail || ('COMMON.NOT_AVAILABLE' | translate) }}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-3 h-100">
+              <div class="text-muted small">{{ 'INVOICE_PAGE.PAYMENT_METHOD' | translate }}</div>
+              <div class="fw-semibold">{{ getPaymentMethodDisplayName(selectedInvoice) }}</div>
+              <div class="small text-muted">{{ selectedInvoice.issueDate | date:'medium' }}</div>
+              <div class="small text-muted">{{ selectedInvoice.dueDate | date:'medium' }}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="border rounded p-3 h-100 bg-light-subtle">
+              <div class="text-muted small">{{ 'INVOICE_PAGE.GRAND_TOTAL' | translate }}</div>
+              <div class="fw-semibold text-primary fs-5">{{ selectedInvoice.grandTotal | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</div>
+              <div class="small text-muted">{{ 'INVOICE_PAGE.ITEMS_COUNT' | translate }}: {{ selectedInvoice.details.length }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-detail-cards">
+          <div class="invoice-detail-card" *ngFor="let detail of selectedInvoice.details">
+            <img [src]="getDetailImageUrl(detail.primaryImageUrl)" [alt]="getLocalizedValue(detail.carNameAr, detail.carNameEn)">
+            <div class="invoice-detail-card-content">
+              <div class="d-flex justify-content-between gap-3 flex-wrap">
+                <div>
+                  <h6 class="mb-1">{{ getLocalizedValue(detail.carNameAr, detail.carNameEn, '#' + detail.carId) }}</h6>
+                  <div class="text-muted small">
+                    {{ getLocalizedValue(detail.brandNameAr, detail.brandNameEn) }} •
+                    {{ getLocalizedValue(detail.modelNameAr, detail.modelNameEn) }}
+                  </div>
+                </div>
+                <div class="text-end">
+                  <div class="fw-semibold">{{ detail.totalAmount | number:'1.2-2' }} {{ 'INVOICE_PAGE.CURRENCY' | translate }}</div>
+                  <div class="small text-muted">{{ 'INVOICE_PAGE.LINE_TOTAL' | translate }}</div>
+                </div>
+              </div>
+
+              <div class="row g-2 mt-2">
+                <div class="col-sm-3"><span class="text-muted small">{{ 'INVOICE_PAGE.QTY' | translate }}</span><div class="fw-medium">{{ detail.quantity }}</div></div>
+                <div class="col-sm-3"><span class="text-muted small">{{ 'INVOICE_PAGE.UNIT_PRICE' | translate }}</span><div class="fw-medium">{{ detail.unitPrice | number:'1.2-2' }}</div></div>
+                <div class="col-sm-3"><span class="text-muted small">{{ 'INVOICE_PAGE.DISCOUNT' | translate }}</span><div class="fw-medium">{{ detail.discountAmount | number:'1.2-2' }}</div></div>
+                <div class="col-sm-3"><span class="text-muted small">{{ 'INVOICE_PAGE.VAT' | translate }}</span><div class="fw-medium">{{ detail.vatAmount | number:'1.2-2' }}</div></div>
+              </div>
+
+              <div class="small text-muted mt-2" *ngIf="detail.notes">{{ detail.notes }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" type="button" (click)="closeDetails()">{{ 'COMMON.CLOSE' | translate }}</button>
+        <button class="btn btn-soft-secondary" type="button" (click)="printInvoice(selectedInvoice.id, true)">
+          <i class="ri-printer-line me-1"></i>{{ 'INVOICE_PAGE.PRINT_REPORT' | translate }}
+        </button>
+        <a class="btn btn-primary" routerLink="/admin/invoices/create" (click)="closeDetails()">
+          {{ 'MENUITEMS.REQUEST.LIST.CREATE_INVOICE' | translate }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="isDetailsModalOpen"></div>
+
+<app-admin-toasts aria-live="polite" aria-atomic="true"></app-admin-toasts>

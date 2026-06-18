@@ -1,0 +1,236 @@
+<app-breadcrumbs  [title]="'MENUITEMS.ADMIN.LIST.DEPARTMENT' | translate" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header border-bottom-dashed">
+        <div class="row g-4 align-items-center">
+          <div class="col-sm">
+            <h5 class="card-title mb-0">{{ 'DEPARTMENT_PAGE.LIST_TITLE' | translate }}</h5>
+          </div>
+          <div class="col-sm-auto">
+            <button *appHasPermission="'departments.create'" class="btn btn-success" type="button" (click)="openCreateModal()">
+              <i class="ri-add-line align-bottom me-1"></i> {{ 'DEPARTMENT_PAGE.ADD_BUTTON' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body border-bottom-dashed border-bottom">
+        <div class="row g-3">
+          <div class="col-sm-5">
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-search-line"></i></span>
+              <input class="form-control" type="text" [placeholder]="'DEPARTMENT_PAGE.SEARCH_EN' | translate" [(ngModel)]="searchTermEn" (ngModelChange)="onSearch()">
+            </div>
+          </div>
+          <div class="col-sm-5">
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-search-line"></i></span>
+              <input class="form-control" type="text" [placeholder]="'DEPARTMENT_PAGE.SEARCH_AR' | translate" dir="rtl" [(ngModel)]="searchTermAr" (ngModelChange)="onSearch()">
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <button class="btn btn-soft-secondary w-100" type="button" (click)="clearSearch()">
+              <i class="ri-filter-off-line mx-2 align-bottom"></i> Clear
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoading && filteredDepartments.length === 0" class="text-center py-5">
+          <h5 class="text-muted">{{ 'DEPARTMENT_PAGE.NO_FOUND' | translate }}</h5>
+        </div>
+
+        <div *ngIf="!isLoading && filteredDepartments.length > 0">
+          <div class="table-responsive table-card mb-1">
+            <table class="table align-middle table-nowrap table-hover mb-0">
+              <thead class="table-light text-muted">
+                <tr>
+                  <th>{{ 'COMMON.NAME_EN' | translate }}</th>
+                  <th>{{ 'COMMON.NAME_AR' | translate }}</th>
+                  <th>{{ 'COMMON.STATUS' | translate }}</th>
+                  <th>{{ 'COMMON.CREATED_BY' | translate }}</th>
+                  <th style="width: 170px">{{ 'COMMON.ACTION' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (department of pagedDepartments; track department.id) {
+                <tr>
+                  <td>{{ department.nameEn }}</td>
+                  <td>{{ department.nameAr }}</td>
+                  <td>
+                    <span class="badge text-uppercase" [ngClass]="department.isAvailable ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                      {{ department.isAvailable ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+                    </span>
+                  </td>
+                  <td>{{ department.createdBy || '-' }}</td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button *appHasPermission="'employees.view'" class="btn btn-sm btn-soft-info" type="button"
+                        [ngbTooltip]="'DEPARTMENT_PAGE.VIEW_EMPLOYEES' | translate" placement="top" (click)="openDepartmentEmployeesModal(department)">
+                        <i class="ri-team-line"></i>
+                      </button>
+                      <button *appHasPermission="'departments.edit'" class="btn btn-sm btn-soft-primary" type="button" (click)="openEditModal(department)">
+                        <i class="ri-edit-line"></i>
+                      </button>
+                      <button *appHasPermission="'departments.delete'" class="btn btn-sm btn-soft-danger" type="button" (click)="deleteDepartment(department)">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row justify-content-md-between align-items-md-center">
+            <div class="col col-sm-5">
+              <div class="dataTables_info mb-2">
+                {{ 'COMMON.PAGINATION_SUMMARY' | translate:{ start: (service.startIndex), end: (service.endIndex), total: (filteredDepartments.length) } }}
+              </div>
+            </div>
+            <div class="col col-sm-5">
+              <div class="text-sm-right float-sm-end listjs-pagination">
+                <ngb-pagination [collectionSize]="filteredDepartments.length" [(page)]="service.page"
+                  [pageSize]="service.pageSize" (pageChange)="onPageChange($event)">
+                </ngb-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade show" tabindex="-1" [ngStyle]="{ display: isModalOpen ? 'block' : 'none' }" *ngIf="isModalOpen">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEditMode ? ('DEPARTMENT_PAGE.EDIT_TITLE' | translate) : ('DEPARTMENT_PAGE.CREATE_TITLE' | translate) }}</h5>
+        <button class="btn-close" type="button" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="departmentForm">
+          <div class="mb-3">
+            <label class="form-label">{{ 'DEPARTMENT_PAGE.NAME_EN' | translate }} <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-text"></i></span>
+              <input class="form-control" type="text" formControlName="nameEn" placeholder="Enter English name">
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="submitted && form['nameEn'].errors">
+              English name is required (max 100 characters).
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">{{ 'DEPARTMENT_PAGE.NAME_AR' | translate }} <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-text"></i></span>
+              <input class="form-control" type="text" formControlName="nameAr" placeholder="أدخل الاسم بالعربية" dir="rtl">
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="submitted && form['nameAr'].errors">
+              Arabic name is required (max 100 characters).
+            </div>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" formControlName="isAvailable" id="departmentAvailableSwitch">
+            <label class="form-check-label" for="departmentAvailableSwitch">{{ 'COMMON.IS_AVAILABLE' | translate }}</label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" type="button" (click)="closeModal()">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button class="btn btn-success" type="button" [disabled]="isSubmitting" (click)="saveDepartment()">
+          {{ isSubmitting ? ('COMMON.LOADING_DOTS' | translate) : (isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.CREATE' | translate)) }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="isModalOpen"></div>
+
+<div class="modal fade show" tabindex="-1" [ngStyle]="{ display: isEmployeesModalOpen ? 'block' : 'none' }" *ngIf="isEmployeesModalOpen">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'MENUITEMS.ADMIN.LIST.EMPLOYEE' | translate }} - {{ selectedDepartmentForEmployees?.nameEn }}</h5>
+        <button class="btn-close" type="button" (click)="closeDepartmentEmployeesModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="isLoadingDepartmentEmployees" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoadingDepartmentEmployees && departmentEmployees.length === 0" class="text-center py-4">
+          <h6 class="text-muted mb-0">{{ 'DEPARTMENT_PAGE.NO_EMPLOYEES' | translate }}</h6>
+        </div>
+
+        <div *ngIf="!isLoadingDepartmentEmployees && departmentEmployees.length > 0">
+          <div class="table-responsive">
+            <table class="table align-middle table-nowrap table-hover mb-0">
+              <thead class="table-light text-muted">
+                <tr>
+                  <th>{{ 'COMMON.USERNAME' | translate }}</th>
+                  <th>{{ 'COMMON.EMAIL' | translate }}</th>
+                  <th>{{ 'COMMON.EMPLOYEE_NO' | translate }}</th>
+                  <th>{{ 'COMMON.NATIONAL_ID' | translate }}</th>
+                  <th>{{ 'COMMON.JOB_TITLE' | translate }}</th>
+                  <th>{{ 'COMMON.BRANCH' | translate }}</th>
+                  <th>{{ 'COMMON.STATUS' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (employee of pagedDepartmentEmployees; track employee.id) {
+                <tr>
+                  <td>{{ employee.userName }}</td>
+                  <td>{{ employee.email }}</td>
+                  <td>{{ employee.employeeNo || '-' }}</td>
+                  <td>{{ getEmployeeNationalId(employee) }}</td>
+                  <td>{{ employee.jobTitle || '-' }}</td>
+                  <td>{{ employee.branchName || '-' }}</td>
+                  <td>{{ getEmploymentStatusLabel(employee.employmentStatus) }}</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row justify-content-md-between align-items-md-center mt-3">
+            <div class="col col-sm-6">
+              <div class="dataTables_info mb-2">
+                {{ 'COMMON.PAGINATION_SUMMARY' | translate:{ start: (employeePager.startIndex), end: (employeePager.endIndex), total: (departmentEmployees.length) } }}
+              </div>
+            </div>
+            <div class="col col-sm-6">
+              <div class="text-sm-right float-sm-end listjs-pagination">
+                <ngb-pagination
+                  [collectionSize]="departmentEmployees.length"
+                  [(page)]="employeePager.page"
+                  [pageSize]="employeePager.pageSize"
+                  (pageChange)="onDepartmentEmployeesPageChange($event)">
+                </ngb-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" type="button" (click)="closeDepartmentEmployeesModal()">{{ 'COMMON.CLOSE' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="isEmployeesModalOpen"></div>
+
+<app-admin-toasts aria-live="polite" aria-atomic="true"></app-admin-toasts>

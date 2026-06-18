@@ -1,0 +1,360 @@
+<app-breadcrumbs  [title]="'MENUITEMS.ADMIN.LIST.MODEL' | translate" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card" id="modelList">
+      <div class="card-header border-bottom-dashed">
+        <div class="row g-4 align-items-center">
+          <div class="col-sm">
+            <div>
+              <h5 class="card-title mb-0">{{ 'MODEL_PAGE.LIST_TITLE' | translate }}</h5>
+            </div>
+          </div>
+          <div class="col-sm-auto">
+            <div class="d-flex flex-wrap align-items-start gap-2">
+              <button *appHasPermission="'models.delete'" type="button" class="btn btn-danger"
+                [disabled]="selectedModelIds.size === 0" (click)="bulkDeleteModels()"
+                [ngbTooltip]="'COMMON.DELETE' | translate" placement="top">
+                <i class="ri-delete-bin-line align-bottom me-1"></i> {{ 'MODEL_PAGE.DELETE_SELECTED' | translate }} ({{ selectedModelIds.size }})
+              </button>
+              <button *appHasPermission="'models.create'" type="button" class="btn btn-success add-btn"
+                (click)="openCreateModal()"
+                [ngbTooltip]="'COMMON.ADD' | translate" placement="top">
+                <i class="ri-add-line align-bottom me-1"></i> {{ 'MODEL_PAGE.ADD_BUTTON' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body border-bottom-dashed border-bottom">
+        <div class="row g-3">
+          <div class="col-xl-12">
+            <div class="row g-3">
+              <div class="col-sm-5">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="ri-search-line"></i></span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [placeholder]="'MODEL_PAGE.SEARCH_EN' | translate"
+                    [(ngModel)]="searchTerm"
+                    (ngModelChange)="onSearch()">
+                </div>
+              </div>
+              <div class="col-sm-5">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="ri-search-line"></i></span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [placeholder]="'MODEL_PAGE.SEARCH_AR' | translate"
+                    [(ngModel)]="searchTermAr"
+                    (ngModelChange)="onSearch()"
+                    dir="rtl">
+                </div>
+              </div>
+              <div class="col-sm-2">
+                <button type="button" class="btn btn-soft-secondary w-100" (click)="clearSearch()">
+                  <i class="ri-filter-off-line mx-2 align-bottom"></i>{{ 'COMMON.REMOVE_FILTERS' | translate }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+          </div>
+        </div>
+        <div *ngIf="!isLoading && filteredModels.length === 0" class="text-center py-5">
+          <div class="mb-3">
+            <i class="ri-car-line" style="font-size: 48px; color: #ccc;"></i>
+          </div>
+          <h5 class="text-muted">{{ 'MODEL_PAGE.NO_MODELS_FOUND' | translate }}</h5>
+          <p class="text-muted">{{ 'MODEL_PAGE.NO_MODELS_HINT' | translate }}</p>
+        </div>
+        <div *ngIf="!isLoading && filteredModels.length > 0">
+          <div class="table-responsive table-card mb-1">
+            <table class="table align-middle table-nowrap table-hover mb-0">
+              <thead class="table-light text-muted">
+                <tr>
+                  <th scope="col" style="width: 40px;">
+                    <input class="form-check-input" type="checkbox"
+                           [checked]="isAllModelsSelected()"
+                           (change)="toggleSelectAllModels($any($event.target).checked)">
+                  </th>
+                  <th scope="col" style="width: 60px;">{{ 'MODEL_PAGE.IMAGE' | translate }}</th>
+                  <th scope="col">{{ 'MODEL_PAGE.NAME_EN' | translate }}</th>
+                  <th scope="col">{{ 'MODEL_PAGE.NAME_AR' | translate }}</th>
+                  <th scope="col">{{ 'MODEL_PAGE.BRAND' | translate }}</th>
+                  <th scope="col">{{ 'COMMON.STATUS' | translate }}</th>
+                  <th scope="col">{{ 'COMMON.CREATED_BY' | translate }}</th>
+                  <th scope="col">{{ 'COMMON.ACTION' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (model of pagedModels; track model.id) {
+                <tr id="m_{{ model.id }}">
+                  <td>
+                    <input class="form-check-input" type="checkbox"
+                           [checked]="selectedModelIds.has(model.id)"
+                           (change)="toggleModelSelection(model.id, $any($event.target).checked)">
+                  </td>
+                  <td>
+                    <div *ngIf="model.imageUrl" class="position-relative d-inline-block">
+                      <img [src]="getImageUrl(model.imageUrl)" [alt]="'MENUITEMS.ADMIN.LIST.MODEL' | translate" class="avatar-xs rounded" />
+                      <div class="hover-overlay" (click)="previewImage(getImageUrl(model.imageUrl))">
+                        <i class="ri-eye-line text-white" style="font-size: 16px;"></i>
+                      </div>
+                    </div>
+                    <span *ngIf="!model.imageUrl">{{ 'COMMON.NOT_AVAILABLE' | translate }}</span>
+                  </td>
+                  <td>{{ model.nameEn }}</td>
+                  <td>{{ model.nameAr }}</td>
+                  <td>{{ getBrandName(model.brandId) }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="model.isAvailable ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                      {{ model.isAvailable ? ('MODEL_PAGE.AVAILABLE' | translate) : ('MODEL_PAGE.UNAVAILABLE' | translate) }}
+                    </span>
+                  </td>
+                  <td>{{ model.createdBy || ('COMMON.NOT_AVAILABLE' | translate) }}</td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-soft-info" (click)="openCarsModal(model)"
+                        [ngbTooltip]="'MODEL_PAGE.VIEW_CARS' | translate" placement="top">
+                        <i class="ri-car-line"></i>
+                      </button>
+                      <button *appHasPermission="'models.edit'" class="btn btn-sm btn-soft-primary" (click)="openEditModal(model)"
+                        [ngbTooltip]="'COMMON.EDIT' | translate" placement="top">
+                        <i class="ri-edit-line"></i>
+                      </button>
+                      <button *appHasPermission="'models.delete'" class="btn btn-sm btn-soft-danger" (click)="deleteModel(model)"
+                        [ngbTooltip]="'COMMON.DELETE' | translate" placement="top">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="row justify-content-md-between align-items-md-center">
+            <div class="col col-sm-5">
+              <div class="dataTables_info mb-2" id="model-table_info" role="status" aria-live="polite">
+                {{ 'COMMON.PAGINATION_SUMMARY' | translate:{ start: (service.startIndex), end: (service.endIndex), total: (filteredModels.length) } }}
+              </div>
+            </div>
+            <div class="col col-sm-5">
+              <div class="text-sm-right float-sm-end listjs-pagination">
+                <ngb-pagination [collectionSize]="filteredModels.length" [(page)]="service.page"
+                  [pageSize]="service.pageSize" (pageChange)="onPageChange($event)">
+                </ngb-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade show" tabindex="-1" [ngStyle]="{ display: isModalOpen ? 'block' : 'none' }" *ngIf="isModalOpen">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEditMode ? ('MODEL_PAGE.EDIT_TITLE' | translate) : ('MODEL_PAGE.CREATE_TITLE' | translate) }}</h5>
+        <button class="btn-close" type="button" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="modelForm">
+          <div class="mb-3 text-center">
+            <div class="position-relative d-inline-block">
+              <img [src]="getModalImageUrl()" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #e9ecef;" [alt]="'MENUITEMS.ADMIN.LIST.MODEL' | translate">
+              <label for="modelImageInput" class="position-absolute bottom-0 end-0 mb-1 me-1">
+                <span class="avatar-xs d-inline-block">
+                  <span class="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                    <i class="ri-camera-fill"></i>
+                  </span>
+                </span>
+              </label>
+              <input type="file" id="modelImageInput" class="d-none" accept="image/*" (change)="onImageSelected($event)" required>
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="submitted && !selectedImage && !isEditMode">
+              {{ 'MODEL_PAGE.IMAGE_REQUIRED' | translate }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ 'MODEL_PAGE.NAME_EN' | translate }} <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-text"></i></span>
+              <input class="form-control" type="text" formControlName="nameEn" [placeholder]="'MODEL_PAGE.ENTER_EN_NAME' | translate">
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="submitted && form['nameEn'].errors">
+              {{ 'MODEL_PAGE.NAME_EN_REQUIRED' | translate }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ 'MODEL_PAGE.NAME_AR' | translate }} <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-text"></i></span>
+              <input class="form-control" type="text" formControlName="nameAr" [placeholder]="'MODEL_PAGE.ENTER_AR_NAME' | translate" dir="rtl">
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="submitted && form['nameAr'].errors">
+              {{ 'MODEL_PAGE.NAME_AR_REQUIRED' | translate }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ 'MODEL_PAGE.BRAND' | translate }} <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-price-tag-3-line"></i></span>
+              <div class="flex-grow-1">
+                <ng-select
+                  [items]="brands"
+                  bindLabel="nameEn"
+                  bindValue="id"
+                  formControlName="brandId"
+                  [placeholder]="'MODEL_PAGE.SELECT_BRAND' | translate"
+                  [searchable]="true"
+                  [clearable]="true">
+                  <ng-template ng-label-tmp let-item="item">
+                    <div class="d-flex align-items-center gap-2">
+                      <img [src]="item.imageUrl" class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
+                      <span>{{ item.nameEn }} ({{ item.nameAr }})</span>
+                    </div>
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item" let-index="index">
+                    <div class="d-flex align-items-center gap-3">
+                      <img [src]="item.imageUrl" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                      <div class="d-flex flex-column">
+                        <span class="fw-medium">{{ item.nameEn }}</span>
+                        <small class="text-muted">{{ item.nameAr }}</small>
+                      </div>
+                    </div>
+                  </ng-template>
+                </ng-select>
+              </div>
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="submitted && form['brandId'].errors">
+              {{ 'MODEL_PAGE.BRAND_REQUIRED' | translate }}
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" type="button" (click)="closeModal()">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button class="btn btn-success" type="button" [disabled]="isSubmitting" (click)="saveModel()">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          {{ isSubmitting ? ('MODEL_PAGE.SAVING' | translate) : (isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.CREATE' | translate)) }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="isModalOpen"></div>
+
+<!-- Image Preview Modal -->
+<div class="modal fade show" tabindex="-1" [ngStyle]="{ display: previewImageUrl ? 'block' : 'none' }" *ngIf="previewImageUrl">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'MODEL_PAGE.IMAGE_PREVIEW' | translate }}</h5>
+        <button type="button" class="btn-close" (click)="closePreview()"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img [src]="previewImageUrl" [alt]="'MODEL_PAGE.IMAGE_PREVIEW' | translate" class="img-fluid" style="max-height: 500px;">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="previewImageUrl"></div>
+
+<!-- Cars Modal -->
+<div class="modal fade show" tabindex="-1" [ngStyle]="{ display: isCarsModalOpen ? 'block' : 'none' }" *ngIf="isCarsModalOpen">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="ri-car-line me-2"></i>
+          {{ 'MODEL_PAGE.CARS_FOR_MODEL' | translate:{ nameEn: (selectedModelForCars?.nameEn || ''), nameAr: (selectedModelForCars?.nameAr || '') } }}
+        </h5>
+        <button class="btn-close" type="button" (click)="closeCarsModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="isCarsLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">{{ 'MODEL_PAGE.LOADING_CARS' | translate }}</span>
+          </div>
+        </div>
+        <div *ngIf="!isCarsLoading && cars.length === 0" class="text-center py-5">
+          <div class="mb-3">
+            <i class="ri-car-line" style="font-size: 48px; color: #ccc;"></i>
+          </div>
+          <h5 class="text-muted">{{ 'MODEL_PAGE.NO_CARS_FOUND' | translate }}</h5>
+          <p class="text-muted">{{ 'MODEL_PAGE.NO_CARS_HINT' | translate }}</p>
+        </div>
+        <div *ngIf="!isCarsLoading && cars.length > 0">
+          <div class="table-responsive">
+            <table class="table align-middle table-nowrap table-hover">
+              <thead class="table-light text-muted">
+                <tr>
+                  <th scope="col">{{ 'MODEL_PAGE.NAME_EN' | translate }}</th>
+                  <th scope="col">{{ 'MODEL_PAGE.NAME_AR' | translate }}</th>
+                  <th scope="col">{{ 'MODEL_PAGE.BRAND_EN' | translate }}</th>
+                  <th scope="col">{{ 'MODEL_PAGE.BRAND_AR' | translate }}</th>
+                  <th scope="col">{{ 'MODEL_PAGE.YEAR' | translate }}</th>
+                  <th scope="col">{{ 'MODEL_PAGE.MILEAGE' | translate }}</th>
+                  <th scope="col">{{ 'MODEL_PAGE.TYPE' | translate }}</th>
+                  <th scope="col">{{ 'COMMON.STATUS' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (car of pagedCars; track car.id) {
+                <tr>
+                  <td>{{ car.nameEn || ('COMMON.NOT_AVAILABLE' | translate) }}</td>
+                  <td>{{ car.nameAr || ('COMMON.NOT_AVAILABLE' | translate) }}</td>
+                  <td>{{ getBrandNameEn(selectedModelForCars?.brandId || 0) }}</td>
+                  <td>{{ getBrandNameAr(selectedModelForCars?.brandId || 0) }}</td>
+                  <td>{{ car.year }}</td>
+                  <td>{{ car.mileage.toLocaleString() }} km</td>
+                  <td>{{ getCarTypeName(car.typeId) }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="car.isAvailable ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                      {{ car.isAvailable ? ('MODEL_PAGE.AVAILABLE' | translate) : ('MODEL_PAGE.UNAVAILABLE' | translate) }}
+                    </span>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="row justify-content-md-between align-items-md-center mt-3">
+            <div class="col col-sm-5">
+              <div class="dataTables_info mb-2">
+                {{ 'COMMON.PAGINATION_SUMMARY' | translate:{ start: (carsPaginationService.startIndex), end: (carsPaginationService.endIndex), total: (cars.length) } }}
+              </div>
+            </div>
+            <div class="col col-sm-5">
+              <div class="text-sm-right float-sm-end">
+                <ngb-pagination [collectionSize]="cars.length" [(page)]="carsPaginationService.page"
+                  [pageSize]="carsPaginationService.pageSize" (pageChange)="onCarsPageChange($event)">
+                </ngb-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" type="button" (click)="closeCarsModal()">{{ 'COMMON.CLOSE' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="isCarsModalOpen"></div>
+
+<app-admin-toasts aria-live="polite" aria-atomic="true"></app-admin-toasts>

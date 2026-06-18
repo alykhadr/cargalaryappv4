@@ -1,0 +1,468 @@
+:host {
+  display: block;
+}
+
+.car-print-report-page {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.report-sheet {
+  background: #ffffff;
+  border: 1px solid #e9edf3;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  padding: 1rem;
+}
+
+.report-hero {
+  border-bottom: 1px dashed #d7deea;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.invoice-hero {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.invoice-company {
+  flex: 1;
+  min-width: 280px;
+  border: 1px dashed #d8e2f2;
+  border-radius: 0.65rem;
+  background: #f8fbff;
+  padding: 0.75rem;
+}
+
+.company-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.company-header-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 0.4rem;
+  border: 1px solid #dde4f0;
+  object-fit: contain;
+  background: #fff;
+  padding: 0.2rem;
+}
+
+.company-header-body {
+  min-width: 0;
+}
+
+.company-header-body h6 {
+  font-weight: 700;
+}
+
+.company-lines {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.company-lines span {
+  color: #475569;
+  font-weight: 600;
+}
+
+.invoice-doc {
+  flex: 1.2;
+  min-width: 320px;
+}
+
+.invoice-doc h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.invoice-doc.full-width {
+  flex: 1 1 100%;
+}
+
+.invoice-meta-grid {
+  margin-top: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.invoice-meta-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  padding: 0.45rem 0.55rem;
+}
+
+.invoice-meta-item small {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #64748b;
+  margin-bottom: 0.1rem;
+}
+
+.invoice-meta-item strong {
+  color: #0f172a;
+  font-size: 0.86rem;
+  word-break: break-word;
+}
+
+.invoice-meta-item.car-name-meta strong {
+  font-size: 1.02rem;
+  font-weight: 800;
+}
+
+.invoice-meta-item .badge {
+  font-size: 0.74rem;
+}
+
+.summary-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.8rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.brand-identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px dashed #cfe0ff;
+  background: #f4f8ff;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.55rem;
+}
+
+.brand-logo-wrap {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #d7e3f8;
+  background: #fff;
+  border-radius: 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.brand-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.report-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.report-section h5 {
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.section-label-table-header {
+  display: block;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.35rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.report-grid {
+  display: grid;
+  gap: 0.5rem 1rem;
+}
+
+.report-grid.two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.report-grid > div {
+  border-bottom: 1px dashed #eef2f7;
+  padding-bottom: 0.35rem;
+}
+
+.report-grid span {
+  color: #64748b;
+  display: block;
+  font-size: 0.8rem;
+}
+
+.feature-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+:host-context([data-bs-theme='dark']) .car-print-report-page {
+  .report-sheet {
+    background: var(--vz-card-bg);
+    border-color: rgba(148, 163, 184, 0.32);
+    box-shadow: 0 8px 24px rgba(2, 6, 23, 0.35);
+    color: var(--vz-body-color);
+  }
+
+  .report-hero,
+  .report-grid > div {
+    border-color: rgba(148, 163, 184, 0.28);
+  }
+
+  .invoice-company,
+  .invoice-meta-item,
+  .summary-card,
+  .report-section,
+  .brand-logo-wrap {
+    border-color: rgba(148, 163, 184, 0.34);
+  }
+
+  .invoice-company,
+  .invoice-meta-item,
+  .summary-card,
+  .brand-logo-wrap {
+    background: rgba(15, 23, 42, 0.45);
+  }
+
+  .brand-identity {
+    background: rgba(var(--vz-primary-rgb), 0.14);
+  }
+
+  .invoice-meta-item strong,
+  .report-section h5,
+  .report-grid strong {
+    color: var(--vz-body-color);
+  }
+
+  .invoice-meta-item small,
+  .report-grid span,
+  .company-lines,
+  .company-lines span {
+    color: var(--vz-secondary-color);
+  }
+
+  .section-label-table-header {
+    background: rgba(var(--vz-primary-rgb), 0.14);
+    border-color: rgba(var(--vz-primary-rgb), 0.38);
+    color: var(--vz-body-color);
+  }
+
+  .table-light th {
+    background: rgba(30, 41, 59, 0.65);
+    color: var(--vz-body-color);
+    border-color: rgba(148, 163, 184, 0.35);
+  }
+
+  .table-bordered > :not(caption) > * > * {
+    border-color: rgba(148, 163, 184, 0.35);
+    color: var(--vz-body-color);
+  }
+
+  .badge.bg-light.text-muted {
+    background: rgba(148, 163, 184, 0.22) !important;
+    color: var(--vz-body-color) !important;
+    border-color: rgba(148, 163, 184, 0.45) !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .report-grid.two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .report-hero {
+    flex-direction: column;
+  }
+}
+
+@media print {
+  @page {
+    margin: 10mm;
+  }
+
+  app-breadcrumbs,
+  .no-print {
+    display: none !important;
+  }
+
+  .car-print-report-page {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .car-print-report-page,
+  .report-sheet {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .report-sheet {
+    color: #212529 !important;
+    break-inside: avoid-page;
+  }
+
+  .report-sheet .text-muted,
+  .report-sheet .report-subtitle,
+  .report-sheet .report-grid span,
+  .report-sheet .summary-grid small,
+  .report-sheet .brand-identity small,
+  .report-sheet .invoice-meta-item small,
+  .report-sheet .company-lines,
+  .report-sheet .company-lines span,
+  .report-sheet .table thead th,
+  .report-sheet .table td small,
+  .report-sheet small.text-muted {
+    color: #6c757d !important;
+  }
+
+  .report-sheet h2,
+  .report-sheet h4,
+  .report-sheet h5,
+  .report-sheet h6,
+  .report-sheet .report-section h5,
+  .report-sheet .section-label-table-header,
+  .report-sheet .invoice-meta-item strong,
+  .report-sheet .report-grid strong,
+  .report-sheet .summary-grid strong,
+  .report-sheet .brand-identity strong,
+  .report-sheet td,
+  .report-sheet th {
+    color: #212529 !important;
+  }
+
+  :host-context([data-bs-theme='dark']) .car-print-report-page {
+    .report-sheet {
+      background: #ffffff !important;
+      border-color: #e9edf3 !important;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+      color: #212529 !important;
+    }
+
+    .report-hero {
+      border-bottom-color: #d7deea !important;
+    }
+
+    .report-grid > div {
+      border-bottom-color: #eef2f7 !important;
+    }
+
+    .invoice-company {
+      border-color: #d8e2f2 !important;
+      background: #f8fbff !important;
+    }
+
+    .invoice-meta-item {
+      border-color: #e2e8f0 !important;
+      background: #f8fafc !important;
+    }
+
+    .summary-card {
+      border-color: #e2e8f0 !important;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+    }
+
+    .report-section {
+      border-color: #e2e8f0 !important;
+    }
+
+    .brand-identity {
+      border-color: #cfe0ff !important;
+      background: #f4f8ff !important;
+    }
+
+    .brand-logo-wrap {
+      border-color: #d7e3f8 !important;
+      background: #ffffff !important;
+    }
+
+    .section-label-table-header {
+      background: #f8f9fa !important;
+      border-color: #dee2e6 !important;
+      color: #212529 !important;
+    }
+
+    .invoice-meta-item small,
+    .report-subtitle,
+    .report-grid span,
+    .summary-grid small,
+    .brand-identity small,
+    .company-lines,
+    .company-lines span {
+      color: #6c757d !important;
+    }
+
+    .invoice-meta-item strong {
+      color: #212529 !important;
+    }
+
+    .table-light th {
+      background: #f8f9fa !important;
+      color: #212529 !important;
+      border-color: inherit !important;
+    }
+
+    .table-bordered > :not(caption) > * > * {
+      color: #212529 !important;
+      border-color: inherit !important;
+    }
+
+    .badge.bg-light.text-muted {
+      background: var(--vz-light) !important;
+      color: var(--vz-secondary-color) !important;
+      border-color: var(--vz-border-color) !important;
+    }
+  }
+
+  .report-section,
+  .summary-card,
+  .invoice-meta-item {
+    break-inside: avoid;
+  }
+
+  .car-info-section {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+    padding: 0.5rem;
+  }
+
+  .car-info-section .report-grid.two-col {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.2rem 0.45rem;
+  }
+
+  .car-info-section .report-grid > div {
+    border-bottom: none;
+    padding-bottom: 0.1rem;
+  }
+
+  .car-info-section .report-grid span {
+    font-size: 0.68rem;
+    margin-bottom: 0.02rem;
+  }
+
+  .car-info-section .report-grid strong {
+    font-size: 0.76rem;
+    line-height: 1.15;
+  }
+
+  .car-info-section .mt-3 {
+    margin-top: 0.35rem !important;
+    font-size: 0.74rem;
+  }
+}

@@ -1,0 +1,342 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs  [title]="'MENUITEMS.ADMIN.LIST.ROLE' | translate" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card" id="customerList">
+            <div class="card-header border-bottom-dashed">
+
+                <div class="row g-4 align-items-center">
+                    <div class="col-sm">
+                        <div>
+                            <h5 class="card-title mb-0">{{ 'ROLE_PAGE.LIST_TITLE' | translate }}</h5>
+                        </div>
+                    </div>
+                    <div class="col-sm-auto">
+                        <div class="d-flex flex-wrap align-items-start gap-2 roles-header-actions">
+                            <button *appHasPermission="'roles.delete'" class="btn btn-soft-danger" id="remove-actions" style="display: none"
+                                (click)="deleteMultiple()"><i class="ri-delete-bin-2-line"></i></button>
+                            <button *appHasPermission="'roles.create'" type="button" class="btn btn-success add-btn" data-bs-toggle="modal" id="create-btn"
+                                data-bs-target="#showModal" (click)="openModal(content)"><i
+                                    class="ri-add-line align-bottom" [ngStyle]="{'margin-inline-end':'0.25rem'}"></i> {{ 'ROLE_PAGE.ADD_BUTTON' | translate }}</button>
+                            <button *appHasPermission="'roles.view'" type="button" class="btn btn-info" (click)="csvFileExport()"><i
+                                    class="ri-file-download-line align-bottom" [ngStyle]="{'margin-inline-end':'0.25rem'}"></i> {{ 'COMMON.EXPORT' | translate }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body border-bottom-dashed border-bottom">
+                <div class="row g-3">
+                    <div class="col-xl-12">
+                        <div class="row g-3">
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="ri-shield-user-line"></i></span>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        [placeholder]="'COMMON.SEARCH' | translate"
+                                        [(ngModel)]="roleNameFilter"
+                                        (ngModelChange)="roleNameFilterChanged()">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                    <input class="form-control flatpickr-input" type="text" mwlFlatpickr
+                                        [altInput]="true" [convertModelValue]="true" [placeholder]="'COMMON.SELECT_DATE' | translate"
+                                        id="isDate" [(ngModel)]="filterDate" (change)="dateFilter()" mode="range">
+                                </div>
+                            </div>
+                            <!--end col-->
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="ri-toggle-line"></i></span>
+                                    <select class="form-select" data-plugin="choices" data-choices
+                                        data-choices-search-false name="choices-single-default" id="idStatus"
+                                        [(ngModel)]="status" (ngModelChange)="statusFilter()">
+                                        <option value="" selected> {{ 'COMMON.SELECT_STATUS' | translate }}</option>
+                                        <option value="active">{{ 'COMMON.ACTIVE' | translate }}</option>
+                                        <option value="blocked">{{ 'ROLE_PAGE.BLOCK' | translate }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!--end col-->
+
+                            <div class="col-sm-3">
+                                <div>
+                                    <button type="button" class="btn btn-soft-secondary w-100" (click)="clearFilters()"><i
+                                            class="ri-filter-off-line mx-2 align-bottom"></i>{{ 'COMMON.REMOVE_FILTERS' | translate }}</button>
+                                </div>
+                            </div>
+                            <!--end col-->
+                        </div>
+                    </div>
+                </div>
+                <!--end row-->
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="table-responsive table-card mb-1">
+                        <table class="table">
+                            <thead class="table-light text-muted">
+                                <tr>
+                                    <th scope="col" style="width: 50px;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="checkAll" value="option"
+                                                [(ngModel)]="masterSelected" (change)="checkUncheckAll($event)">
+                                        </div>
+                                    </th>
+                                    <th class="sort" (click)="onSort('customer')">{{ 'ROLE_PAGE.ROLE_NAME' | translate }}</th>
+
+
+                                    <th class="sort" (click)="onSort('date')">{{ 'COMMON.CREATED_DATE' | translate }}</th>
+                                    <th class="sort" (click)="onSort('status')">{{ 'COMMON.STATUS' | translate }}</th>
+                                    <th class="sort">{{ 'COMMON.ACTION' | translate }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for( role of roles ;track $index){
+                                <tr id="c_{{role.id}}">
+                                    <th scope="row">
+                                        <div class="form-check">
+                                            <!--  -->
+                                            <input class="form-check-input" type="checkbox" name="checkAll"
+                                                value="{{role.id}}" [(ngModel)]="role.state"
+                                                (change)="onCheckboxChange($event)">
+                                        </div>
+                                    </th>
+                                    <td>
+                                        {{ role.name }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ role.createdAt | date :'longDate' }}
+                                    </td>
+                                    <td class="status"><span class="badge text-uppercase"
+                                            [ngClass]=" { 'bg-success-subtle text-success': role.isActive, 'bg-danger-subtle text-danger': !role.isActive}">
+                                            {{ role.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.BLOCKED' | translate) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <button *appHasPermission="'roles.edit'" class="btn btn-sm btn-soft-primary" type="button"
+                                                [ngbTooltip]="'COMMON.EDIT' | translate" placement="top"
+                                                (click)="editDataGet(role, content)">
+                                                <i class="ri-edit-line"></i>
+                                            </button>
+                                            <button *appHasPermission="'roles.view'" class="btn btn-sm btn-soft-info" type="button"
+                                                [ngbTooltip]="'COMMON.VIEW' | translate" placement="top"
+                                                (click)="openRoleUsersModal(roleUsersModal, role)">
+                                                <i class="ri-group-line"></i>
+                                            </button>
+                                            <button *appHasPermission="'roles.delete'" class="btn btn-sm btn-soft-danger" type="button"
+                                                [ngbTooltip]="'COMMON.DELETE' | translate" placement="top"
+                                                (click)="confirm(role.id)">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row justify-content-md-between align-items-md-center">
+                        <div class="col col-sm-5">
+                            <div class="dataTables_info mb-2" id="tickets-table_info" role="status" aria-live="polite">
+                                {{ 'COMMON.PAGINATION_SUMMARY' | translate:{ start: (service.startIndex), end: (service.endIndex), total: (filteredRoles.length) } }}
+                            </div>
+                        </div>
+                        <!-- Pagination -->
+                        <div class="col col-sm-5">
+                            <div class="text-sm-right float-sm-end listjs-pagination">
+                                <ngb-pagination [collectionSize]="filteredRoles.length" [(page)]="service.page"
+                                    [pageSize]="service.pageSize" (pageChange)="changePage()">
+                                </ngb-pagination>
+                            </div>
+                        </div>
+                        <!-- End Pagination -->
+                    </div>
+                </div>
+
+                <!-- Customer Create Model -->
+                <ng-template #content role="document" let-modal>
+                    <div class="modal-header bg-light p-3">
+                        <h5 class="modal-title" id="exampleModalLabel">{{ isEditMode ? ('ROLE_PAGE.EDIT_TITLE' | translate) : ('ROLE_PAGE.ADD_TITLE' | translate) }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"  [attr.aria-label]="'COMMON.CLOSE' | translate"
+                            id="close-modal" (click)="closeModal()"></button>
+                    </div>
+                    <form (ngSubmit)="saveUser()" [formGroup]="roleForm" class="tablelist-form" autocomplete="off">
+                        <div class="modal-body">
+                            <input type="hidden" name="id" value="" formControlName="_id" />
+                            <div class="mb-3">
+                                <label for="customername-field" class="form-label">{{ 'ROLE_PAGE.ROLE_NAME' | translate }}</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="ri-shield-user-line"></i></span>
+                                    <input type="text" id="roleName-field" class="form-control" [placeholder]="'ROLE_PAGE.ENTER_NAME' | translate"
+                                        required formControlName="roleName"
+                                        [ngClass]="{ 'is-invalid': submitted && form['roleName'].errors }" />
+                                </div>
+                                <div class="invalid-feedback">{{ 'ROLE_PAGE.ROLE_NAME' | translate }}</div>
+
+                            </div>
+                            <div class="mb-3">
+                                <label for="status-field" class="form-label">{{ 'COMMON.IS_ACTIVE' | translate }}</label>
+                                <div class="input-group">
+                                  <span class="input-group-text"><i class="ri-toggle-line"></i></span>
+                                  <div class="form-control d-flex align-items-center">
+                                    <div class="form-check form-switch form-switch-lg mb-0" dir="ltr">
+                                      <input type="checkbox" class="form-check-input" id="Switchsizelg"
+                                        formControlName="isActive">
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+
+                            <!-- <div>
+                                <label for="status-field" class="form-label">{{ 'COMMON.STATUS' | translate }}</label>
+                                <select class="form-control" data-trigger name="status-field" id="status-field" required formControlName="status" [ngClass]="{ 'is-invalid': submitted && form['status'].errors }">
+                                    <option value="">{{ 'COMMON.STATUS' | translate }}</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Block">Block</option>
+                                </select>
+                                @if(submitted && form['status'].errors){
+                                <div class="invalid-feedback" align="left">
+                                    @if(form['status'].errors['required']){
+                                    <div>Status is required</div>
+                                    }
+                                </div>
+                                }
+                            </div> -->
+                        </div>
+
+                        <div class="modal-footer">
+                            <div class="hstack gap-2 justify-content-end">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                                    (click)="closeModal()">{{ 'COMMON.CLOSE' | translate }}</button>
+                                <!-- <button type="submit" class="btn btn-success" id="add-btn">Add Role</button> -->
+
+                                <button *appHasPermission="['roles.create','roles.edit']" type="submit" class="btn btn-success" id="add-btn" [disabled]="isLoading">
+                                    <span class="d-flex align-items-center">
+
+                                        <!-- Spinner only when submitting -->
+                                        <span *ngIf="isLoading" class="spinner-border spinner-border-sm flex-shrink-0"
+                                            role="status">
+                                            <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+                                        </span>
+
+                                        <span class="flex-grow-1 ms-2">
+                                            {{ isLoading ? ('COMMON.LOADING_DOTS' | translate) : (isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.ADD' | translate)) }}
+                                        </span>
+
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </ng-template>
+                <!--End Modal -->
+                <!--end modal -->
+                <div *ngIf="isLoading" id="elmLoader" class="text-center my-3">
+                    <div class="spinner-border text-primary avatar-sm" role="status">
+                        <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!--end col-->
+</div>
+<!--end row-->
+
+<ng-template #roleUsersModal let-modal>
+    <div class="modal-header bg-light p-3">
+        <h5 class="modal-title">{{ 'ROLE_PAGE.USERS' | translate }} "{{ selectedRoleName }}"</h5>
+        <button type="button" class="btn-close"  [attr.aria-label]="'COMMON.CLOSE' | translate" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+        <div *ngIf="isRoleUsersLoading" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+            </div>
+        </div>
+
+        <div *ngIf="!isRoleUsersLoading && roleUsers.length === 0" class="text-center text-muted py-3">
+            {{ 'COMMON.NO_DATA_FOUND' | translate }}
+        </div>
+
+        <div *ngIf="!isRoleUsersLoading && roleUsers.length > 0">
+            <div class="table-responsive table-card mb-1">
+            <table class="table align-middle table-nowrap table-hover mb-0">
+                <thead class="table-light text-muted">
+                    <tr>
+                        <th>{{ 'COMMON.USERNAME' | translate }}</th>
+                        <th>{{ 'COMMON.EMAIL' | translate }}</th>
+                        <th>{{ 'COMMON.FIRST_NAME' | translate }}</th>
+                        <th>{{ 'COMMON.LAST_NAME' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (user of pagedRoleUsers; track user.id) {
+                    <tr>
+                        <td>{{ user.username || '-' }}</td>
+                        <td>{{ user.email || '-' }}</td>
+                        <td>{{ user.nameEn || '-' }}</td>
+                        <td>{{ user.nameAr || '-' }}</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            </div>
+            <div class="row justify-content-md-between align-items-md-center">
+                <div class="col col-sm-6">
+                    <div class="dataTables_info mb-2" role="status" aria-live="polite">
+                        {{ 'COMMON.PAGINATION_SUMMARY' | translate:{ start: (roleUsersPaginationService.startIndex), end: (roleUsersPaginationService.endIndex), total: (roleUsers.length) } }}
+                    </div>
+                </div>
+                <div class="col col-sm-6">
+                    <div class="text-sm-right float-sm-end listjs-pagination">
+                        <ngb-pagination [collectionSize]="roleUsers.length" [(page)]="roleUsersPaginationService.page"
+                            [pageSize]="roleUsersPaginationService.pageSize" (pageChange)="onRoleUsersPageChange($event)">
+                        </ngb-pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="modal.close('Close click')">{{ 'COMMON.CLOSE' | translate }}</button>
+    </div>
+</ng-template>
+
+<app-admin-toasts aria-live="polite" aria-atomic="true"></app-admin-toasts>
+
+<!-- removeItemModal -->
+<ng-template #deleteModel let-modal>
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal"  [attr.aria-label]="'COMMON.CLOSE' | translate" id="deleteRecord-close"
+                (click)="modal.dismiss('Cross click')"></button>
+        </div>
+        <div class="modal-body">
+            <div class="mt-2 text-center">
+                <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop"
+                    colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>
+                <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                    <h4>{{ 'COMMON.ARE_YOU_SURE' | translate }}</h4>
+                    <p class="text-muted mx-4 mb-0">{{ 'COMMON.DELETE_CONFIRM_RECORD' | translate }}</p>
+                </div>
+            </div>
+            <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal"
+                    (click)="modal.close('Close click')">{{ 'COMMON.CLOSE' | translate }}</button>
+                <button type="button" class="btn w-sm btn-danger " id="delete-product" (click)="deleteData(deleteId)"
+                    (click)="modal.close('Close click')">{{ 'COMMON.YES_DELETE' | translate }}</button>
+            </div>
+        </div>
+    </div><!-- /.modal-content -->
+</ng-template>

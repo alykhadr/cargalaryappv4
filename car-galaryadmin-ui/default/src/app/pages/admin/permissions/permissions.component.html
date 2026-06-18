@@ -1,0 +1,266 @@
+<app-breadcrumbs  [title]="'MENUITEMS.ADMIN.LIST.PERMISSION' | translate" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="row">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">{{ 'PERMISSIONS_PAGE.ROLES' | translate }}</h5>
+      </div>
+      <div class="card-body">
+        <div *ngIf="isLoading && roles.length === 0" class="text-center py-3">
+          <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
+        <div *ngIf="!isLoading && roles.length === 0" class="text-muted text-center py-3">
+          {{ 'PERMISSIONS_PAGE.NO_ROLES_FOUND' | translate }}
+        </div>
+
+        <div class="list-group">
+          @for (role of roles; track role.id) {
+          <button
+            type="button"
+            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            [class.active]="selectedRole?.id === role.id"
+            (click)="selectRole(role)">
+            <span>{{ role.name }}</span>
+            <span class="badge bg-secondary-subtle text-secondary">{{ role.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.BLOCKED' | translate) }}</span>
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card" *ngIf="selectedRole; else selectRoleHint">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="card-title mb-0">{{ 'PERMISSIONS_PAGE.ROLE_PERMISSIONS' | translate }}: {{ selectedRole.name }}</h5>
+        <span class="badge bg-primary-subtle text-primary">
+          {{ rolePermissions.length }} {{ 'PERMISSIONS_PAGE.ASSIGNED' | translate }}
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="row g-2 mb-3">
+          <div class="col-md-5">
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-file-list-3-line"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                [placeholder]="'PERMISSIONS_PAGE.PAGE_PLACEHOLDER' | translate"
+                [(ngModel)]="pageInput"
+                (keyup.enter)="addPermission()">
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-key-2-line"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                [placeholder]="'PERMISSIONS_PAGE.ACTION_PLACEHOLDER' | translate"
+                [(ngModel)]="actionInput"
+                (keyup.enter)="addPermission()">
+            </div>
+          </div>
+          <div class="col-md-2 d-grid">
+            <button *appHasPermission="'permissions.create'" class="btn btn-primary" type="button" [disabled]="isAddingPermission" (click)="addPermission()">
+              <span *ngIf="isAddingPermission" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              {{ isAddingPermission ? ('PERMISSIONS_PAGE.ADDING' | translate) : ('COMMON.ADD' | translate) }}
+            </button>
+          </div>
+        </div>
+        <div class="invalid-feedback d-block mb-3" *ngIf="permissionSubmitted && (!pageInput.trim() || !actionInput.trim())">
+          {{ 'PERMISSIONS_PAGE.PAGE_ACTION_REQUIRED' | translate }}
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 permission-panel-box">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">{{ 'PERMISSIONS_PAGE.ASSIGNED_PERMISSIONS' | translate }}</h6>
+                <div class="d-flex align-items-center gap-1">
+                  <span class="badge bg-danger-subtle text-danger">{{ filteredAssignedPermissions.length }} {{ 'PERMISSIONS_PAGE.ACTIONS' | translate }}</span>
+                  <span class="badge permission-page-badge">{{ assignedPageCount }} {{ 'PERMISSIONS_PAGE.PAGES' | translate }}</span>
+                </div>
+              </div>
+              <div class="input-group input-group-sm mb-2">
+                <span class="input-group-text"><i class="ri-search-line"></i></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  [placeholder]="'PERMISSIONS_PAGE.SEARCH_ASSIGNED' | translate"
+                  [(ngModel)]="permissionSearch"
+                  (ngModelChange)="onAssignedSearchChange()">
+              </div>
+
+              <div *ngIf="assignedGroups.length === 0" class="text-muted small p-2 border rounded-3 bg-body-secondary">
+                {{ 'PERMISSIONS_PAGE.NO_ASSIGNED' | translate }}
+              </div>
+
+              <div class="table-responsive border rounded-3 permission-table-wrap" *ngIf="assignedGroups.length > 0">
+                <table class="table table-sm align-middle mb-0 permission-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'COMMON.PAGE' | translate }}</th>
+                      <th>{{ 'COMMON.ACTION' | translate }}</th>
+                      <th class="text-end" style="width: 100px;">{{ 'COMMON.DELETE' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (pageGroup of pagedAssignedGroups; track pageGroup.page) {
+                    <tr>
+                      <td>
+                        <button class="btn btn-sm btn-ghost-primary p-0 me-2" type="button" (click)="toggleAssignedGroup(pageGroup.page)">
+                          <i [class]="isAssignedGroupExpanded(pageGroup.page) ? 'ri-arrow-down-s-line' : 'ri-arrow-right-s-line'"></i>
+                        </button>
+                        <span class="fw-semibold">{{ pageGroup.page }}</span>
+                      </td>
+                      <td>
+                        <span class="text-muted">{{ pageGroup.actions.length }} {{ 'PERMISSIONS_PAGE.ACTIONS' | translate }}</span>
+                      </td>
+                      <td class="text-end">
+                        <span class="badge permission-group-badge">{{ 'PERMISSIONS_PAGE.GROUP' | translate }}</span>
+                      </td>
+                    </tr>
+                    @if (isAssignedGroupExpanded(pageGroup.page)) {
+                    @for (action of pageGroup.actions; track action) {
+                    <tr>
+                      <td class="ps-4">
+                        <i class="ri-corner-down-right-line text-muted me-2"></i>{{ pageGroup.page }}
+                      </td>
+                      <td>{{ action }}</td>
+                      <td class="text-end">
+                        <button
+                          *appHasPermission="'permissions.delete'"
+                          class="btn btn-sm btn-soft-danger"
+                          type="button"
+                          [disabled]="deletingPermission === (pageGroup.page + '.' + action)"
+                          (click)="removePermission(pageGroup.page + '.' + action)">
+                          <span *ngIf="deletingPermission === (pageGroup.page + '.' + action)" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                          <i *ngIf="deletingPermission !== (pageGroup.page + '.' + action)" class="ri-delete-bin-line"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    }
+                    }
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="d-flex justify-content-end mt-2" *ngIf="assignedGroups.length > assignedPager.pageSize">
+                <ngb-pagination
+                  [collectionSize]="assignedGroups.length"
+                  [pageSize]="assignedPager.pageSize"
+                  [(page)]="assignedPager.page"
+                  (pageChange)="onAssignedPageChange($event)"
+                  [maxSize]="3"
+                  [rotate]="true"
+                  size="sm">
+                </ngb-pagination>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 permission-panel-box">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">{{ 'PERMISSIONS_PAGE.AVAILABLE_PERMISSIONS' | translate }}</h6>
+                <div class="d-flex align-items-center gap-1">
+                  <span class="badge bg-primary-subtle text-primary">{{ filteredAvailablePermissions.length }} {{ 'PERMISSIONS_PAGE.ACTIONS' | translate }}</span>
+                  <span class="badge permission-page-badge">{{ availablePageCount }} {{ 'PERMISSIONS_PAGE.PAGES' | translate }}</span>
+                </div>
+              </div>
+              <div class="input-group input-group-sm mb-2">
+                <span class="input-group-text"><i class="ri-search-line"></i></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  [placeholder]="'PERMISSIONS_PAGE.SEARCH_AVAILABLE' | translate"
+                  [(ngModel)]="availableSearch"
+                  (ngModelChange)="onAvailableSearchChange()">
+              </div>
+
+              <div *ngIf="availableGroups.length === 0" class="text-muted small p-2 border rounded-3 bg-body-secondary">
+                {{ 'PERMISSIONS_PAGE.NO_AVAILABLE' | translate }}
+              </div>
+
+              <div class="table-responsive border rounded-3 permission-table-wrap" *ngIf="availableGroups.length > 0">
+                <table class="table table-sm align-middle mb-0 permission-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'COMMON.PAGE' | translate }}</th>
+                      <th>{{ 'COMMON.ACTION' | translate }}</th>
+                      <th class="text-end" style="width: 100px;">{{ 'PERMISSIONS_PAGE.USE' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (pageGroup of pagedAvailableGroups; track pageGroup.page) {
+                    <tr>
+                      <td>
+                        <button class="btn btn-sm btn-ghost-primary p-0 me-2" type="button" (click)="toggleAvailableGroup(pageGroup.page)">
+                          <i [class]="isAvailableGroupExpanded(pageGroup.page) ? 'ri-arrow-down-s-line' : 'ri-arrow-right-s-line'"></i>
+                        </button>
+                        <span class="fw-semibold">{{ pageGroup.page }}</span>
+                      </td>
+                      <td>
+                        <span class="text-muted">{{ pageGroup.actions.length }} {{ 'PERMISSIONS_PAGE.ACTIONS' | translate }}</span>
+                      </td>
+                      <td class="text-end">
+                        <span class="badge permission-group-badge">{{ 'PERMISSIONS_PAGE.GROUP' | translate }}</span>
+                      </td>
+                    </tr>
+                    @if (isAvailableGroupExpanded(pageGroup.page)) {
+                    @for (action of pageGroup.actions; track action) {
+                    <tr>
+                      <td class="ps-4">
+                        <i class="ri-corner-down-right-line text-muted me-2"></i>{{ pageGroup.page }}
+                      </td>
+                      <td>{{ action }}</td>
+                      <td class="text-end">
+                        <button
+                          *appHasPermission="'permissions.create'"
+                          class="btn btn-sm btn-soft-primary"
+                          type="button"
+                          (click)="useSuggestedPermissionByParts(pageGroup.page, action)">
+                          <i class="ri-arrow-left-up-line"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    }
+                    }
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="d-flex justify-content-end mt-2" *ngIf="availableGroups.length > availablePager.pageSize">
+                <ngb-pagination
+                  [collectionSize]="availableGroups.length"
+                  [pageSize]="availablePager.pageSize"
+                  [(page)]="availablePager.page"
+                  (pageChange)="onAvailablePageChange($event)"
+                  [maxSize]="3"
+                  [rotate]="true"
+                  size="sm">
+                </ngb-pagination>
+              </div>
+              <div class="small text-muted mt-2">{{ 'PERMISSIONS_PAGE.CLICK_USE_HINT' | translate }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #selectRoleHint>
+  <div class="card">
+    <div class="card-body text-muted text-center py-5">
+      {{ 'PERMISSIONS_PAGE.SELECT_ROLE_HINT' | translate }}
+    </div>
+  </div>
+</ng-template>
+
+<app-admin-toasts aria-live="polite" aria-atomic="true"></app-admin-toasts>

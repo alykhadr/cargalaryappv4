@@ -1,0 +1,302 @@
+<app-breadcrumbs  [title]="'MENUITEMS.ADMIN.LIST.BRAND' | translate" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card" id="brandList">
+      <div class="card-header border-bottom-dashed">
+        <div class="row g-4 align-items-center">
+          <div class="col-sm">
+            <div>
+              <h5 class="card-title mb-0">{{ 'BRAND_PAGE.LIST_TITLE' | translate }}</h5>
+            </div>
+          </div>
+          <div class="col-sm-auto">
+            <div class="d-flex flex-wrap align-items-start gap-2">
+              <button *appHasPermission="'brands.create'" type="button" class="btn btn-success add-btn"
+                (click)="openCreateModal()"
+                [ngbTooltip]="'COMMON.ADD' | translate" placement="top">
+                <i class="ri-add-line align-bottom me-1"></i> {{ 'BRAND_PAGE.ADD_BUTTON' | translate }}
+              </button>
+              <button *appHasPermission="'brands.delete'" type="button" class="btn btn-danger"
+                [disabled]="selectedBrandIds.size === 0" (click)="bulkDeleteBrands()"
+                [ngbTooltip]="'COMMON.DELETE' | translate" placement="top">
+                <i class="ri-delete-bin-line align-bottom me-1"></i> {{ 'BRAND_PAGE.DELETE_SELECTED' | translate }} ({{ selectedBrandIds.size }})
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body border-bottom-dashed border-bottom">
+        <div class="row g-3">
+          <div class="col-xl-12">
+            <div class="row g-3">
+              <div class="col-sm-5">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="ri-search-line"></i></span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [placeholder]="'BRAND_PAGE.SEARCH_EN' | translate"
+                    [(ngModel)]="searchTerm"
+                    (ngModelChange)="onSearch()">
+                </div>
+              </div>
+              <div class="col-sm-5">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="ri-search-line"></i></span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [placeholder]="'BRAND_PAGE.SEARCH_AR' | translate"
+                    [(ngModel)]="searchTermAr"
+                    (ngModelChange)="onSearch()"
+                    dir="rtl">
+                </div>
+              </div>
+              <div class="col-sm-2">
+                <button type="button" class="btn btn-soft-secondary w-100" (click)="clearSearch()">
+                  <i class="ri-filter-off-line mx-2 align-bottom"></i>{{ 'COMMON.REMOVE_FILTERS' | translate }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="brandGridCard">
+      <div class="card-body">
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+          </div>
+        </div>
+        <div *ngIf="!isLoading && filteredBrands.length === 0" class="text-center py-5">
+          <div class="mb-3">
+            <i class="ri-folder-open-line" style="font-size: 48px; color: #ccc;"></i>
+          </div>
+          <h5 class="text-muted">{{ 'BRAND_PAGE.NO_BRANDS_FOUND' | translate }}</h5>
+          <p class="text-muted">{{ 'BRAND_PAGE.NO_BRANDS_HINT' | translate }}</p>
+        </div>
+        <div *ngIf="!isLoading && filteredBrands.length > 0">
+          <div class="table-responsive table-card mb-1">
+            <table class="table align-middle table-nowrap table-hover mb-0">
+              <thead class="table-light text-muted">
+                <tr>
+                  <th scope="col" style="width: 40px;">
+                    <input class="form-check-input" type="checkbox"
+                           [checked]="isAllBrandsSelected()"
+                           (change)="toggleSelectAllBrands($any($event.target).checked)">
+                  </th>
+                  <th scope="col" style="width: 60px;">{{ 'BRAND_PAGE.IMAGE' | translate }}</th>
+                  <th scope="col">{{ 'BRAND_PAGE.NAME_EN' | translate }}</th>
+                  <th scope="col">{{ 'BRAND_PAGE.NAME_AR' | translate }}</th>
+                  <th scope="col">{{ 'COMMON.STATUS' | translate }}</th>
+                  <th scope="col">{{ 'COMMON.CREATED_BY' | translate }}</th>
+                  <th scope="col">{{ 'COMMON.ACTION' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (brand of pagedBrands; track brand.id) {
+                <tr id="b_{{ brand.id }}">
+                  <td>
+                    <input class="form-check-input" type="checkbox"
+                           [checked]="selectedBrandIds.has(brand.id)"
+                           (change)="toggleBrandSelection(brand.id, $any($event.target).checked)">
+                  </td>
+                  <td>
+                    <div *ngIf="brand.imageUrl" class="position-relative d-inline-block">
+                      <img [src]="getImageUrl(brand.imageUrl)" [alt]="'MENUITEMS.ADMIN.LIST.BRAND' | translate" class="avatar-xs rounded" />
+                      <div class="hover-overlay" (click)="previewImage(getImageUrl(brand.imageUrl))">
+                        <i class="ri-eye-line text-white" style="font-size: 16px;"></i>
+                      </div>
+                    </div>
+                    <span *ngIf="!brand.imageUrl">{{ 'COMMON.NOT_AVAILABLE' | translate }}</span>
+                  </td>
+                  <td>{{ brand.nameEn }}</td>
+                  <td>{{ brand.nameAr }}</td>
+                  <td>
+                    <span class="badge"
+                      [ngClass]="(brand.isAvailable !== false) ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                      {{ (brand.isAvailable !== false) ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+                    </span>
+                  </td>
+                  <td>{{ brand.createdBy || ('COMMON.NOT_AVAILABLE' | translate) }}</td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-soft-info" (click)="viewBrandModels(brand.id, brandModelsModal)"
+                        [ngbTooltip]="'BRAND_PAGE.VIEW_MODELS' | translate" placement="top">
+                        <i class="ri-car-line"></i>
+                      </button>
+                      <button *appHasPermission="'brands.edit'" class="btn btn-sm btn-soft-primary" (click)="openEditModal(brand)"
+                        [ngbTooltip]="'COMMON.EDIT' | translate" placement="top">
+                        <i class="ri-edit-line"></i>
+                      </button>
+                      <button *appHasPermission="'brands.delete'" class="btn btn-sm btn-soft-danger" (click)="deleteBrand(brand)"
+                        [ngbTooltip]="'COMMON.DELETE' | translate" placement="top">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="row justify-content-md-between align-items-md-center">
+            <div class="col col-sm-5">
+              <div class="dataTables_info mb-2" id="brand-table_info" role="status" aria-live="polite">
+                {{ 'COMMON.PAGINATION_SUMMARY' | translate:{ start: (service.startIndex), end: (service.endIndex), total: (filteredBrands.length) } }}
+              </div>
+            </div>
+            <div class="col col-sm-5">
+              <div class="text-sm-right float-sm-end listjs-pagination">
+                <ngb-pagination [collectionSize]="filteredBrands.length" [(page)]="service.page"
+                  [pageSize]="service.pageSize" (pageChange)="onPageChange($event)">
+                </ngb-pagination>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade show" tabindex="-1" [ngStyle]="{ display: isModalOpen ? 'block' : 'none' }" *ngIf="isModalOpen">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEditMode ? ('BRAND_PAGE.EDIT_TITLE' | translate) : ('BRAND_PAGE.CREATE_TITLE' | translate) }}</h5>
+        <button class="btn-close" type="button" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="brandForm">
+          <div class="mb-3 text-center">
+            <div class="position-relative d-inline-block">
+              <img [src]="getModalImageUrl()" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #e9ecef;" alt="Brand">
+              <label for="brandImageInput" class="position-absolute bottom-0 end-0 mb-1 me-1">
+                <span class="avatar-xs d-inline-block">
+                  <span class="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                    <i class="ri-camera-fill"></i>
+                  </span>
+                </span>
+              </label>
+              <input type="file" id="brandImageInput" class="d-none" accept="image/*" (change)="onImageSelected($event)" required>
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="submitted && !selectedImage && !isEditMode">
+              {{ 'BRAND_PAGE.IMAGE_REQUIRED' | translate }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ 'BRAND_PAGE.NAME_EN' | translate }} <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-text"></i></span>
+              <input class="form-control" type="text" formControlName="nameEn" [placeholder]="'BRAND_PAGE.ENTER_EN_NAME' | translate">
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="submitted && form['nameEn'].errors">
+              {{ 'BRAND_PAGE.NAME_EN_REQUIRED' | translate }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ 'BRAND_PAGE.NAME_AR' | translate }} <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-text"></i></span>
+              <input class="form-control" type="text" formControlName="nameAr" [placeholder]="'BRAND_PAGE.ENTER_AR_NAME' | translate" dir="rtl">
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="submitted && form['nameAr'].errors">
+              {{ 'BRAND_PAGE.NAME_AR_REQUIRED' | translate }}
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" type="button" (click)="closeModal()">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button class="btn btn-success" type="button" [disabled]="isSubmitting" (click)="saveBrand()">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          {{ isSubmitting ? ('BRAND_PAGE.SAVING' | translate) : (isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.CREATE' | translate)) }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="isModalOpen"></div>
+
+<!-- Image Preview Modal -->
+<div class="modal fade show" tabindex="-1" [ngStyle]="{ display: previewImageUrl ? 'block' : 'none' }" *ngIf="previewImageUrl">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'BRAND_PAGE.IMAGE_PREVIEW' | translate }}</h5>
+        <button type="button" class="btn-close" (click)="closePreview()"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img [src]="previewImageUrl" [alt]="'BRAND_PAGE.IMAGE_PREVIEW' | translate" class="img-fluid" style="max-height: 500px;">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="previewImageUrl"></div>
+
+<app-admin-toasts aria-live="polite" aria-atomic="true"></app-admin-toasts>
+
+<ng-template #brandModelsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">{{ 'BRAND_PAGE.CAR_MODELS' | translate }}</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="loadingModels" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+      </div>
+    </div>
+    <div *ngIf="!loadingModels && brandModels.length === 0" class="text-center py-4">
+      <i class="ri-car-line" style="font-size: 48px; color: #ccc;"></i>
+      <h6 class="text-muted mt-3">{{ 'BRAND_PAGE.NO_MODELS_FOUND' | translate }}</h6>
+    </div>
+    <div *ngIf="!loadingModels && brandModels.length > 0" class="table-responsive">
+      <table class="table table-sm table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>{{ 'BRAND_PAGE.NAME_EN' | translate }}</th>
+            <th>{{ 'BRAND_PAGE.NAME_AR' | translate }}</th>
+            <th>{{ 'COMMON.STATUS' | translate }}</th>
+            <th>{{ 'BRAND_PAGE.CREATED_AT' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let model of pagedBrandModels">
+            <td>{{ model.nameEn }}</td>
+            <td>{{ model.nameAr }}</td>
+            <td>
+              <span class="badge" [ngClass]="model.isAvailable ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                {{ model.isAvailable ? ('BRAND_PAGE.AVAILABLE' | translate) : ('BRAND_PAGE.UNAVAILABLE' | translate) }}
+              </span>
+            </td>
+            <td>{{ model.createdAt | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="row justify-content-between align-items-center mt-3">
+        <div class="col-sm-6">
+          <div class="dataTables_info">
+            {{ 'COMMON.PAGINATION_SUMMARY' | translate:{ start: ((modelsPage - 1) * modelsPageSize + 1), end: (Math.min(modelsPage * modelsPageSize, brandModels.length)), total: (brandModels.length) } }}
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="text-end">
+            <ngb-pagination
+              [collectionSize]="brandModels.length"
+              [(page)]="modelsPage"
+              [pageSize]="modelsPageSize"
+              (pageChange)="onModelsPageChange($event)">
+            </ngb-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

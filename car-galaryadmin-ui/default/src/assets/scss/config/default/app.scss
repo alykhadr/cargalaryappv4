@@ -1,0 +1,364 @@
+/*
+Template Name: Velzon - Admin & Dashboard Template
+Author: Themesbrand
+Version: 4.1.0
+Website: https://themesbrand.com/
+Contact: support@themesbrand.com
+File: Main Css File
+*/
+
+
+//Fonts
+@import "../../fonts/fonts";
+
+//Core files
+@import "./node_modules/bootstrap/scss/functions";
+@import "./node_modules/bootstrap/scss/variables";
+@import "variables";
+@import "variables-custom";
+@import "variables-dark";
+@import "./node_modules/bootstrap/scss/mixins";
+
+
+// Structure
+@import "../../structure/topbar";
+@import "../../structure/page-head";
+@import "../../structure/footer";
+@import "../../structure/vertical";
+@import "../../structure/horizontal";
+@import "../../structure/two-column";
+@import "../../structure/layouts";
+
+// Components
+@import "../../components/waves";
+@import "../../components/avatar";
+@import "../../components/accordion";
+@import "../../components/helper";
+@import "../../components/preloader";
+@import "../../components/forms";
+@import "../../components/widgets";
+@import "../../components/demos";
+@import "../../components/print";
+@import "../../components/ribbons";
+@import "../../components/toast";
+@import "../../components/scrollspy";
+
+// Bootstrap components
+@import "../../components/root";
+@import "../../components/reboot";
+@import "../../components/alerts";
+@import "../../components/badge";
+@import "../../components/buttons";
+@import "../../components/breadcrumb";
+@import "../../components/card";
+@import "../../components/dropdown";
+@import "../../components/nav";
+@import "../../components/table";
+@import "../../components/modal";
+@import "../../components/pagination";
+@import "../../components/progress";
+@import "../../components/popover";
+@import "../../components/type";
+@import "../../components/form-check";
+@import "../../components/form-control";
+@import "../../components/list-group";
+
+// Plugins
+@import "../../plugins/custom-scrollbar";
+@import "../../plugins/prismjs";
+@import "../../plugins/sweetalert2";
+@import "../../plugins/dropzone";
+@import "../../plugins/range-slider";
+@import "../../plugins/sortablejs";
+@import "../../plugins/tour";
+@import "../../plugins/swiper";
+@import "../../plugins/multijs";
+@import "../../plugins/colorpicker";
+@import "../../plugins/filepond";
+@import "../../plugins/form-input-spin";
+@import "../../plugins/ckeditor";
+@import "../../plugins/quilljs";
+@import "../../plugins/gridjs";
+@import "../../plugins/listjs";
+@import "../../plugins/apexcharts";
+@import "../../plugins/chartjs";
+@import "../../plugins/echarts";
+@import "../../plugins/google-map";
+@import "../../plugins/autocomplete";
+@import "../../plugins/vector-maps";
+@import "../../plugins/leaflet-maps";
+@import "../../plugins/fullcalendar";
+@import "../../plugins/emoji-picker";
+@import "../../plugins/datatables";
+@import "../../plugins/select2";
+
+// Plugins
+@import "../../plugins/toastify";
+@import "../../plugins/choices";
+@import "../../plugins/flatpicker";
+@import "../../plugins/flag-input";
+@import "../../plugins/form-wizard";
+
+
+// Pages
+@import "../../pages/authentication";
+@import "../../pages/dashboard";
+@import "../../pages/timeline";
+@import "../../pages/gallery";
+@import "../../pages/errors";
+@import "../../pages/profile";
+@import "../../pages/sitemap";
+@import "../../pages/team";
+@import "../../pages/coming-soon";
+@import "../../pages/search-results";
+@import "../../pages/ecommerce";
+@import "../../pages/invoice";
+@import "../../pages/chat";
+@import "../../pages/email";
+@import "../../pages/kanban";
+@import "../../pages/landing";
+@import "../../pages/nft-landing";
+@import "../../pages/file-manager";
+@import "../../pages/to-do";
+@import "../../pages/jobs";
+@import "../../pages/job-landing";
+
+@import "./angular-custom.scss";
+@import "../../pages/blog";
+
+// RTL Set
+[dir="ltr"] {
+  --bs-body-font-family: "Poppins", "Segoe UI", Tahoma, Arial, sans-serif;
+  --vz-font-sans-serif: "Poppins", "Segoe UI", Tahoma, Arial, sans-serif;
+
+  body,
+  h1, h2, h3, h4, h5, h6,
+  p, span, div, a, li, ul, ol,
+  label, input, textarea, select, button,
+  .form-control, .form-select, .dropdown-item, .nav-link,
+  .card-title, .table, .btn, .breadcrumb {
+    font-family: "Poppins", "Segoe UI", Tahoma, Arial, sans-serif !important;
+  }
+
+  // Keep placeholders visually aligned with LTR layout.
+  input::placeholder,
+  textarea::placeholder {
+    direction: ltr;
+    text-align: left;
+  }
+
+  .ng-select .ng-placeholder {
+    direction: ltr;
+    text-align: left;
+  }
+}
+
+[dir="rtl"] {
+  --bs-body-font-family: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif;
+  --vz-font-sans-serif: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif;
+
+  @import "../../rtl/components-rtl";
+  @import "../../rtl/layouts-rtl";
+  @import "../../rtl/pages-rtl";
+  @import "../../rtl/plugins-rtl";
+
+  body,
+  h1, h2, h3, h4, h5, h6,
+  p, span, div, a, li, ul, ol,
+  label, input, textarea, select, button,
+  .form-control, .form-select, .dropdown-item, .nav-link,
+  .card-title, .table, .btn, .breadcrumb {
+    font-family: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif !important;
+  }
+
+  // Keep placeholders visually aligned with RTL layout.
+  input::placeholder,
+  textarea::placeholder {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .ng-select .ng-placeholder {
+    direction: rtl;
+    text-align: right;
+  }
+
+  // Prevent leftover LTR spacing on Arabic layout content area.
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  [data-layout="vertical"] .main-content,
+  [data-layout="twocolumn"] .main-content,
+  [data-layout="horizontal"] .main-content {
+    margin-left: 0 !important;
+  }
+
+  // Keep top header aligned in Arabic without leftover left gap.
+  #page-topbar {
+    left: 0 !important;
+  }
+
+  .navbar-header {
+    padding-left: calc(#{$grid-gutter-width} * 0.5) !important;
+    padding-right: $grid-gutter-width !important;
+  }
+
+  // Fix extra spacing around collapse arrows in RTL sidebar menus.
+  .navbar-menu .navbar-nav .nav-link[data-bs-toggle="collapse"]::after {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    left: 12px !important;
+    right: auto !important;
+  }
+
+  // Keep Arabic mobile sidebar fully controlled by the toggle class.
+  @media (max-width: 767.98px) {
+    &[data-layout="vertical"] body .app-menu {
+      left: auto !important;
+      right: 0 !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      transform: translateX(100%);
+      transition: transform .1s ease-out;
+    }
+
+    &[data-layout="vertical"] body.vertical-sidebar-enable .app-menu {
+      transform: translateX(0);
+    }
+  }
+
+  // Ensure content offset updates correctly in RTL when sidebar size changes.
+  @media (min-width: 768px) {
+    &[data-layout="vertical"] .main-content {
+      margin-right: var(--vz-vertical-menu-width) !important;
+    }
+
+    &[data-layout="vertical"] #page-topbar {
+      right: var(--vz-vertical-menu-width) !important;
+      left: 0 !important;
+    }
+
+    &[data-layout="vertical"] .footer {
+      right: var(--vz-vertical-menu-width) !important;
+      left: 0 !important;
+    }
+
+    &[data-layout="vertical"][data-sidebar-size="sm"] .main-content,
+    &[data-layout="vertical"][data-sidebar-size="sm-hover"] .main-content,
+    &[data-layout="vertical"][data-sidebar-size="sm-hover-active"] .main-content {
+      margin-right: var(--vz-vertical-menu-width-sm) !important;
+    }
+
+    &[data-layout="vertical"][data-sidebar-size="sm"] #page-topbar,
+    &[data-layout="vertical"][data-sidebar-size="sm-hover"] #page-topbar,
+    &[data-layout="vertical"][data-sidebar-size="sm-hover-active"] #page-topbar {
+      right: var(--vz-vertical-menu-width-sm) !important;
+      left: 0 !important;
+    }
+
+    &[data-layout="vertical"][data-sidebar-size="sm"] .footer,
+    &[data-layout="vertical"][data-sidebar-size="sm-hover"] .footer,
+    &[data-layout="vertical"][data-sidebar-size="sm-hover-active"] .footer {
+      right: var(--vz-vertical-menu-width-sm) !important;
+      left: 0 !important;
+    }
+
+    &[data-layout="vertical"][data-sidebar-size="md"] .main-content {
+      margin-right: var(--vz-vertical-menu-width-md) !important;
+    }
+
+    &[data-layout="vertical"][data-sidebar-size="md"] #page-topbar {
+      right: var(--vz-vertical-menu-width-md) !important;
+      left: 0 !important;
+    }
+
+    &[data-layout="vertical"][data-sidebar-size="md"] .footer {
+      right: var(--vz-vertical-menu-width-md) !important;
+      left: 0 !important;
+    }
+  }
+
+  // Fix collapsed (Small Icon View) submenu hover in RTL to match LTR behavior.
+  @media (min-width: 768px) {
+    &[data-layout="vertical"][data-sidebar-size="sm"] .navbar-menu .navbar-nav .nav-item:hover > .menu-dropdown {
+      display: block !important;
+      position: absolute;
+      right: var(--vz-vertical-menu-width-sm);
+      left: auto !important;
+      width: 200px;
+      height: auto !important;
+      z-index: 1005;
+    }
+
+    &[data-layout="vertical"][data-sidebar-size="sm"] .navbar-menu .navbar-nav .nav-sm .menu-dropdown {
+      right: 100% !important;
+      left: auto !important;
+      top: 0;
+    }
+  }
+
+  // Mirror collapse arrow direction for Arabic menus.
+  .navbar-menu .navbar-nav .nav-link[data-bs-toggle="collapse"]::after {
+    content: "\F0141" !important;
+  }
+
+  .navbar-menu .navbar-nav .nav-link[data-bs-toggle="collapse"][aria-expanded="true"]::after {
+    transform: rotate(-90deg) !important;
+  }
+
+  // Keep Theme Customizer offcanvas visible in RTL (avoid hidden off-screen state).
+  .offcanvas.theme-customizer-offcanvas.offcanvas-end {
+    left: 0 !important;
+    right: auto !important;
+  }
+
+  .offcanvas.theme-customizer-offcanvas.offcanvas-end.show,
+  .offcanvas.theme-customizer-offcanvas.offcanvas-end.showing {
+    transform: none !important;
+    visibility: visible !important;
+  }
+
+  // Fix header notifications dropdown alignment/content direction in Arabic.
+  .dropdown-menu[aria-labelledby="page-header-notifications-dropdown"] {
+    left: 0 !important;
+    right: auto !important;
+    direction: rtl;
+    text-align: right;
+  }
+
+  .dropdown-menu[aria-labelledby="page-header-notifications-dropdown"] .avatar-xs.me-3 {
+    margin-left: 1rem !important;
+    margin-right: 0 !important;
+  }
+
+  // Fix user section dropdown/header alignment in Arabic.
+  #page-header-user-dropdown .topbar-user-meta {
+    text-align: right !important;
+  }
+
+  .dropdown-menu.topbar-user-menu {
+    left: 0 !important;
+    right: auto !important;
+    direction: rtl;
+    text-align: right;
+  }
+
+  .dropdown-menu.topbar-user-menu .dropdown-item i {
+    margin-left: 0.35rem !important;
+    margin-right: 0 !important;
+  }
+}
+
+// Respect explicit field direction even if page direction is different.
+input[dir="ltr"]::placeholder,
+textarea[dir="ltr"]::placeholder {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+input[dir="rtl"]::placeholder,
+textarea[dir="rtl"]::placeholder {
+  direction: rtl !important;
+  text-align: right !important;
+}

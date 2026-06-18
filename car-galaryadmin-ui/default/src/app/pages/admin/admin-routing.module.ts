@@ -1,0 +1,284 @@
+import { NgModule } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
+import { RolesComponent } from './roles/roles.component';
+import { PermissionsComponent } from './permissions/permissions.component';
+import { BranchesComponent } from './branches/branches.component';
+import { BrandsComponent } from './brands/brands.component';
+import { ColorsComponent } from './colors/colors.component';
+import { GalleryImagesComponent } from './gallery-images/gallery-images.component';
+import { CompanyInfoComponent } from './company-info/company-info.component';
+import { ContactSalesComponent } from './contact-sales/contact-sales.component';
+import { ContactUsComponent } from './contact-us/contact-us.component';
+import { FaqComponent } from './faq/faq.component';
+import { PrivacyPolicyComponent } from './privacy-policy/privacy-policy.component';
+import { MemberServicesComponent } from './member-services/member-services.component';
+import { OffersComponent } from './offers/offers.component';
+import { ServicesComponent } from './services/services.component';
+import { ModelsComponent } from './models/models.component';
+import { CarExtraDetailsComponent } from './car-extra-details/car-extra-details.component';
+import { CarTypesComponent } from './car-types/car-types.component';
+import { CarsCreatePageComponent } from './cars-create-page/cars-create-page.component';
+import { CarsListPageComponent } from './cars-list-page/cars-list-page.component';
+import { CarsPrintReportPageComponent } from './cars-print-report-page/cars-print-report-page.component';
+import { EmployeeListPageComponent } from './employee-list-page/employee-list-page.component';
+import { RequestListPageComponent } from './request-list-page/request-list-page.component';
+import { RequestCreatePageComponent } from './request-create-page/request-create-page.component';
+import { RequestTrackPageComponent } from './request-track-page/request-track-page.component';
+import { RequestPrintReportPageComponent } from './request-print-report-page/request-print-report-page.component';
+import { InvoicePrintReportPageComponent } from './invoice-print-report-page/invoice-print-report-page.component';
+import { UsersComponent } from './users/users.component';
+import { DepartmentsComponent } from './departments/departments.component';
+import { MyProfilePageComponent } from './my-profile-page/my-profile-page.component';
+import { PackagesComponent } from './packages/packages.component';
+import { InvoiceCreatePageComponent } from './invoice-create-page/invoice-create-page.component';
+import { InvoiceListPageComponent } from './invoice-list-page/invoice-list-page.component';
+import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { PermissionGuard } from 'src/app/core/guards/permission.guard';
+
+
+
+const routes: Routes = [
+  {
+    path: "my-profile",
+    component: MyProfilePageComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: "employees",
+    component: EmployeeListPageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'employees.view' }
+  },
+  {
+    path: "users",
+    redirectTo: "employees",
+    pathMatch: "full"
+  },
+  {
+    path: "roles",
+    component: RolesComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'roles.view' }
+  },
+  {
+    path: "permissions",
+    component: PermissionsComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'permissions.view' }
+  },
+  {
+    path: "branches",
+    component: BranchesComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'branches.view' }
+  },
+  {
+    path: "departments",
+    component: DepartmentsComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'departments.view' }
+  },
+  {
+    path: "brands",
+    component: BrandsComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'brands.view' }
+  },
+  {
+    path: "colors",
+    component: ColorsComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'colors.view' }
+  },
+  {
+    path: "gallery-images",
+    component: GalleryImagesComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'galleryimages.view' }
+  },
+  {
+    path: "company-info",
+    component: CompanyInfoComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'companyinfo.view' }
+  },
+  {
+    path: "contact-sales",
+    component: ContactSalesComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'contactsales.view' }
+  },
+  {
+    path: "contact-us",
+    component: ContactUsComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'contactus.view' }
+  },
+  {
+    path: "faq",
+    component: FaqComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'faq.view' }
+  },
+  {
+    path: "privacy-policy",
+    component: PrivacyPolicyComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'privacypolicy.view' }
+  },
+  {
+    path: "packages",
+    component: PackagesComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'packages.view' }
+  },
+  {
+    path: "member-services",
+    component: MemberServicesComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'memberservices.view' }
+  },
+  {
+    path: "offers",
+    component: OffersComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'offers.view' }
+  },
+  {
+    path: "services",
+    component: ServicesComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'services.view' }
+  },
+  {
+    path: "models",
+    component: ModelsComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'models.view' }
+  },
+  {
+    path: "car-extra-details",
+    component: CarExtraDetailsComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'carextradetails.view' }
+  },
+  {
+    path: "car-types",
+    component: CarTypesComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'types.view' }
+  },
+  {
+    path: "cars",
+    redirectTo: "cars/list",
+    pathMatch: "full"
+  },
+  {
+    path: "cars/list",
+    component: CarsListPageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'cars.view' }
+  },
+  {
+    path: "cars/print-report/:id",
+    component: CarsPrintReportPageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'cars.view' }
+  },
+  {
+    path: "cars/create",
+    component: CarsCreatePageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'cars.create' }
+  },
+  {
+    path: "request",
+    redirectTo: "request/list",
+    pathMatch: "full"
+  },
+  {
+    path: "quotation",
+    redirectTo: "request/list",
+    pathMatch: "full"
+  },
+  {
+    path: "quotation/list",
+    redirectTo: "request/list",
+    pathMatch: "full"
+  },
+  {
+    path: "quotation/create",
+    redirectTo: "request/create",
+    pathMatch: "full"
+  },
+  {
+    path: "quotation/track",
+    redirectTo: "request/track",
+    pathMatch: "full"
+  },
+  {
+    path: "quotation/users",
+    redirectTo: "request/users",
+    pathMatch: "full"
+  },
+  {
+    path: "invoices",
+    redirectTo: "invoices/list",
+    pathMatch: "full"
+  },
+  {
+    path: "invoices/list",
+    component: InvoiceListPageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'requests.view' }
+  },
+  {
+    path: "invoices/create",
+    component: InvoiceCreatePageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'requests.create' }
+  },
+  {
+    path: "invoices/print-report/:id",
+    component: InvoicePrintReportPageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'requests.view' }
+  },
+  {
+    path: "request/list",
+    component: RequestListPageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'requests.view' }
+  },
+  {
+    path: "request/print-report/:id",
+    component: RequestPrintReportPageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'requests.view' }
+  },
+  {
+    path: "request/create",
+    component: RequestCreatePageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'requests.create' }
+  },
+  {
+    path: "request/track",
+    component: RequestTrackPageComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'requests.view' }
+  },
+  {
+    path: "request/users",
+    component: UsersComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'requests.view' }
+  }
+  
+];
+
+@NgModule({
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule]
+})
+export class AdminRoutingModule {}

@@ -1,0 +1,64 @@
+export interface AdminEmployee {
+  id: string;
+  employeeId: number;
+  userName: string;
+  fullNameEn?: string;
+  fullNameAr?: string;
+  email: string;
+  mobileNo?: string;
+  branchName?: string;
+  nameEn: string;
+  nameAr: string;
+  isLocked: boolean;
+  createdAt: string;
+  branchId: number;
+  profileImageUrl?: string;
+  employeeNo: string;
+  nationalId: string;
+  jobTitle: string;
+  departmentId: number;
+  departmentName: string;
+  hireDate: string;
+  terminationDate?: string;
+  employmentStatus: string;
+  workEmail?: string;
+  workPhone?: string;
+  extension?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  nationality?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  region?: string;
+  postalCode?: string;
+}
+
+export interface CreateAdminEmployeeRequest {
+  email: string;
+  userName: string;
+  password: string;
+  nameEn: string;
+  nameAr: string;
+  roles: string[];
+  branchId: number;
+  profileImage?: File;
+  employeeNo: string;
+  nationalId: string;
+  jobTitle: string;
+  departmentId: number;
+  hireDate?: string | Date;
+  terminationDate?: string | Date;
+  employmentStatus?: string;
+  workEmail?: string;
+  workPhone?: string;
+  extension?: string;
+  dateOfBirth?: string | Date;
+  gender?: string;
+  nationality?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  region?: string;
+  postalCode?: string;
+}

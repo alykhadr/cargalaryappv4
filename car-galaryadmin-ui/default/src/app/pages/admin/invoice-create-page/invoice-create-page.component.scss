@@ -1,0 +1,309 @@
+.invoice-page {
+  .card-title {
+    letter-spacing: 0;
+  }
+}
+
+.invoice-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: 0.75rem;
+  width: min(100%, 480px);
+}
+
+.hero-stat {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.875rem;
+  background: var(--bs-light-bg-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.hero-stat-label {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+}
+
+.invoice-line-item {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: var(--bs-body-bg);
+}
+
+.invoice-line-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.invoice-car-preview {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, rgba(var(--bs-primary-rgb), 0.05), rgba(var(--bs-secondary-bg-rgb), 0.45));
+}
+
+.invoice-car-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+
+.invoice-car-content {
+  min-width: 0;
+}
+
+.invoice-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.invoice-meta-item {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.625rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 72px;
+}
+
+.invoice-meta-item span {
+  color: var(--bs-secondary-color);
+  font-size: 0.75rem;
+}
+
+.invoice-empty-state {
+  border: 1px dashed var(--bs-border-color);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 140px;
+  background: var(--bs-light-bg-subtle);
+}
+
+.invoice-empty-state i {
+  font-size: 2rem;
+  color: var(--bs-primary);
+}
+
+.invoice-summary-card {
+  position: sticky;
+  top: 1.5rem;
+}
+
+.summary-block,
+.summary-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.summary-row span {
+  color: var(--bs-secondary-color);
+}
+
+.summary-divider {
+  height: 1px;
+  background: var(--bs-border-color);
+  margin: 1rem 0;
+}
+
+.summary-grand-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: rgba(var(--bs-success-rgb), 0.1);
+  color: var(--bs-success-text-emphasis);
+  font-size: 1rem;
+}
+
+.selected-cars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.selected-car-pill {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.625rem;
+  padding: 0.75rem;
+  min-height: 60px;
+  background: var(--bs-light-bg-subtle);
+}
+
+.section-label-table-header {
+  display: block;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.35rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.invoice-qr-card {
+  border: 1px dashed #d8e2f2;
+  border-radius: 0.65rem;
+  background: #f8fbff;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.invoice-qr-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.invoice-qr-header small {
+  display: block;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.1rem;
+}
+
+.invoice-qr-header strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.invoice-qr-image-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.55rem;
+  border: 1px solid #dbe4f0;
+  border-radius: 0.65rem;
+  background: #ffffff;
+}
+
+.invoice-qr-image {
+  width: 168px;
+  height: 168px;
+  object-fit: contain;
+}
+
+.invoice-qr-meta {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.invoice-qr-meta > div {
+  border-bottom: 1px dashed #e6edf5;
+  padding-bottom: 0.3rem;
+}
+
+.invoice-qr-meta span {
+  display: block;
+  color: #64748b;
+  font-size: 0.74rem;
+}
+
+.invoice-qr-meta strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.invoice-qr-empty {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.55rem;
+  padding: 1rem 0.6rem;
+  border: 1px dashed #d7deea;
+  border-radius: 0.65rem;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #475569;
+}
+
+.invoice-qr-empty-icon {
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #e8f1ff;
+  color: #2563eb;
+  font-size: 1.45rem;
+}
+
+.color-dot {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 999px;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 1199.98px) {
+  .invoice-summary-card {
+    position: static;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .invoice-hero-stats {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .invoice-car-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+@media (max-width: 575.98px) {
+  .invoice-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-line-item {
+    padding: 0.875rem;
+  }
+
+  .invoice-car-image {
+    height: 160px;
+  }
+}
