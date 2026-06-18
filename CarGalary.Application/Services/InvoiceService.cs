@@ -2,6 +2,7 @@ using AutoMapper;
 using CarGalary.Application.Dtos.Invoice.Command;
 using CarGalary.Application.Dtos.Invoice.Query;
 using CarGalary.Application.Interfaces;
+using CarGalary.Application.Utilities;
 using CarGalary.Domain.Entities;
 using CarGalary.Domain.UnitOfWork;
 
@@ -28,7 +29,13 @@ namespace CarGalary.Application.Services
                 ? await _unitOfWork.Invoices.GetAllByBranchAsync(userBranchId.Value)
                 : await _unitOfWork.Invoices.GetAllAsync();
 
-            return _mapper.Map<List<InvoiceResponseDto>>(items);
+            var dtos = _mapper.Map<List<InvoiceResponseDto>>(items);
+            foreach (var dto in dtos)
+            {
+                dto.ZatcaQrCode = items.FirstOrDefault(x => x.Id == dto.Id)?.ZatcaQrCode;
+            }
+
+            return dtos;
         }
 
         public async Task<InvoiceResponseDto> GetByIdAsync(int id)
@@ -43,13 +50,23 @@ namespace CarGalary.Application.Services
                 throw new KeyNotFoundException($"Invoice not found for id #{id}");
             }
 
-            return _mapper.Map<InvoiceResponseDto>(invoice);
+            var dto = _mapper.Map<InvoiceResponseDto>(invoice);
+            dto.ZatcaQrCode = invoice.ZatcaQrCode;
+
+            if (string.IsNullOrWhiteSpace(dto.ZatcaQrCode))
+            {
+                dto.ZatcaQrCode = await TryBuildZatcaQrCodeAsync(invoice);
+            }
+
+            return dto;
         }
 
         public async Task<InvoiceCreateResultDto> CreateWithStockAsync(CreateInvoiceRequestDto dto)
         {
             return await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
+                var auditUser = await GetAuditUserNameAsync();
+                var auditTimestamp = DateTime.UtcNow;
                 ValidateInvoiceDates(dto.IssueDate, dto.DueDate);
                 EnsureBranchAccess(dto.BranchId);
                 await EnsureBranchExistsAsync(dto.BranchId);
@@ -81,8 +98,12 @@ namespace CarGalary.Application.Services
                 entity.ShippingFee = totals.ShippingFee;
                 entity.ExtraDiscount = totals.ExtraDiscount;
                 entity.GrandTotal = totals.GrandTotal;
-                entity.CreatedAt = DateTime.UtcNow;
-                entity.Details = details.Select(MapToEntity).ToList();
+                entity.ZatcaQrCode = await TryBuildZatcaQrCodeAsync(entity);
+                entity.CreatedAt = auditTimestamp;
+                entity.CreatedBy = auditUser;
+                entity.UpdatedAt = auditTimestamp;
+                entity.UpdatedBy = auditUser;
+                entity.Details = details.Select(detail => MapToEntity(detail, auditUser, auditTimestamp, setUpdatedAudit: true)).ToList();
 
                 await _unitOfWork.Invoices.CreateAsync(entity);
 
@@ -113,6 +134,8 @@ namespace CarGalary.Application.Services
 
         public async Task<InvoiceResponseDto> UpdateAsync(int id, UpdateInvoiceRequestDto dto)
         {
+            var auditUser = await GetAuditUserNameAsync();
+            var auditTimestamp = DateTime.UtcNow;
             ValidateInvoiceDates(dto.IssueDate, dto.DueDate);
             EnsureBranchAccess(dto.BranchId);
             await EnsureBranchExistsAsync(dto.BranchId);
@@ -165,11 +188,13 @@ namespace CarGalary.Application.Services
             invoice.ShippingFee = totals.ShippingFee;
             invoice.ExtraDiscount = totals.ExtraDiscount;
             invoice.GrandTotal = totals.GrandTotal;
+            invoice.ZatcaQrCode = await TryBuildZatcaQrCodeAsync(invoice);
             invoice.IsAvailable = dto.IsAvailable ?? invoice.IsAvailable;
-            invoice.UpdatedAt = DateTime.UtcNow;
+            invoice.UpdatedAt = auditTimestamp;
+            invoice.UpdatedBy = auditUser;
 
             invoice.Details.Clear();
-            foreach (var detail in details.Select(MapToEntity))
+            foreach (var detail in details.Select(detail => MapToEntity(detail, auditUser, auditTimestamp, setUpdatedAudit: true)))
             {
                 invoice.Details.Add(detail);
             }
@@ -180,6 +205,8 @@ namespace CarGalary.Application.Services
 
         public async Task DeleteAsync(int id)
         {
+            var auditUser = await GetAuditUserNameAsync();
+            var auditTimestamp = DateTime.UtcNow;
             var userBranchId = GetCurrentUserBranchId();
             var invoice = userBranchId.HasValue
                 ? await _unitOfWork.Invoices.GetByIdForUpdateAsync(id, userBranchId.Value)
@@ -191,11 +218,13 @@ namespace CarGalary.Application.Services
             }
 
             invoice.IsAvailable = false;
-            invoice.UpdatedAt = DateTime.UtcNow;
+            invoice.UpdatedAt = auditTimestamp;
+            invoice.UpdatedBy = auditUser;
             foreach (var detail in invoice.Details)
             {
                 detail.IsAvailable = false;
-                detail.UpdatedAt = DateTime.UtcNow;
+                detail.UpdatedAt = auditTimestamp;
+                detail.UpdatedBy = auditUser;
             }
 
             await _unitOfWork.SaveChangesAsync();
@@ -316,7 +345,11 @@ namespace CarGalary.Application.Services
             return alerts;
         }
 
-        private static InvoiceDetail MapToEntity(InvoiceItemCalculationResult item)
+        private static InvoiceDetail MapToEntity(
+            InvoiceItemCalculationResult item,
+            string? auditUser,
+            DateTime auditTimestamp,
+            bool setUpdatedAudit)
         {
             return new InvoiceDetail
             {
@@ -328,8 +361,42 @@ namespace CarGalary.Application.Services
                 VatAmount = item.VatAmount,
                 TotalAmount = item.TotalAmount,
                 Notes = item.Notes,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = auditTimestamp,
+                CreatedBy = auditUser,
+                UpdatedAt = setUpdatedAudit ? auditTimestamp : null,
+                UpdatedBy = setUpdatedAudit ? auditUser : null
             };
+        }
+
+        private async Task<string?> TryBuildZatcaQrCodeAsync(Invoice invoice)
+        {
+            var companyInfo = (await _unitOfWork.CompanyInformations.GetAllAsync())
+                .FirstOrDefault(x => x.IsAvailable);
+
+            if (companyInfo == null)
+            {
+                return null;
+            }
+
+            var sellerName = FirstNonEmpty(companyInfo.CompanyNameAr, companyInfo.CompanyNameEn);
+            var vatRegistrationNumber = companyInfo.VatRegistrationNumber?.Trim();
+
+            if (string.IsNullOrWhiteSpace(sellerName) || string.IsNullOrWhiteSpace(vatRegistrationNumber))
+            {
+                return null;
+            }
+
+            return ZatcaQrCodeBuilder.BuildPhaseOnePayload(
+                sellerName,
+                vatRegistrationNumber,
+                invoice.IssueDate,
+                invoice.GrandTotal,
+                invoice.VatTotal);
+        }
+
+        private static string? FirstNonEmpty(params string?[] values)
+        {
+            return values.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))?.Trim();
         }
 
         private static InvoiceTotals CalculateTotals(
@@ -362,6 +429,22 @@ namespace CarGalary.Application.Services
         private int? GetCurrentUserBranchId()
         {
             return _currentUserService.BranchId;
+        }
+
+        private async Task<string?> GetAuditUserNameAsync()
+        {
+            var currentUserId = _currentUserService.UserId;
+            if (!string.IsNullOrWhiteSpace(currentUserId))
+            {
+                var user = await _unitOfWork.identities.GetUserByIdAsync(currentUserId);
+                var fullName = FirstNonEmpty(user?.FullNameAr, user?.FullNameEn);
+                if (!string.IsNullOrWhiteSpace(fullName))
+                {
+                    return fullName;
+                }
+            }
+
+            return FirstNonEmpty(_currentUserService.UserName, _currentUserService.Email, _currentUserService.UserId);
         }
 
         private void EnsureBranchAccess(int branchId)

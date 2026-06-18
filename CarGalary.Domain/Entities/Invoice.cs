@@ -20,12 +20,14 @@ namespace CarGalary.Domain.Entities
         public string? CustomerEmail { get; set; }
         public string? CustomerAddress { get; set; }
         public string? Notes { get; set; }
+        public string? CreatedBy { get; set; }
 
         public decimal Subtotal { get; set; }
         public decimal VatTotal { get; set; }
         public decimal ShippingFee { get; set; }
         public decimal ExtraDiscount { get; set; }
         public decimal GrandTotal { get; set; }
+        public string? ZatcaQrCode { get; set; }
 
         public ICollection<InvoiceDetail> Details { get; set; } = new List<InvoiceDetail>();
     }

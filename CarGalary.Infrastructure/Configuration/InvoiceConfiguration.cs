@@ -32,11 +32,19 @@ namespace CarGalary.Infrastructure.Configuration
             builder.Property(x => x.Notes)
                 .HasMaxLength(1000);
 
+            builder.Property(x => x.CreatedBy)
+                .HasMaxLength(256);
+
+            builder.Property(x => x.UpdatedBy)
+                .HasMaxLength(256);
+
             builder.Property(x => x.Subtotal).HasPrecision(18, 2);
             builder.Property(x => x.VatTotal).HasPrecision(18, 2);
             builder.Property(x => x.ShippingFee).HasPrecision(18, 2);
             builder.Property(x => x.ExtraDiscount).HasPrecision(18, 2);
             builder.Property(x => x.GrandTotal).HasPrecision(18, 2);
+            builder.Property(x => x.ZatcaQrCode)
+                .HasMaxLength(2048);
 
             builder.Property(x => x.IsAvailable)
                 .HasDefaultValue(true)

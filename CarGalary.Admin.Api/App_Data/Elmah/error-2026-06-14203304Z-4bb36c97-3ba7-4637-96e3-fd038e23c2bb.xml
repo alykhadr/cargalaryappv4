@@ -1,0 +1,179 @@
+﻿<error errorId="4bb36c97-3ba7-4637-96e3-fd038e23c2bb" application="CarGalary.Admin.Api" host="Mac" type="HTTP" message="NotFound" detail="# caller: @C:\Sources\ElmahCore\ElmahCore\ElmahCore\Internal$\CallerInfo.cs:9&#xA;ElmahCore.HttpException: NotFound" time="2026-06-14T20:33:04.3092440Z" statusCode="404">
+  <serverVariables>
+    <item name="RequestTimedOut">
+      <value string="False" />
+    </item>
+    <item name="MinResponseDataRate">
+      <value string="Bytes per second: 240, Grace Period: 00:00:05" />
+    </item>
+    <item name="ConnectionIdFeature">
+      <value string="0HNMAA5H3SQSF" />
+    </item>
+    <item name="HasStartedConsumingRequestBody">
+      <value string="False" />
+    </item>
+    <item name="MaxRequestBodySize">
+      <value string="30000000" />
+    </item>
+    <item name="MinRequestBodyDataRate">
+      <value string="Bytes per second: 240, Grace Period: 00:00:05" />
+    </item>
+    <item name="AllowSynchronousIO">
+      <value string="False" />
+    </item>
+    <item name="TraceIdentifier">
+      <value string="0HNMAA5H3SQSF:00000001" />
+    </item>
+    <item name="IsUpgradableRequest">
+      <value string="False" />
+    </item>
+    <item name="IsUpgraded">
+      <value string="False" />
+    </item>
+    <item name="IsExtendedConnectRequest">
+      <value string="False" />
+    </item>
+    <item name="IsExtendedConnectAccepted">
+      <value string="False" />
+    </item>
+    <item name="RemoteIpAddress">
+      <value string="::1" />
+    </item>
+    <item name="RemotePort">
+      <value string="49754" />
+    </item>
+    <item name="LocalIpAddress">
+      <value string="::1" />
+    </item>
+    <item name="LocalPort">
+      <value string="5087" />
+    </item>
+    <item name="Scheme">
+      <value string="http" />
+    </item>
+    <item name="Method">
+      <value string="Get" />
+    </item>
+    <item name="MethodText">
+      <value string="GET" />
+    </item>
+    <item name="Path">
+      <value string="/api/Invoices/zatca-qr-preview.png" />
+    </item>
+    <item name="QueryString">
+      <value string="?sellerName=%D8%A7%D9%88%D8%AA%D9%88+%D8%AC%D8%A7%D8%AA+%D9%84%D9%84%D8%B3%D9%8A%D8%A7%D8%B1%D8%A7%D8%AA&amp;vatRegistrationNumber=765412343232333&amp;issueDate=2026-06-14T23%3A32&amp;invoiceTotalWithVat=1250000.00&amp;vatTotal=150000.00" />
+    </item>
+    <item name="RawTarget">
+      <value string="/api/Invoices/zatca-qr-preview.png?sellerName=%D8%A7%D9%88%D8%AA%D9%88+%D8%AC%D8%A7%D8%AA+%D9%84%D9%84%D8%B3%D9%8A%D8%A7%D8%B1%D8%A7%D8%AA&amp;vatRegistrationNumber=765412343232333&amp;issueDate=2026-06-14T23%3A32&amp;invoiceTotalWithVat=1250000.00&amp;vatTotal=150000.00" />
+    </item>
+    <item name="HttpVersion">
+      <value string="HTTP/1.1" />
+    </item>
+    <item name="Header_Accept">
+      <value string="image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8" />
+    </item>
+    <item name="Header_Connection">
+      <value string="keep-alive" />
+    </item>
+    <item name="Header_Host">
+      <value string="localhost:5087" />
+    </item>
+    <item name="Header_User-Agent">
+      <value string="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" />
+    </item>
+    <item name="Header_Accept-Encoding">
+      <value string="gzip, deflate, br, zstd" />
+    </item>
+    <item name="Header_Accept-Language">
+      <value string="ar,en-US;q=0.9,en;q=0.8,ru;q=0.7" />
+    </item>
+    <item name="Header_Cookie">
+      <value string="lang=ar" />
+    </item>
+    <item name="Header_Referer">
+      <value string="http://localhost:4200/" />
+    </item>
+    <item name="Header_sec-ch-ua-platform">
+      <value string="&quot;macOS&quot;" />
+    </item>
+    <item name="Header_sec-ch-ua">
+      <value string="&quot;Google Chrome&quot;;v=&quot;147&quot;, &quot;Not.A/Brand&quot;;v=&quot;8&quot;, &quot;Chromium&quot;;v=&quot;147&quot;" />
+    </item>
+    <item name="Header_sec-ch-ua-mobile">
+      <value string="?0" />
+    </item>
+    <item name="Header_Sec-Fetch-Site">
+      <value string="same-site" />
+    </item>
+    <item name="Header_Sec-Fetch-Mode">
+      <value string="no-cors" />
+    </item>
+    <item name="Header_Sec-Fetch-Dest">
+      <value string="image" />
+    </item>
+    <item name="RequestTrailersAvailable">
+      <value string="True" />
+    </item>
+    <item name="StatusCode">
+      <value string="404" />
+    </item>
+    <item name="HasResponseStarted">
+      <value string="False" />
+    </item>
+    <item name="HasFlushedHeaders">
+      <value string="False" />
+    </item>
+    <item name="HasResponseCompleted">
+      <value string="False" />
+    </item>
+    <item name="UnflushedBytes">
+      <value string="0" />
+    </item>
+    <item name="IsWebTransportRequest">
+      <value string="False" />
+    </item>
+    <item name="Items_Items___RequestUnhandled">
+      <value string="True" />
+    </item>
+    <item name="Connection_Id">
+      <value string="0HNMAA5H3SQSF" />
+    </item>
+    <item name="Connection_RemoteIpAddress">
+      <value string="::1" />
+    </item>
+    <item name="Connection_RemotePort">
+      <value string="49754" />
+    </item>
+    <item name="Connection_LocalIpAddress">
+      <value string="::1" />
+    </item>
+    <item name="Connection_LocalPort">
+      <value string="5087" />
+    </item>
+    <item name="HttpStatusCode">
+      <value string="404" />
+    </item>
+  </serverVariables>
+  <queryString>
+    <item name="sellerName">
+      <value string="اوتو جات للسيارات" />
+    </item>
+    <item name="vatRegistrationNumber">
+      <value string="765412343232333" />
+    </item>
+    <item name="issueDate">
+      <value string="2026-06-14T23:32" />
+    </item>
+    <item name="invoiceTotalWithVat">
+      <value string="1250000.00" />
+    </item>
+    <item name="vatTotal">
+      <value string="150000.00" />
+    </item>
+  </queryString>
+  <cookies>
+    <item name="lang">
+      <value string="ar" />
+    </item>
+  </cookies>
+</error>

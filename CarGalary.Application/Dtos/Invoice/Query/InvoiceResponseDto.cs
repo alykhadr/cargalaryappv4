@@ -27,7 +27,11 @@ namespace CarGalary.Application.Dtos.Invoice.Query
         public decimal ShippingFee { get; set; }
         public decimal ExtraDiscount { get; set; }
         public decimal GrandTotal { get; set; }
+        public string? ZatcaQrCode { get; set; }
+        public string? CreatedBy { get; set; }
+        public string? UpdatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
         public bool IsAvailable { get; set; }
         public List<InvoiceDetailResponseDto> Details { get; set; } = new();
     }
@@ -57,5 +61,9 @@ namespace CarGalary.Application.Dtos.Invoice.Query
         public decimal VatAmount { get; set; }
         public decimal TotalAmount { get; set; }
         public string? Notes { get; set; }
+        public string? CreatedBy { get; set; }
+        public string? UpdatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

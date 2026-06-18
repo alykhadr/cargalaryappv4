@@ -20,6 +20,12 @@ namespace CarGalary.Infrastructure.Configuration
             builder.Property(x => x.Notes)
                 .HasMaxLength(300);
 
+            builder.Property(x => x.CreatedBy)
+                .HasMaxLength(256);
+
+            builder.Property(x => x.UpdatedBy)
+                .HasMaxLength(256);
+
             builder.Property(x => x.IsAvailable)
                 .HasDefaultValue(true)
                 .IsRequired();

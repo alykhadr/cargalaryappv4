@@ -1,11 +1,13 @@
 using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Dtos.Invoice.Command;
 using CarGalary.Application.Interfaces;
+using CarGalary.Application.Utilities;
 using CarGalary.Admin.Api.Hubs;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using QRCoder;
 
 namespace CarGalary.Admin.Api.Controllers
 {
@@ -50,6 +52,78 @@ namespace CarGalary.Admin.Api.Controllers
             catch (KeyNotFoundException)
             {
                 return NotFound(new ApiErrorResponse(InvoiceNotFoundCode, StatusCodes.Status404NotFound));
+            }
+        }
+
+        [HttpGet("{id:int}/zatca-qr.png")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetZatcaQrPng([FromRoute] int id)
+        {
+            try
+            {
+                var invoice = await _invoiceService.GetByIdAsync(id);
+                if (string.IsNullOrWhiteSpace(invoice.ZatcaQrCode))
+                {
+                    return NotFound(new ApiErrorResponse(InvoiceOperationFailedCode, StatusCodes.Status404NotFound, new List<string>
+                    {
+                        "ZATCA QR code is not available for this invoice."
+                    }));
+                }
+
+                using var qrGenerator = new QRCodeGenerator();
+                using var qrData = qrGenerator.CreateQrCode(invoice.ZatcaQrCode, QRCodeGenerator.ECCLevel.Q);
+                var qrCode = new PngByteQRCode(qrData);
+                var pngBytes = qrCode.GetGraphic(20);
+
+                Response.Headers.CacheControl = "public,max-age=86400";
+                return File(pngBytes, "image/png");
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new ApiErrorResponse(InvoiceNotFoundCode, StatusCodes.Status404NotFound));
+            }
+        }
+
+        [HttpGet("zatca-qr-preview.png")]
+        [AllowAnonymous]
+        public IActionResult GetZatcaQrPreviewPng(
+            [FromQuery] string sellerName,
+            [FromQuery] string vatRegistrationNumber,
+            [FromQuery] DateTime issueDate,
+            [FromQuery] decimal invoiceTotalWithVat,
+            [FromQuery] decimal vatTotal)
+        {
+            if (string.IsNullOrWhiteSpace(sellerName) || string.IsNullOrWhiteSpace(vatRegistrationNumber))
+            {
+                return BadRequest(new ApiErrorResponse(
+                    InvoiceOperationFailedCode,
+                    StatusCodes.Status400BadRequest,
+                    new List<string> { "Seller name and VAT registration number are required for QR preview." }));
+            }
+
+            try
+            {
+                var payload = ZatcaQrCodeBuilder.BuildPhaseOnePayload(
+                    sellerName.Trim(),
+                    vatRegistrationNumber.Trim(),
+                    issueDate,
+                    invoiceTotalWithVat,
+                    vatTotal);
+
+                using var qrGenerator = new QRCodeGenerator();
+                using var qrData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
+                var qrCode = new PngByteQRCode(qrData);
+                var pngBytes = qrCode.GetGraphic(20);
+
+                Response.Headers.CacheControl = "no-store";
+                return File(pngBytes, "image/png");
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return BadRequest(new ApiErrorResponse(
+                    InvoiceOperationFailedCode,
+                    StatusCodes.Status400BadRequest,
+                    new List<string> { ex.Message }));
             }
         }
 
@@ -118,7 +192,10 @@ namespace CarGalary.Admin.Api.Controllers
             }
             catch (Exception ex) when (ex is ArgumentException || ex is UnauthorizedAccessException)
             {
-                return BadRequest(new ApiErrorResponse(InvoiceOperationFailedCode, StatusCodes.Status400BadRequest));
+                return BadRequest(new ApiErrorResponse(
+                    InvoiceOperationFailedCode,
+                    StatusCodes.Status400BadRequest,
+                    new List<string> { ex.Message }));
             }
         }
 

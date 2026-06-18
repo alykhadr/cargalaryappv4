@@ -10,6 +10,7 @@ namespace CarGalary.Domain.RepositoryInterfaces
         Task<bool> CheckPasswordAsync(string userName, string password);
         Task<List<ApplicationUser>> GetUsersAsync();
         Task<List<ApplicationUser>> GetUsersByBranchAsync(int branchId);
+        Task<ApplicationUser?> GetUserByIdAsync(string userId);
         Task UpdateUserDetailsAsync(string userId, string userName, string email, string? nameEn, string? nameAr, int branchId, string? profileImageUrl);
         Task ChangeUserPasswordByAdminAsync(string userId, string newPassword);
         Task<IList<string>> GetUserRolesAsync(string userId);

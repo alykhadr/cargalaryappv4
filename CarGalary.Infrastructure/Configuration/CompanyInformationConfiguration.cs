@@ -19,6 +19,9 @@ namespace CarGalary.Infrastructure.Configuration
             builder.Property(c => c.CRNumber)
                    .HasMaxLength(50);
 
+            builder.Property(c => c.VatRegistrationNumber)
+                   .HasMaxLength(50);
+
             builder.Property(c => c.LogoUrl);
 
             builder.Property(c => c.MobileNo);
