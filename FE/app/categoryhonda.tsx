@@ -39,7 +39,7 @@ const CategoryHonda = () => {
                             <FlatList data={cars} keyExtractor={i => i.id} numColumns={2}
                                 columnWrapperStyle={{ gap: 16 }} showsVerticalScrollIndicator={false} scrollEnabled={false}
                                 renderItem={({ item }) => (
-                                    <ProductCard name={item.name} image={resolveCarImage(item.imageKey)}
+                                    <ProductCard carId={item.id} name={item.name} image={resolveCarImage(item.imageKey)}
                                         numSolds={item.numSolds} price={item.price} rating={item.rating}
                                         onPress={() => navigation.navigate("cardetails", { carId: item.id })} />
                                 )} />

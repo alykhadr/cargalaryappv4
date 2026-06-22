@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Text from '@/components/LocalizedText';
 import { View, StyleSheet, Pressable, Image, ImageSourcePropType, GestureResponderEvent, Alert } from 'react-native';
 import { COLORS, SIZES } from '../constants';
 import { useTheme } from '../theme/ThemeProvider';
 import { FontAwesome } from "@expo/vector-icons";
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
     useSharedValue,
@@ -16,6 +15,7 @@ import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigation } from 'expo-router';
 import { NavigationProp } from '@react-navigation/native';
+import { api } from '@/services/api';
 
 interface ProductCardProps {
     name: string;
@@ -24,12 +24,14 @@ interface ProductCardProps {
     price: number | string;
     rating: number;
     onPress: (event: GestureResponderEvent) => void;
+    carId?: string;
 }
 
 const CARD_W = (SIZES.width - 32) / 2 - 12;
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, image, numSolds, price, rating, onPress }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ name, image, numSolds, price, rating, onPress, carId }) => {
     const [isFavourite, setIsFavourite] = useState(false);
+    const [isSavingFavorite, setIsSavingFavorite] = useState(false);
     const { dark } = useTheme();
     const { user, isGuest } = useAuth();
     const navigation = useNavigation<NavigationProp<any>>();
@@ -53,7 +55,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, numSolds, price,
         scale.value = withSpring(1, { damping: 15, stiffness: 200 });
     };
 
-    const handleHeartPress = () => {
+    useEffect(() => {
+        if (!carId || !user || isGuest) {
+            setIsFavourite(false);
+            return;
+        }
+
+        api.getWishlistStatus(carId)
+            .then(res => setIsFavourite(res.isWishlisted))
+            .catch(() => {});
+    }, [carId, user, isGuest]);
+
+    const handleHeartPress = async () => {
         if (isGuest || !user) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
             Alert.alert(
@@ -66,7 +79,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, numSolds, price,
             );
             return;
         }
-        setIsFavourite(prev => !prev);
+
+        if (!carId) {
+            setIsFavourite(prev => !prev);
+            return;
+        }
+
+        if (isSavingFavorite) {
+            return;
+        }
+
+        setIsSavingFavorite(true);
+        try {
+            if (isFavourite) {
+                await api.removeFromWishlist(carId);
+            } else {
+                await api.addToWishlist(carId);
+            }
+
+            setIsFavourite(prev => !prev);
+        } catch (e: any) {
+            Alert.alert('Error', e.message || 'Unable to update wishlist');
+        } finally {
+            setIsSavingFavorite(false);
+        }
+
         heartScale.value = withSequence(
             withSpring(1.45, { damping: 6, stiffness: 400 }),
             withSpring(1, { damping: 12, stiffness: 200 })
@@ -93,20 +130,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, numSolds, price,
                         locations={[0, 0.42, 0.76, 1]}
                         style={StyleSheet.absoluteFillObject}
                     />
-                    {/* Heart button */}
-                    <View style={styles.heartWrapper}>
-                        <BlurView intensity={70} tint="dark" style={styles.blurHeart}>
-                            <Pressable onPress={handleHeartPress} style={styles.heartTouch} hitSlop={8}>
-                                <Animated.View style={heartAnimStyle}>
-                                    <FontAwesome
-                                        name={isFavourite ? 'heart' : 'heart-o'}
-                                        size={13}
-                                        color={isFavourite ? '#FF4B4B' : 'rgba(255,255,255,0.9)'}
-                                    />
-                                </Animated.View>
-                            </Pressable>
-                        </BlurView>
-                    </View>
                     {/* Bottom floating content */}
                     <View style={styles.bottomContent}>
                         <Text numberOfLines={1} style={styles.name}>{name}</Text>
@@ -122,6 +145,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, numSolds, price,
                     </View>
                 </View>
             </Pressable>
+            {/* Keep the heart outside the card Pressable so Android does not swallow the tap. */}
+            <Pressable
+                onPress={(event) => {
+                    event.stopPropagation();
+                    handleHeartPress();
+                }}
+                style={styles.heartWrapper}
+                hitSlop={8}
+            >
+                <Animated.View style={heartAnimStyle}>
+                    <FontAwesome
+                        name={isFavourite ? 'heart' : 'heart-o'}
+                        size={16}
+                        color={isFavourite ? '#FF4B4B' : 'rgba(255,255,255,0.95)'}
+                    />
+                </Animated.View>
+            </Pressable>
         </Animated.View>
     );
 };
@@ -129,6 +169,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, numSolds, price,
 const styles = StyleSheet.create({
     outerContainer: {
         width: CARD_W,
+        height: 210,
+        position: 'relative',
         borderRadius: 20,
         marginBottom: 16,
         shadowColor: '#000',
@@ -161,17 +203,10 @@ const styles = StyleSheet.create({
         borderRadius: 17,
         overflow: 'hidden',
         zIndex: 10,
-    },
-    blurHeart: {
-        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    heartTouch: {
-        width: 34,
-        height: 34,
-        alignItems: 'center',
-        justifyContent: 'center',
+        elevation: 12,
+        backgroundColor: 'rgba(0,0,0,0.34)',
     },
     bottomContent: {
         position: 'absolute',

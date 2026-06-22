@@ -1,11 +1,9 @@
-import { View, StyleSheet, Image, TouchableOpacity, FlatList, ListRenderItemInfo } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, FlatList, ListRenderItemInfo, ScrollView } from 'react-native';
 import AppAvatar from '@/components/AppAvatar';
 import React, { useEffect, useRef, useState } from 'react';
 import Text from '@/components/LocalizedText';
-import TextInput from '@/components/LocalizedTextInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView } from 'react-native-virtualized-view';
-import { COLORS, icons, images, SIZES } from '@/constants';
+import { COLORS, icons, SIZES } from '@/constants';
 import { useTheme } from '@/theme/ThemeProvider';
 import { banners, categories } from '@/data';
 import SubHeaderItem from '@/components/SubHeaderItem';
@@ -18,6 +16,7 @@ import { api } from '@/services/api';
 import { Car } from '@/types';
 import { resolveCarImage } from '@/utils/imageResolver';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'expo-router';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -41,6 +40,7 @@ const FEATURED_CARD_H = 126;
 
 const Home = () => {
   const navigation = useNavigation<NavigationProp<any>>();
+  const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedCategories, setSelectedCategories] = useState(["0"]);
   const { dark, colors } = useTheme();
@@ -49,6 +49,9 @@ const Home = () => {
   const [carsLoading, setCarsLoading] = useState(true);
   const bannerRef = useRef<FlatList>(null);
   const autoScrollIdx = useRef(0);
+  const [bannerReady, setBannerReady] = useState(false);
+  const [bannerContentReady, setBannerContentReady] = useState(false);
+  const bannerWidth = SIZES.width - 32;
 
   const headerOpacity = useSharedValue(0);
   const headerY = useSharedValue(-16);
@@ -81,14 +84,23 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    if (!bannerReady || !bannerContentReady) {
+      return;
+    }
+
     const timer = setInterval(() => {
       const next = (autoScrollIdx.current + 1) % (banners as any[]).length;
       autoScrollIdx.current = next;
       setCurrentIndex(next);
-      bannerRef.current?.scrollToIndex({ index: next, animated: true });
+      requestAnimationFrame(() => {
+        bannerRef.current?.scrollToOffset({
+          offset: bannerWidth * next,
+          animated: true,
+        });
+      });
     }, 3500);
     return () => clearInterval(timer);
-  }, []);
+  }, [bannerReady, bannerContentReady, bannerWidth]);
 
   const handleWishlistPress = () => {
     if (isGuest || !user) navigation.navigate('login');
@@ -150,7 +162,7 @@ const Home = () => {
   /* ── Search bar ── */
   const renderSearchBar = () => (
     <TouchableOpacity
-      onPress={() => navigation.navigate('search')}
+      onPress={() => router.push('/search')}
       style={[styles.searchBarContainer, {
         backgroundColor: dark ? COLORS.dark2 : '#F7F7F7',
         borderColor: dark ? COLORS.dark3 : 'rgba(0,0,0,0.06)',
@@ -158,12 +170,7 @@ const Home = () => {
       }]}
     >
       <Image source={icons.search} resizeMode="contain" style={styles.searchIcon} />
-      <TextInput
-        placeholder="Search by brand, model..."
-        placeholderTextColor={COLORS.gray}
-        style={styles.searchInput}
-        onFocus={() => navigation.navigate('search')}
-      />
+      <Text numberOfLines={1} style={styles.searchInput}>Search by brand, model...</Text>
       <View style={styles.filterBadge}>
         <Image source={icons.filter} resizeMode="contain" style={styles.filterIcon} />
       </View>
@@ -226,11 +233,18 @@ const Home = () => {
         scrollEventThrottle={16}
         onMomentumScrollEnd={(event) => {
           const newIndex = Math.round(
-            event.nativeEvent.contentOffset.x / (SIZES.width - 32)
+            event.nativeEvent.contentOffset.x / bannerWidth
           );
           autoScrollIdx.current = newIndex;
           setCurrentIndex(newIndex);
         }}
+        getItemLayout={(_, index) => ({
+          length: bannerWidth,
+          offset: bannerWidth * index,
+          index,
+        })}
+        onLayout={() => setBannerReady(true)}
+        onContentSizeChange={() => setBannerContentReady(true)}
       />
       <View style={styles.dotContainer}>
         {(banners as any[]).map((_, i) => renderDot(i))}
@@ -289,20 +303,18 @@ const Home = () => {
         navTitle="See all"
         onPress={() => navigation.navigate('categories')}
       />
-      <FlatList
-        data={categories.slice(1, 9)}
-        keyExtractor={(_, index) => index.toString()}
-        numColumns={4}
-        renderItem={({ item }) => (
+      <View style={styles.categoryGrid}>
+        {categories.slice(1, 9).map((item, index) => (
           <Category
+            key={`${item.id}-${index}`}
             name={item.name}
             icon={item.icon}
             iconColor={item.iconColor}
             backgroundColor={item.backgroundColor}
             onPress={item.onPress ? () => navigation.navigate(item.onPress) : undefined}
           />
-        )}
-      />
+        ))}
+      </View>
     </View>
   );
 
@@ -357,23 +369,15 @@ const Home = () => {
         />
         <View style={{ marginTop: 12 }}>
           {carsLoading ? (
-            <FlatList
-              data={[1, 2, 3, 4, 5, 6]}
-              keyExtractor={item => item.toString()}
-              numColumns={2}
-              columnWrapperStyle={styles.cardRow}
-              scrollEnabled={false}
-              renderItem={() => <SkeletonCard />}
-            />
+            <View style={styles.productGrid}>
+              {[1, 2, 3, 4, 5, 6].map(item => <SkeletonCard key={item} />)}
+            </View>
           ) : (
-            <FlatList
-              data={filteredCars}
-              keyExtractor={item => item.id}
-              numColumns={2}
-              columnWrapperStyle={styles.cardRow}
-              scrollEnabled={false}
-              renderItem={({ item }) => (
+            <View style={styles.productGrid}>
+              {filteredCars.map(item => (
                 <ProductCard
+                  key={item.id}
+                  carId={item.id}
                   name={item.name}
                   image={resolveCarImage(item.imageKey)}
                   numSolds={item.numSolds}
@@ -381,8 +385,8 @@ const Home = () => {
                   price={item.price}
                   onPress={() => navigation.navigate('cardetails', { carId: item.id })}
                 />
-              )}
-            />
+              ))}
+            </View>
           )}
         </View>
       </View>
@@ -394,7 +398,7 @@ const Home = () => {
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {renderHeader()}
         <Animated.View style={[{ flex: 1 }, contentStyle]}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             {renderSearchBar()}
             {renderBanner()}
             {renderFeatured()}
@@ -463,7 +467,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   searchIcon: { height: 20, width: 20, tintColor: COLORS.gray },
-  searchInput: { flex: 1, fontSize: 15, fontFamily: 'regular', marginHorizontal: 10 },
+  searchInput: { flex: 1, fontSize: 15, fontFamily: 'regular', marginHorizontal: 10, color: COLORS.gray },
   filterBadge: {
     width: 34,
     height: 34,
@@ -565,6 +569,11 @@ const styles = StyleSheet.create({
   },
   featuredPrice: { fontSize: 12, fontFamily: 'bold', color: COLORS.primary },
 
+  categoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+
   /* Chips */
   chip: {
     paddingHorizontal: 14,
@@ -577,7 +586,11 @@ const styles = StyleSheet.create({
   chipText: { fontSize: 13, fontFamily: 'semiBold' },
 
   /* Card grid */
-  cardRow: { gap: 16 },
+  productGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: 16,
+  },
 });
 
 export default Home;

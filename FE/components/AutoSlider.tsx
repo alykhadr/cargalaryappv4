@@ -9,21 +9,40 @@ interface AutoSliderProps {
 
 const AutoSlider: React.FC<AutoSliderProps> = ({ images }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [isReadyToScroll, setIsReadyToScroll] = useState(false);
     const scrollViewRef = useRef<ScrollView>(null);
     const { dark } = useTheme();
 
     useEffect(() => {
+        setCurrentIndex(0);
+        setIsReadyToScroll(false);
+    }, [images.length]);
+
+    useEffect(() => {
+        if (images.length < 2 || !isReadyToScroll) {
+            return;
+        }
+
         const interval = setInterval(() => {
-            setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-            scrollViewRef.current?.scrollTo({
-                animated: true,
-                x: Dimensions.get('window').width * ((currentIndex + 1) % images.length),
-                y: 0,
+            const nextIndex = (currentIndex + 1) % images.length;
+            setCurrentIndex(nextIndex);
+            requestAnimationFrame(() => {
+                scrollViewRef.current?.scrollTo({
+                    animated: true,
+                    x: Dimensions.get('window').width * nextIndex,
+                    y: 0,
+                });
             });
         }, 3000); // Change slide every 3 seconds
 
         return () => clearInterval(interval);
-    }, [currentIndex, images.length]);
+    }, [currentIndex, images.length, isReadyToScroll]);
+
+    if (images.length === 0) {
+        return (
+            <View style={[styles.container, styles.emptyContainer, { backgroundColor: dark ? COLORS.dark3 : COLORS.silver }]} />
+        );
+    }
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -33,11 +52,13 @@ const AutoSlider: React.FC<AutoSliderProps> = ({ images }) => {
 
     const handlePaginationPress = (index: number) => {
         setCurrentIndex(index);
-        scrollViewRef.current?.scrollTo({
-            animated: true,
-            x: Dimensions.get('window').width * index,
-            y: 0,
-        });
+        if (isReadyToScroll) {
+            scrollViewRef.current?.scrollTo({
+                animated: true,
+                x: Dimensions.get('window').width * index,
+                y: 0,
+            });
+        }
     };
 
     return (
@@ -48,11 +69,12 @@ const AutoSlider: React.FC<AutoSliderProps> = ({ images }) => {
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
                 onScroll={handleScroll}
+                onContentSizeChange={() => setIsReadyToScroll(true)}
                 scrollEventThrottle={16}
             >
                 {images.map((image, index) => (
                     <Image
-                        key={index}
+                        key={`${image.uri}-${index}`}
                         style={styles.image}
                         source={image}
                         resizeMode="cover"
@@ -80,6 +102,10 @@ const styles = StyleSheet.create({
         width: SIZES.width,
         height: SIZES.width * 0.9,
         backgroundColor: COLORS.silver,
+    },
+    emptyContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     image: {
         width: SIZES.width,

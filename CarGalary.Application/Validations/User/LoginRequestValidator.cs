@@ -12,9 +12,19 @@ namespace arGalary.Application.Validations.CarFeature
     {
         public LoginRequestValidator()
         {
+            RuleFor(x => x)
+                .Must(x => !string.IsNullOrWhiteSpace(x.UserName) || !string.IsNullOrWhiteSpace(x.Email))
+                .WithMessage("UserName or Email is required");
+
             RuleFor(x => x.UserName)
-                .NotEmpty().WithMessage("UserName is required")
-                .MinimumLength(3).WithMessage("UserName must be at least 3 characters long");
+                .MinimumLength(3)
+                .WithMessage("UserName must be at least 3 characters long")
+                .When(x => !string.IsNullOrWhiteSpace(x.UserName));
+
+            RuleFor(x => x.Email)
+                .EmailAddress()
+                .WithMessage("Email is not valid")
+                .When(x => !string.IsNullOrWhiteSpace(x.Email));
                 
 
             RuleFor(x => x.Password)

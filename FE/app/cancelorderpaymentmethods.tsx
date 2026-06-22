@@ -42,7 +42,7 @@ const CancelOrderPaymentMethods = () => {
                             <Text style={styles.sadEmoji}>😥</Text>
                             <Text style={[styles.modalTitle, {
                                 color: dark ? COLORS.white : COLORS.greyscale900,
-                            }]}>We're sad about your cancelllation</Text>
+                            }]}>{"We're sad about your cancelllation"}</Text>
                             <Text style={[styles.modalSubtitle, {
                                 color: dark ? COLORS.grayscale200 : COLORS.black,
                             }]}>

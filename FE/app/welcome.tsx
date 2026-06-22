@@ -1,8 +1,7 @@
-import Button from "@/components/Button";
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import Text from '@/components/LocalizedText';
-import { Image, Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, Platform, Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, illustrations, images } from "../constants";
@@ -15,12 +14,8 @@ import Animated, {
     Easing,
 } from 'react-native-reanimated';
 
-type Nav = {
-    navigate: (value: string) => void
-}
-
 const Welcome = () => {
-    const { navigate } = useNavigation<Nav>();
+    const router = useRouter();
     const { dark } = useTheme();
 
     const brandOpacity = useSharedValue(0);
@@ -87,23 +82,22 @@ const Welcome = () => {
                         </Text>
                     </Animated.View>
                     <Animated.View style={btnStyle}>
-                        <Button
-                            title="Get Started"
-                            onPress={() => navigate('login')}
-                            textColor={dark ? '#101010' : COLORS.white}
-                            style={{
-                                width: '100%',
-                                marginTop: 20,
-                                marginBottom: 16,
-                                backgroundColor: dark ? COLORS.white : COLORS.primary,
-                                borderRadius: 30,
-                            }}
-                        />
+                        <Pressable
+                            onPress={() => router.push('/login')}
+                            style={({ pressed }) => [
+                                styles.getStartedButton,
+                                { backgroundColor: dark ? COLORS.white : COLORS.primary, opacity: pressed ? 0.86 : 1 },
+                            ]}
+                        >
+                            <Text style={[styles.getStartedText, { color: dark ? '#101010' : COLORS.white }]}>
+                                Get Started
+                            </Text>
+                        </Pressable>
                         <View style={styles.signupRow}>
                             <Text style={[styles.loginTitle, { color: dark ? 'rgba(255,255,255,0.7)' : COLORS.grayscale700 }]}>
-                                Don't have an account?{' '}
+                                {"Don't have an account?"}
                             </Text>
-                            <TouchableOpacity onPress={() => navigate('signup')}>
+                            <TouchableOpacity onPress={() => router.push('/signup')} style={styles.signupLink}>
                                 <Text style={[styles.loginSubtitle, { color: dark ? COLORS.white : COLORS.primary }]}>
                                     Sign up
                                 </Text>
@@ -149,17 +143,39 @@ const styles = StyleSheet.create({
         lineHeight: 34,
         marginTop: 4,
     },
+    getStartedButton: {
+        width: '100%',
+        height: 64,
+        marginTop: 20,
+        marginBottom: 16,
+        borderRadius: 32,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    getStartedText: {
+        fontSize: 18,
+        fontFamily: 'semiBold',
+        textAlign: 'center',
+    },
     signupRow: {
-        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        rowGap: 4,
+    },
+    signupLink: {
+        minHeight: 28,
         justifyContent: 'center',
     },
     loginTitle: {
         fontSize: 14,
         fontFamily: 'regular',
+        textAlign: 'center',
+        flexShrink: 1,
     },
     loginSubtitle: {
         fontSize: 14,
         fontFamily: 'bold',
+        textAlign: 'center',
     },
 });
 

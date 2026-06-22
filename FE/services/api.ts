@@ -2,22 +2,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import { Car, CarQueryParams, Inquiry, PrivacyPolicy, ProfilePayload, User } from '../types';
 
-const BASE_URL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:3000/api'
-    : 'http://localhost:3000/api';
-
-const CARGALARY_API_URL =
+const API_BASE_URL = (
   process.env.EXPO_PUBLIC_CARGALARY_API_URL ||
   (Platform.OS === 'android'
     ? 'http://10.0.2.2:5121/api'
-    : 'http://localhost:5121/api');
+    : 'http://localhost:5121/api')
+).replace(/\/$/, '');
 
 async function request<T>(
   path: string,
   options: { method?: string; body?: object; requiresAuth?: boolean; baseUrl?: string } = {}
 ): Promise<T> {
-  const { method = 'GET', body, requiresAuth = false, baseUrl = BASE_URL } = options;
+  const { method = 'GET', body, requiresAuth = false, baseUrl = API_BASE_URL } = options;
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
 
   if (requiresAuth) {
@@ -101,5 +97,5 @@ export const api = {
 
   // Privacy policy
   getPrivacyPolicy: () =>
-    request<PrivacyPolicy>('/privacy-policy', { baseUrl: CARGALARY_API_URL }),
+    request<PrivacyPolicy>('/privacy-policy'),
 };

@@ -116,7 +116,7 @@ const CarDetails = () => {
 
     const sliderImages = car
         ? resolveSliderImages(car.sliderImageKeys)
-        : [resolveCarImage('bmw1')];
+        : [];
 
     if (loading) {
         return (

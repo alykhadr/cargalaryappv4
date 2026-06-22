@@ -2,6 +2,7 @@
 
 using CarGalary.Application.Dtos.Car.Command;
 using CarGalary.Application.Dtos.Car.Query;
+using CarGalary.Application.Dtos.Frontend;
 using CarGalary.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,17 +16,18 @@ namespace CarGalary.Api.Controllers
         private const string CarNotFoundCode = "1209";
 
         private readonly ICarService _carService;
+        private readonly IFrontendApiService _frontendApiService;
 
-        public CarsController(ICarService carService)
+        public CarsController(ICarService carService, IFrontendApiService frontendApiService)
         {
             _carService = carService;
+            _frontendApiService = frontendApiService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CarApiResponseDto>>> GetCars()
+        public async Task<ActionResult<FrontendCarsResponseDto>> GetCars([FromQuery] FrontendCarQueryDto query)
         {
-            var cars = await _carService.GetAllForApiAsync();
-            return Ok(cars);
+            return Ok(await _frontendApiService.GetCarsAsync(query));
         }
 
         [HttpGet("latest")]
@@ -41,15 +43,15 @@ namespace CarGalary.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CarApiResponseDto>> GetCar(int id)
+        public async Task<ActionResult<FrontendCarResponseDto>> GetCar(int id)
         {
-            var car = await _carService.GetByIdForApiAsync(id);
+            var car = await _frontendApiService.GetCarAsync(id);
             if (car == null)
             {
                 return NotFoundErrorResponse(CarNotFoundCode);
             }
 
-            return Ok(car);
+            return Ok(new FrontendCarResponseDto { Car = car });
         }
 
         [HttpGet("by-model/{modelId:int}")]

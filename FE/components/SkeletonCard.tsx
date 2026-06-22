@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, View, StyleSheet } from 'react-native';
+import { Animated, DimensionValue, View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/constants';
 import { useTheme } from '@/theme/ThemeProvider';
 
 const CARD_WIDTH = (SIZES.width - 32) / 2 - 12;
 
-const ShimmerLine: React.FC<{ width: string | number; height: number; shimmer: Animated.Value; dark: boolean }> = ({ width, height, shimmer, dark }) => {
+const ShimmerLine: React.FC<{ width: DimensionValue; height: number; shimmer: Animated.Value; dark: boolean }> = ({ width, height, shimmer, dark }) => {
     const baseColor = dark ? '#2a2a2a' : '#E8E8E8';
     const shineColor = dark ? '#3d3d3d' : '#F5F5F5';
     const translateX = shimmer.interpolate({

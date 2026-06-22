@@ -156,6 +156,8 @@ const ar: Record<string, string> = {
     'By continuing you accept our Privacy Policy': 'بمتابعتك فإنك توافق على سياسة الخصوصية',
     'Don’t have an account?': 'ليس لديك حساب؟',
     'Don’t have an account? ': 'ليس لديك حساب؟ ',
+    'Don\'t have an account?': 'ليس لديك حساب؟',
+    'Don\'t have an account? ': 'ليس لديك حساب؟ ',
     'Good Morning👋': 'صباح الخير👋',
     'founds': 'نتائج',
     'found': 'نتيجة',

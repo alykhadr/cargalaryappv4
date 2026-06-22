@@ -89,6 +89,7 @@ namespace CarGalary.Api
             services.AddScoped<ILookupDetailsService, LookupDetailsService>();
             services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<IInvoiceService, InvoiceService>();
+            services.AddScoped<IFrontendApiService, FrontendApiService>();
               services.AddScoped<ICarService, CarService>();
             
             return services;

@@ -116,7 +116,7 @@ const Search = () => {
                         backgroundColor: dark ? COLORS.dark2 : COLORS.silver
                     }]}>
                     <TouchableOpacity
-                        onPress={handleSearch}>
+                        onPress={() => handleSearch()}>
                         <Image
                             source={icons.search2}
                             resizeMode='contain'
@@ -151,7 +151,7 @@ const Search = () => {
                             <>
                                 <Text style={[styles.tabText, {
                                     color: dark ? COLORS.secondaryWhite : COLORS.black
-                                }]}>Result for "{searchQuery}"</Text>
+                                }]}>{`Result for "${searchQuery}"`}</Text>
                             </>
                         ) : (
                             <Text style={[styles.tabText, {
@@ -183,9 +183,10 @@ const Search = () => {
                                     columnWrapperStyle={{ gap: 16 }}
                                     renderItem={({ item }) => {
                                         return (
-                                            <ProductCard
-                                                name={item.name}
-                                                image={resolveCarImage(item.imageKey)}
+	                                            <ProductCard
+	                                                carId={item.id}
+	                                                name={item.name}
+	                                                image={resolveCarImage(item.imageKey)}
                                                 numSolds={item.numSolds}
                                                 price={item.price}
                                                 rating={item.rating}

@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Checkbox from 'expo-checkbox';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from 'expo-router';
@@ -13,6 +12,7 @@ import { useTheme } from '../theme/ThemeProvider';
 import { validateInput } from '../utils/actions/formActions';
 import { reducer } from '../utils/reducers/formReducers';
 import { useAuth } from '../context/AuthContext';
+import { useDirection } from '../theme/DirectionProvider';
 
 const HERO_IMAGE = 'https://cdn.syarah.com/photos-thumbs/online-v1/0x426/online/posts/301247/orignal-301247-1-1778395884.jpg?v=3';
 
@@ -31,17 +31,12 @@ const Login = () => {
     const [error, setError] = useState<string | null>(null);
     const [isChecked, setChecked] = useState(false);
     const { colors, dark } = useTheme();
-    const [activeLang, setActiveLang] = useState<'EN' | 'AR'>('EN');
+    const { language, setLanguage } = useDirection();
+    const activeLang: 'EN' | 'AR' = language === 'Arabic' ? 'AR' : 'EN';
     const { login, continueAsGuest } = useAuth();
 
     const handleLangChange = async (lang: 'EN' | 'AR') => {
-        setActiveLang(lang);
-        try {
-            await AsyncStorage.setItem('@carea:language-direction', JSON.stringify({
-                language: lang === 'EN' ? 'English' : 'Arabic',
-                direction: lang === 'AR' ? 'rtl' : 'ltr',
-            }));
-        } catch {}
+        await setLanguage(lang === 'EN' ? 'English' : 'Arabic');
     };
 
     const inputChangedHandler = useCallback(
@@ -97,7 +92,7 @@ const Login = () => {
                 {/* Branding — bottom left */}
                 <View style={styles.heroBranding}>
                     <Text style={styles.heroAppName}>Carea</Text>
-                    <Text style={styles.heroTagline}>Saudi's Premier Car Marketplace</Text>
+                    <Text style={styles.heroTagline}>{"Saudi's Premier Car Marketplace"}</Text>
                 </View>
             </View>
 
@@ -169,7 +164,7 @@ const Login = () => {
 
                     <View style={styles.signupRow}>
                         <Text style={[styles.signupLeft, { color: dark ? COLORS.white : COLORS.black }]}>
-                            Don't have an account?
+                            {"Don't have an account?"}
                         </Text>
                         <TouchableOpacity onPress={() => navigate('signup')}>
                             <Text style={[styles.signupRight, { color: dark ? '#E8001C' : COLORS.primary }]}>

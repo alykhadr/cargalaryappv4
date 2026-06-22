@@ -25,7 +25,7 @@ interface Route {
     title: string;
 }
 
-const faqsRoute = () => {
+const FaqsRoute = () => {
     const [selectedKeywords, setSelectedKeywords] = useState<any>([]);
     const [expanded, setExpanded] = useState(-1);
     const [searchText, setSearchText] = useState('');
@@ -173,7 +173,7 @@ const faqsRoute = () => {
     );
 };
 
-const contactUsRoute = () => {
+const ContactUsRoute = () => {
     const navigation = useNavigation<NavigationProp<any>>();
     const { dark } = useTheme();
 
@@ -215,8 +215,8 @@ const contactUsRoute = () => {
     )
 }
 const renderScene = SceneMap({
-    first: faqsRoute,
-    second: contactUsRoute,
+    first: FaqsRoute,
+    second: ContactUsRoute,
 });
 
 const HelpCenter = () => {

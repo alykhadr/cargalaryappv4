@@ -51,8 +51,8 @@ const MakeOffer = () => {
                     placeholderTextColor={dark ? COLORS.grayTie : COLORS.gray}
                     style={[styles.input, {
                         color: dark ? COLORS.white : COLORS.greyscale900,
-                        backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale100,
-                        borderColor: dark ? COLORS.dark3 : COLORS.greyscale200,
+                        backgroundColor: dark ? COLORS.dark2 : COLORS.grayscale100,
+                        borderColor: dark ? COLORS.dark3 : COLORS.grayscale200,
                     }]}
                     value={name}
                     onChangeText={setName}
@@ -62,8 +62,8 @@ const MakeOffer = () => {
                     placeholderTextColor={dark ? COLORS.grayTie : COLORS.gray}
                     style={[styles.input, {
                         color: dark ? COLORS.white : COLORS.greyscale900,
-                        backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale100,
-                        borderColor: dark ? COLORS.dark3 : COLORS.greyscale200,
+                        backgroundColor: dark ? COLORS.dark2 : COLORS.grayscale100,
+                        borderColor: dark ? COLORS.dark3 : COLORS.grayscale200,
                     }]}
                     value={phone}
                     onChangeText={setPhone}
@@ -74,8 +74,8 @@ const MakeOffer = () => {
                     placeholderTextColor={dark ? COLORS.grayTie : COLORS.gray}
                     style={[styles.messageInput, {
                         color: dark ? COLORS.white : COLORS.greyscale900,
-                        backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale100,
-                        borderColor: dark ? COLORS.dark3 : COLORS.greyscale200,
+                        backgroundColor: dark ? COLORS.dark2 : COLORS.grayscale100,
+                        borderColor: dark ? COLORS.dark3 : COLORS.grayscale200,
                     }]}
                     value={message}
                     onChangeText={setMessage}

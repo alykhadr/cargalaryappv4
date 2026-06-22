@@ -1,4 +1,12 @@
 import { icons, images } from '../constants';
+import { Platform } from 'react-native';
+
+const API_ORIGIN = (
+  process.env.EXPO_PUBLIC_CARGALARY_ASSET_URL ||
+  (Platform.OS === 'android'
+    ? 'http://10.0.2.2:5121'
+    : 'http://localhost:5121')
+).replace(/\/api\/?$/, '').replace(/\/$/, '');
 
 const CAR_IMAGE_MAP: Record<string, any> = {
   // BMW
@@ -105,7 +113,10 @@ const BRAND_LOGO_MAP: Record<string, any> = {
 };
 
 export function resolveCarImage(key: string): any {
-  if (key?.startsWith('http')) return { uri: key };
+  if (key?.startsWith('http') || key?.startsWith('/')) {
+    return { uri: normalizeRemoteImageUri(key) };
+  }
+
   return CAR_IMAGE_MAP[key] ?? images.honda1;
 }
 
@@ -115,4 +126,25 @@ export function resolveBrandLogo(key: string): any {
 
 export function resolveSliderImages(keys: string[]): any[] {
   return keys.map(k => resolveCarImage(k));
+}
+
+function normalizeRemoteImageUri(value: string): string {
+  if (!value) {
+    return value;
+  }
+
+  if (value.startsWith('/')) {
+    return `${API_ORIGIN}${value}`;
+  }
+
+  try {
+    const url = new URL(value);
+    if (Platform.OS === 'android' && (url.hostname === 'localhost' || url.hostname === '127.0.0.1')) {
+      url.hostname = '10.0.2.2';
+    }
+
+    return url.toString();
+  } catch {
+    return value;
+  }
 }

@@ -66,7 +66,7 @@ const MyInquiries = () => {
               Login to see your inquiries
             </Text>
             <Text style={styles.emptySubtitle}>
-              Sign in to track all the car inquiries you've submitted to dealers.
+              {"Sign in to track all the car inquiries you've submitted to dealers."}
             </Text>
             <TouchableOpacity
               style={styles.loginBtn}
@@ -98,7 +98,7 @@ const MyInquiries = () => {
               No inquiries yet
             </Text>
             <Text style={styles.emptySubtitle}>
-              Browse cars and tap "Contact Dealer" to send your first inquiry.
+              {'Browse cars and tap "Contact Dealer" to send your first inquiry.'}
             </Text>
             <TouchableOpacity
               style={styles.loginBtn}
@@ -143,7 +143,7 @@ const MyInquiries = () => {
           <Text style={styles.carPrice}>SAR {item.car.price}</Text>
         )}
         <Text style={[styles.message, { color: dark ? COLORS.grayscale400 : '#666' }]} numberOfLines={2}>
-          "{item.message}"
+          {`"${item.message}"`}
         </Text>
         <View style={styles.cardFooter}>
           <Text style={[styles.dateText, { color: dark ? COLORS.grayscale400 : '#999' }]}>

@@ -18,6 +18,7 @@ const ProductReviews = () => {
     const navigation = useNavigation<NavigationProp<any>>();
     const { colors, dark } = useTheme();
     const [modalVisible, setModalVisible] = useState(false);
+    const [selectedRating, setSelectedRating] = useState<any>("All");
 
     useEffect(() => {
         setModalVisible(true);
@@ -142,8 +143,6 @@ const ProductReviews = () => {
     ** render content
     */
     const renderContent = () => {
-        const [selectedRating, setSelectedRating] = useState("All");
-
         const renderRatingButton = (rating: any) => (
             <TouchableOpacity
                 key={rating}
