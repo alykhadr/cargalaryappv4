@@ -15,10 +15,14 @@ import { useAuth } from '../context/AuthContext';
 
 const initialState = {
     inputValues: {
+        fullName: '',
+        phoneNumber: '',
         email: '',
         password: '',
     },
     inputValidities: {
+        fullName: false,
+        phoneNumber: false,
         email: false,
         password: false
     },
@@ -57,16 +61,27 @@ const Signup = () => {
     }, [error]);
 
     const handleSignup = async () => {
+        const fullName = formState.inputValues.fullName?.trim();
+        const phoneNumber = formState.inputValues.phoneNumber?.trim();
         const email = formState.inputValues.email?.trim();
         const password = formState.inputValues.password;
-        if (!email || !password) {
-            Alert.alert('Error', 'Please enter email and password');
+        if (!fullName || !phoneNumber || !email || !password) {
+            Alert.alert('Error', 'Please enter full name, mobile number, email, and password');
+            return;
+        }
+        if (!isChecked) {
+            Alert.alert('Error', 'Please accept the Privacy Policy to continue');
             return;
         }
         setIsLoading(true);
         try {
-            const { userId } = await signup(email, password);
-            navigate('fillyourprofile', { userId });
+            await signup({
+                fullName,
+                phoneNumber,
+                email,
+                password,
+            });
+            navigate('(tabs)');
         } catch (e: any) {
             setError(e.message || 'Signup failed');
         } finally {
@@ -91,6 +106,22 @@ const Signup = () => {
                     <Text style={[styles.title, {
                         color: dark ? COLORS.white : COLORS.black
                     }]}>Create Your Account</Text>
+                    <Input
+                        id="fullName"
+                        onInputChanged={inputChangedHandler}
+                        errorText={formState.inputValidities['fullName']}
+                        placeholder="Full Name"
+                        placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
+                        icon={icons.user}
+                    />
+                    <Input
+                        id="phoneNumber"
+                        onInputChanged={inputChangedHandler}
+                        errorText={formState.inputValidities['phoneNumber']}
+                        placeholder="Mobile Number"
+                        placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
+                        keyboardType="phone-pad"
+                    />
                     <Input
                         id="email"
                         onInputChanged={inputChangedHandler}

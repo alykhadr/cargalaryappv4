@@ -5,7 +5,6 @@ import { COLORS, icons, illustrations } from '../constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-virtualized-view';
 import { useTheme } from '../theme/ThemeProvider';
-import { categories } from '../data';
 import HeaderWithSearch from '@/components/HeaderWithSearch';
 import WishlistCard from '@/components/WishlistCard';
 import SkeletonCard from '@/components/SkeletonCard';
@@ -14,14 +13,17 @@ import { api } from '@/services/api';
 import { Car } from '@/types';
 import { resolveCarImage } from '@/utils/imageResolver';
 import { useAuth } from '@/context/AuthContext';
+import { useCatalogCategories } from '@/hooks/useCatalogCategories';
+import { ALL_CATEGORY_ID, buildFilterCategories, filterCarsByCategory } from '@/utils/catalog';
 
 const MyWishlist = () => {
     const navigation = useNavigation<NavigationProp<any>>();
     const { dark, colors } = useTheme();
-    const [selectedCategories, setSelectedCategories] = useState(["0"]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState(ALL_CATEGORY_ID);
     const [items, setItems] = useState<Car[]>([]);
     const [wishlistLoading, setWishlistLoading] = useState(false);
     const { user, isGuest } = useAuth();
+    const { categories } = useCatalogCategories(items);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -41,18 +43,12 @@ const MyWishlist = () => {
         } catch {}
     };
 
-    const toggleCategory = (categoryId: string) => {
-        const updated = [...selectedCategories];
-        const idx = updated.indexOf(categoryId);
-        if (idx === -1) updated.push(categoryId);
-        else updated.splice(idx, 1);
-        setSelectedCategories(updated);
-    };
+    const filterCategories = buildFilterCategories(categories);
 
     const renderCategoryItem = ({ item }: { item: { id: string; name: string } }) => (
         <TouchableOpacity
             style={{
-                backgroundColor: selectedCategories.includes(item.id) ? dark ? COLORS.dark3 : COLORS.primary : "transparent",
+                backgroundColor: selectedCategoryId === item.id ? dark ? COLORS.dark3 : COLORS.primary : "transparent",
                 padding: 10,
                 marginVertical: 5,
                 borderColor: dark ? COLORS.dark3 : COLORS.primary,
@@ -60,9 +56,9 @@ const MyWishlist = () => {
                 borderRadius: 24,
                 marginRight: 12,
             }}
-            onPress={() => toggleCategory(item.id)}>
+            onPress={() => setSelectedCategoryId(item.id)}>
             <Text style={{
-                color: selectedCategories.includes(item.id) ? COLORS.white : dark ? COLORS.white : COLORS.primary
+                color: selectedCategoryId === item.id ? COLORS.white : dark ? COLORS.white : COLORS.primary
             }}>{item.name}</Text>
         </TouchableOpacity>
     );
@@ -91,9 +87,7 @@ const MyWishlist = () => {
         );
     }
 
-    const filteredItems = items.filter(car =>
-        selectedCategories.includes("0") || selectedCategories.includes(car.categoryId)
-    );
+    const filteredItems = filterCarsByCategory(items, selectedCategoryId);
 
     return (
         <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
@@ -105,7 +99,7 @@ const MyWishlist = () => {
                 />
                 <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                     <FlatList
-                        data={categories}
+                        data={filterCategories}
                         keyExtractor={item => item.id}
                         showsHorizontalScrollIndicator={false}
                         horizontal
@@ -129,10 +123,10 @@ const MyWishlist = () => {
                                     resizeMode="contain"
                                 />
                                 <Text style={[styles.emptyTitle, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
-                                    Your wishlist is empty
+                                    {items.length === 0 ? 'Your wishlist is empty' : 'No wishlist cars in this category'}
                                 </Text>
                                 <Text style={[styles.emptySubtitle, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>
-                                    Tap the heart on any car to save it here
+                                    {items.length === 0 ? 'Tap the heart on any car to save it here' : 'Try another category to see your saved cars'}
                                 </Text>
                             </View>
                         ) : (

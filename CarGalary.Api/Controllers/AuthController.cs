@@ -64,7 +64,7 @@ namespace CarGalary.Api.Controllers
 
         [HttpPost("register")]
         [EnableRateLimiting("AuthRegisterPolicy")]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             try
             {
@@ -74,20 +74,44 @@ namespace CarGalary.Api.Controllers
                     var errors = validator.Errors.Select(e => e.ErrorMessage).ToList();
                     return BadRequest(new ApiErrorResponse(AuthValidationFailedCode, StatusCodes.Status400BadRequest, errors));
                 }
-                string emailExist = await _identity.GetUserByEmailAsync(request.Email.ToUpper().Trim());
+
+                var normalizedEmail = request.Email!.Trim().ToUpperInvariant();
+                var normalizedUserName = request.UserName!.Trim();
+                var password = request.Password!;
+
+                string emailExist = await _identity.GetUserByEmailAsync(normalizedEmail);
                 if (!string.IsNullOrWhiteSpace(emailExist))
                 {
                     return BadRequest(new ApiErrorResponse(AuthEmailAlreadyExistsCode));
                 }
 
+                var branchId = request.BranchId > 0
+                    ? request.BranchId
+                    : await ResolveDefaultBranchIdAsync();
+
+                if (branchId <= 0)
+                {
+                    return BadRequest(new ApiErrorResponse(
+                        AuthValidationFailedCode,
+                        StatusCodes.Status400BadRequest,
+                        new List<string> { "BranchId is required because no default branch is available." }));
+                }
+
                 var user = await _identity.CreateUserAsync(
-                    request.UserName.Trim(),
-                    request.Email.ToUpper().Trim(),
-                    request.Password,
+                    normalizedUserName,
+                    normalizedEmail,
+                    password,
                     request.NameEn?.Trim(),
                     request.NameAr?.Trim(),
-                    0,
+                    branchId,
                     null);
+
+                var createdUser = await _userManager.FindByIdAsync(user.Id!);
+                if (createdUser != null && !string.IsNullOrWhiteSpace(request.PhoneNumber))
+                {
+                    createdUser.PhoneNumber = request.PhoneNumber.Trim();
+                    await _userManager.UpdateAsync(createdUser);
+                }
 
                 if (!await _identity.RoleExistsAsync(DefaultRegisteredUserRole))
                 {
@@ -98,8 +122,17 @@ namespace CarGalary.Api.Controllers
 
                 return Ok(new
                 {
-                    user,
+                    user = createdUser == null ? new FrontendUserDto
+                    {
+                        Id = user.Id ?? string.Empty,
+                        Email = user.Email ?? string.Empty,
+                        FullName = user.NameEn,
+                        Nickname = user.Username,
+                        PhoneNumber = request.PhoneNumber?.Trim(),
+                        ProfileComplete = !string.IsNullOrWhiteSpace(user.NameEn)
+                    } : ToFrontendUser(createdUser),
                     token = user.Token,
+                    needsProfile = false,
                     tokenDetails = BuildTokenDetails(user.Token)
                 });
             }

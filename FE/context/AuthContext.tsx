@@ -42,8 +42,8 @@ function reducer(state: AuthState, action: AuthAction): AuthState {
 }
 
 interface AuthContextValue extends AuthState {
-  login: (email: string, password: string) => Promise<{ needsProfile?: boolean; userId?: string }>;
-  signup: (email: string, password: string) => Promise<{ userId: string }>;
+  login: (userNameOrEmail: string, password: string) => Promise<{ needsProfile?: boolean; userId?: string }>;
+  signup: (payload: { email: string; password: string; fullName: string; phoneNumber: string }) => Promise<void>;
   fillProfile: (userId: string, profile: Omit<ProfilePayload, 'avatarUrl'> & { fullName: string }) => Promise<void>;
   continueAsGuest: () => void;
   logout: () => Promise<void>;
@@ -73,15 +73,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     restoreSession();
   }, []);
 
-  async function login(email: string, password: string) {
-    const res = await api.login(email, password);
+  async function login(userNameOrEmail: string, password: string) {
+    const res = await api.login(userNameOrEmail, password);
     await AsyncStorage.setItem('authToken', res.token);
     dispatch({ type: 'LOGIN', payload: { user: res.user, token: res.token } });
     return { needsProfile: res.needsProfile, userId: res.user.id };
   }
 
-  async function signup(email: string, password: string) {
-    return api.signup(email, password);
+  async function signup(payload: { email: string; password: string; fullName: string; phoneNumber: string }) {
+    const res = await api.signup(payload);
+    await AsyncStorage.setItem('authToken', res.token);
+    dispatch({ type: 'LOGIN', payload: { user: res.user, token: res.token } });
   }
 
   async function fillProfile(userId: string, profile: Omit<ProfilePayload, 'avatarUrl'> & { fullName: string }) {

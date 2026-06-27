@@ -17,12 +17,12 @@ import { useDirection } from '../theme/DirectionProvider';
 const HERO_IMAGE = 'https://cdn.syarah.com/photos-thumbs/online-v1/0x426/online/posts/301247/orignal-301247-1-1778395884.jpg?v=3';
 
 const initialState = {
-    inputValues: { email: '', password: '' },
-    inputValidities: { email: false, password: false },
+    inputValues: { userName: '', password: '' },
+    inputValidities: { userName: false, password: false },
     formIsValid: false,
 };
 
-type Nav = { navigate: (value: string) => void };
+type Nav = { navigate: (value: string, params?: object) => void };
 
 const Login = () => {
     const { navigate } = useNavigation<Nav>();
@@ -55,16 +55,20 @@ const Login = () => {
     }, [error]);
 
     const handleLogin = async () => {
-        const email = formState.inputValues.email?.trim();
+        const userName = formState.inputValues.userName?.trim();
         const password = formState.inputValues.password;
-        if (!email || !password) {
-            Alert.alert('Error', 'Please enter email and password');
+        if (!userName || !password) {
+            Alert.alert('Error', 'Please enter your email or username and password');
             return;
         }
         setIsLoading(true);
         try {
-            const res = await login(email, password);
-            navigate(res.needsProfile ? 'fillyourprofile' : '(tabs)');
+            const res = await login(userName, password);
+            if (res.needsProfile && res.userId) {
+                navigate('fillyourprofile', { userId: res.userId });
+            } else {
+                navigate('(tabs)');
+            }
         } catch (e: any) {
             setError(e.message || 'Login failed');
         } finally {
@@ -110,13 +114,13 @@ const Login = () => {
                         Login to Your Account
                     </Text>
                     <Input
-                        id="email"
+                        id="userName"
                         onInputChanged={inputChangedHandler}
-                        errorText={formState.inputValidities['email']}
-                        placeholder="Email"
+                        errorText={formState.inputValidities['userName']}
+                        placeholder="Email or Username"
                         placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
                         icon={icons.email}
-                        keyboardType="email-address"
+                        autoCapitalize="none"
                     />
                     <Input
                         id="password"

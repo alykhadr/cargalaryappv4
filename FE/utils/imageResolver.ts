@@ -124,6 +124,18 @@ export function resolveBrandLogo(key: string): any {
   return BRAND_LOGO_MAP[key] ?? icons.category;
 }
 
+export function resolveCategoryIcon(imageUrl?: string | null, logoKey?: string): any {
+  if (imageUrl && imageUrl.trim().length > 0) {
+    return { uri: normalizeRemoteImageUri(imageUrl.trim()) };
+  }
+
+  if (logoKey && logoKey.trim().length > 0) {
+    return resolveBrandLogo(logoKey.trim());
+  }
+
+  return icons.category;
+}
+
 export function resolveSliderImages(keys: string[]): any[] {
   return keys.map(k => resolveCarImage(k));
 }

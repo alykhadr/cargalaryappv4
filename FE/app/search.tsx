@@ -4,7 +4,7 @@ import Text from '@/components/LocalizedText';
 import TextInput from '@/components/LocalizedTextInput';
 import { COLORS, SIZES, icons } from '../constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { categories, ratings, sorts } from '../data';
+import { ratings, sorts } from '../data';
 import RBSheet from "react-native-raw-bottom-sheet";
 import { api } from '@/services/api';
 import { Car } from '@/types';
@@ -16,6 +16,9 @@ import { FontAwesome } from "@expo/vector-icons";
 import ProductCard from '../components/ProductCard';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import NotFoundCard from '@/components/NotFoundCard';
+import { useCatalogCategories } from '@/hooks/useCatalogCategories';
+import { ALL_CATEGORY_ID, buildFilterCategories } from '@/utils/catalog';
+import SkeletonCard from '@/components/SkeletonCard';
 
 interface SliderHandleProps {
     enabled: boolean;
@@ -44,7 +47,7 @@ const Search = () => {
     const navigation = useNavigation<NavigationProp<any>>();
     const refRBSheet = useRef<any>(null);
     const { dark, colors } = useTheme();
-    const [selectedCategories, setSelectedCategories] = useState(["1"]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState(ALL_CATEGORY_ID);
     const [selectedSorts, setSelectedSorts] = useState(["1"]);
     const [selectedRating, setSelectedRating] = useState(["1"]);
     const [priceRange, setPriceRange] = useState([0, 100]);
@@ -52,23 +55,35 @@ const Search = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredProducts, setFilteredProducts] = useState<Car[]>([]);
     const [resultsCount, setResultsCount] = useState(0);
+    const [isSearching, setIsSearching] = useState(true);
+    const { categories } = useCatalogCategories();
+    const filterCategories = buildFilterCategories(categories);
 
     const handleSliderChange = (values: number[]) => {
         setPriceRange(values);
     };
 
-    const handleSearch = async (query?: string) => {
+    const handleSearch = async (query?: string, categoryId: string = selectedCategoryId) => {
         const q = query !== undefined ? query : searchQuery;
+        setIsSearching(true);
         try {
-            const res = await api.getCars({ search: q || undefined });
+            const res = await api.getCars({
+                search: q || undefined,
+                categoryId: categoryId !== ALL_CATEGORY_ID ? categoryId : undefined,
+            });
             setFilteredProducts(res.cars);
             setResultsCount(res.total);
-        } catch {}
+        } catch {
+            setFilteredProducts([]);
+            setResultsCount(0);
+        } finally {
+            setIsSearching(false);
+        }
     };
 
     useEffect(() => {
         handleSearch();
-    }, []);
+    }, [selectedCategoryId]);
     /**
     * Render header
     */
@@ -108,6 +123,9 @@ const Search = () => {
      * Render content
     */
     const renderContent = () => {
+        const hasQuery = searchQuery.trim().length > 0;
+        const resultsLabel = resultsCount === 1 ? '1 result' : `${resultsCount} results`;
+
         return (
             <View>
                 {/* Search bar */}
@@ -147,7 +165,7 @@ const Search = () => {
 
                 <View style={styles.reusltTabContainer}>
                     {
-                        searchQuery && searchQuery.length > 0 ? (
+                        hasQuery ? (
                             <>
                                 <Text style={[styles.tabText, {
                                     color: dark ? COLORS.secondaryWhite : COLORS.black
@@ -162,7 +180,7 @@ const Search = () => {
                     <View>
                         <Text style={[styles.tabText, {
                             color: dark ? COLORS.secondaryWhite : COLORS.black
-                        }]}>{resultsCount} founds</Text>
+                        }]}>{isSearching ? 'Searching...' : resultsLabel}</Text>
                     </View>
                 </View>
 
@@ -173,7 +191,16 @@ const Search = () => {
                         backgroundColor: dark ? COLORS.dark1 : COLORS.white,
                         marginVertical: 16
                     }}>
-                        {resultsCount && resultsCount > 0 ? (
+                        {isSearching ? (
+                            <FlatList
+                                data={[1, 2, 3, 4]}
+                                keyExtractor={(item) => item.toString()}
+                                numColumns={2}
+                                showsVerticalScrollIndicator={false}
+                                columnWrapperStyle={{ gap: 16 }}
+                                renderItem={() => <SkeletonCard />}
+                            />
+                        ) : resultsCount > 0 ? (
                             <>
                                 <FlatList
                                     data={filteredProducts}
@@ -196,8 +223,14 @@ const Search = () => {
                                     }}
                                 />
                             </>
-                        ) : (
+                        ) : hasQuery || selectedCategoryId !== ALL_CATEGORY_ID ? (
                             <NotFoundCard />
+                        ) : (
+                            <Text style={[styles.emptyStateText, {
+                                color: dark ? COLORS.secondaryWhite : COLORS.gray
+                            }]}>
+                                Start typing to search cars, or open filters to browse by category.
+                            </Text>
                         )}
                     </View>
                 </View>
@@ -205,18 +238,9 @@ const Search = () => {
         )
     }
 
-    // Toggle category selection
     const toggleCategory = (categoryId: string) => {
-        const updatedCategories = [...selectedCategories];
-        const index = updatedCategories.indexOf(categoryId);
-
-        if (index === -1) {
-            updatedCategories.push(categoryId);
-        } else {
-            updatedCategories.splice(index, 1);
-        }
-
-        setSelectedCategories(updatedCategories);
+        setSelectedCategoryId(categoryId);
+        handleSearch(searchQuery, categoryId);
     };
 
     // Toggle sort selection
@@ -251,7 +275,7 @@ const Search = () => {
     const renderCategoryItem = ({ item }: { item: { id: string; name: string } }) => (
         <TouchableOpacity
             style={{
-                backgroundColor: selectedCategories.includes(item.id) ? COLORS.primary : "transparent",
+                backgroundColor: selectedCategoryId === item.id ? COLORS.primary : "transparent",
                 padding: 10,
                 marginVertical: 5,
                 borderColor: COLORS.primary,
@@ -262,7 +286,7 @@ const Search = () => {
             onPress={() => toggleCategory(item.id)}>
 
             <Text style={{
-                color: selectedCategories.includes(item.id) ? COLORS.white : COLORS.primary
+                color: selectedCategoryId === item.id ? COLORS.white : COLORS.primary
             }}>{item.name}</Text>
         </TouchableOpacity>
     );
@@ -346,7 +370,7 @@ const Search = () => {
                             color: dark ? COLORS.white : COLORS.greyscale900
                         }]}>Category</Text>
                         <FlatList
-                            data={categories}
+                            data={filterCategories}
                             keyExtractor={item => item.id}
                             showsHorizontalScrollIndicator={false}
                             horizontal
@@ -411,7 +435,10 @@ const Search = () => {
                             title="Filter"
                             filled
                             style={styles.logoutButton}
-                            onPress={() => refRBSheet.current.close()}
+                            onPress={() => {
+                                handleSearch();
+                                refRBSheet.current.close();
+                            }}
                         />
                     </View>
                 </RBSheet>
@@ -597,6 +624,15 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontFamily: "semiBold",
         color: COLORS.black
+    },
+    emptyStateText: {
+        fontSize: 15,
+        fontFamily: "medium",
+        color: COLORS.gray,
+        textAlign: "center",
+        lineHeight: 22,
+        paddingHorizontal: 16,
+        paddingVertical: 24,
     }
 })
 

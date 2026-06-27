@@ -10,6 +10,21 @@ export interface User {
   profileComplete?: boolean;
 }
 
+export interface CatalogCategory {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+  brandLogoKey?: string;
+}
+
+export interface Brand {
+  id: number;
+  nameAr?: string | null;
+  nameEn?: string | null;
+  imageUrl?: string | null;
+  createdBy?: string | null;
+}
+
 export interface Car {
   id: string;
   name: string;

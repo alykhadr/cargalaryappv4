@@ -11,6 +11,7 @@ import {
   export const validateInput = (inputId: string, inputValue: string): string | undefined => {
     if (
       inputId === 'fullName' ||
+      inputId === 'userName' ||
       inputId === 'firstName' ||
       inputId === 'lastName' ||
       inputId === 'location' ||

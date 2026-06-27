@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { Car, CarQueryParams, Inquiry, PrivacyPolicy, ProfilePayload, User } from '../types';
+import { Brand, Car, CarQueryParams, Inquiry, PrivacyPolicy, ProfilePayload, User } from '../types';
 
 const API_BASE_URL = (
   process.env.EXPO_PUBLIC_CARGALARY_API_URL ||
@@ -28,18 +28,73 @@ async function request<T>(
   });
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  const data = text ? tryParseJson(text) : null;
   if (!res.ok) {
-    throw new Error(data?.messageEn || data?.message || data?.error || `Request failed: ${res.status}`);
+    const errorMessage = extractErrorMessage(data, res.status);
+    throw new Error(errorMessage);
   }
 
   return data as T;
 }
 
+function tryParseJson(text: string) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
+function extractErrorMessage(data: unknown, status: number): string {
+  if (typeof data === 'string' && data.trim().length > 0) {
+    return data;
+  }
+
+  if (data && typeof data === 'object') {
+    const payload = data as {
+      errors?: string[];
+      messageEn?: string;
+      message?: string;
+      error?: string;
+    };
+
+    if (Array.isArray(payload.errors) && payload.errors.length > 0) {
+      return payload.errors.join('\n');
+    }
+
+    return payload.messageEn || payload.message || payload.error || `Request failed: ${status}`;
+  }
+
+  return `Request failed: ${status}`;
+}
+
+type AuthResponse = {
+  token: string;
+  user: User;
+  needsProfile?: boolean;
+};
+
+type RegisterPayload = {
+  email: string;
+  password: string;
+  fullName: string;
+  phoneNumber: string;
+};
+
 export const api = {
   // Auth
-  signup: (email: string, password: string) =>
-    request<{ userId: string }>('/auth/signup', { method: 'POST', body: { email, password } }),
+  signup: ({ email, password, fullName, phoneNumber }: RegisterPayload) =>
+    request<AuthResponse>('/auth/register', {
+      method: 'POST',
+      body: {
+        email,
+        userName: email,
+        password,
+        nameEn: fullName,
+        nameAr: fullName,
+        phoneNumber,
+      },
+    }),
 
   fillProfile: (userId: string, profile: Omit<ProfilePayload, 'avatarUrl'> & { fullName: string }) =>
     request<{ token: string; user: User }>('/auth/fill-profile', {
@@ -47,10 +102,10 @@ export const api = {
       body: { userId, ...profile },
     }),
 
-  login: (email: string, password: string) =>
-    request<{ token: string; user: User; needsProfile?: boolean }>('/auth/login', {
+  login: (userName: string, password: string) =>
+    request<AuthResponse>('/auth/login', {
       method: 'POST',
-      body: { email, password },
+      body: { userName, password },
     }),
 
   logout: () =>
@@ -61,6 +116,10 @@ export const api = {
 
   updateProfile: (payload: ProfilePayload) =>
     request<{ user: User }>('/auth/profile', { method: 'PUT', body: payload, requiresAuth: true }),
+
+  // Categories / brands
+  getCategories: () =>
+    request<Brand[]>('/brand'),
 
   // Cars
   getCars: (params: CarQueryParams = {}) => {

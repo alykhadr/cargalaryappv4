@@ -11,6 +11,7 @@ public class RegisterRequest
     public string? Password { get; set; }
     public string? NameEn { get; set; }
     public string? NameAr { get; set; }
+    public string? PhoneNumber { get; set; }
     public int BranchId { get; set; }
     public IFormFile? ProfileImage { get; set; }
      // MULTIPLE ROLES

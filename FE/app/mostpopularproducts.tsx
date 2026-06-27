@@ -5,7 +5,6 @@ import { COLORS, icons } from '../constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-virtualized-view';
 import { useTheme } from '../theme/ThemeProvider';
-import { categories } from '../data';
 import ProductCard from '../components/ProductCard';
 import SkeletonCard from '../components/SkeletonCard';
 import HeaderWithSearch from '../components/HeaderWithSearch';
@@ -13,13 +12,16 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { api } from '@/services/api';
 import { Car } from '@/types';
 import { resolveCarImage } from '@/utils/imageResolver';
+import { useCatalogCategories } from '@/hooks/useCatalogCategories';
+import { ALL_CATEGORY_ID, buildFilterCategories, filterCarsByCategory } from '@/utils/catalog';
 
 const MostPopularProducts = () => {
     const navigation = useNavigation<NavigationProp<any>>();
     const { dark, colors } = useTheme();
-    const [selectedCategories, setSelectedCategories] = useState(["0"]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState(ALL_CATEGORY_ID);
     const [cars, setCars] = useState<Car[]>([]);
     const [loading, setLoading] = useState(true);
+    const { categories } = useCatalogCategories(cars);
 
     useEffect(() => {
         api.getCars({ limit: '100', sortBy: 'popular' })
@@ -28,15 +30,14 @@ const MostPopularProducts = () => {
             .finally(() => setLoading(false));
     }, []);
 
-    const filteredProducts = cars.filter(car =>
-        selectedCategories.includes("0") || selectedCategories.includes(car.categoryId)
-    );
+    const filteredProducts = filterCarsByCategory(cars, selectedCategoryId);
+    const filterCategories = buildFilterCategories(categories);
 
     // Category item
     const renderCategoryItem = ({ item }: { item: { id: string; name: string } }) => (
         <TouchableOpacity
             style={{
-                backgroundColor: selectedCategories.includes(item.id) ? dark ? COLORS.dark3 : COLORS.primary : "transparent",
+                backgroundColor: selectedCategoryId === item.id ? dark ? COLORS.dark3 : COLORS.primary : "transparent",
                 padding: 10,
                 marginVertical: 5,
                 borderColor: dark ? COLORS.dark3 : COLORS.primary,
@@ -44,26 +45,12 @@ const MostPopularProducts = () => {
                 borderRadius: 24,
                 marginRight: 12,
             }}
-            onPress={() => toggleCategory(item.id)}>
+            onPress={() => setSelectedCategoryId(item.id)}>
             <Text style={{
-                color: selectedCategories.includes(item.id) ? COLORS.white : dark ? COLORS.white : COLORS.primary
+                color: selectedCategoryId === item.id ? COLORS.white : dark ? COLORS.white : COLORS.primary
             }}>{item.name}</Text>
         </TouchableOpacity>
     );
-
-    // Toggle category selection
-    const toggleCategory = (categoryId: string) => {
-        const updatedCategories = [...selectedCategories];
-        const index = updatedCategories.indexOf(categoryId);
-
-        if (index === -1) {
-            updatedCategories.push(categoryId);
-        } else {
-            updatedCategories.splice(index, 1);
-        }
-
-        setSelectedCategories(updatedCategories);
-    };
 
     return (
         <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
@@ -77,7 +64,7 @@ const MostPopularProducts = () => {
                     style={styles.scrollView}
                     showsVerticalScrollIndicator={false}>
                     <FlatList
-                        data={categories}
+                        data={filterCategories}
                         keyExtractor={item => item.id}
                         showsHorizontalScrollIndicator={false}
                         horizontal
@@ -96,6 +83,12 @@ const MostPopularProducts = () => {
                                 scrollEnabled={false}
                                 renderItem={() => <SkeletonCard />}
                             />
+                        ) : filteredProducts.length === 0 ? (
+                            <Text style={[styles.emptyText, {
+                                color: dark ? COLORS.grayscale400 : COLORS.grayscale700
+                            }]}>
+                                No cars found for this category.
+                            </Text>
                         ) : (
                             <FlatList
                                 data={filteredProducts}
@@ -137,7 +130,12 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         marginBottom: 16
-    }
+    },
+    emptyText: {
+        fontSize: 14,
+        fontFamily: 'medium',
+        paddingVertical: 20,
+    },
 })
 
 export default MostPopularProducts

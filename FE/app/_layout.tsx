@@ -30,13 +30,7 @@ function AppStack() {
         <Stack.Screen name="cancelorder" />
         <Stack.Screen name="cancelorderpaymentmethods" />
         <Stack.Screen name="categories" />
-        <Stack.Screen name="categorybmw" />
-        <Stack.Screen name="categorybugatti" />
-        <Stack.Screen name="categoryhonda" />
-        <Stack.Screen name="categorymercedes" />
-        <Stack.Screen name="categorytesla" />
-        <Stack.Screen name="categorytoyota" />
-        <Stack.Screen name="categoryvolvo" />
+        <Stack.Screen name="category/[id]" />
         <Stack.Screen name="changeemail" />
         <Stack.Screen name="changepassword" />
         <Stack.Screen name="changepin" />

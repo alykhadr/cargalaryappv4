@@ -9,15 +9,24 @@ interface CategoryProps {
     icon: ImageSourcePropType;
     iconColor?: string;
     backgroundColor?: string;
+    preserveIconColor?: boolean;
     onPress?: () => void;
 }
 
-const Category: React.FC<CategoryProps> = ({ name, icon, iconColor, backgroundColor, onPress }) => {
+const Category: React.FC<CategoryProps> = ({
+    name,
+    icon,
+    iconColor,
+    backgroundColor,
+    preserveIconColor = false,
+    onPress
+}) => {
     const { dark } = useTheme();
 
     return (
         <View style={styles.container}>
             <TouchableOpacity
+                activeOpacity={0.82}
                 onPress={onPress}
                 style={[
                     styles.iconContainer,
@@ -28,14 +37,17 @@ const Category: React.FC<CategoryProps> = ({ name, icon, iconColor, backgroundCo
                     resizeMode="contain"
                     style={[
                         styles.icon,
-                        { tintColor: iconColor ?? (dark ? COLORS.white : COLORS.greyscale900) }
+                        preserveIconColor
+                            ? null
+                            : { tintColor: iconColor ?? (dark ? COLORS.white : COLORS.greyscale900) }
                     ]}
                 />
             </TouchableOpacity>
             <Text style={[
                 styles.name,
                 { color: dark ? COLORS.white : COLORS.greyscale900 }
-            ]}>
+            ]}
+                numberOfLines={1}>
                 {name}
             </Text>
         </View>
@@ -62,9 +74,10 @@ const styles = StyleSheet.create({
         width: 24
     },
     name: {
-        fontSize: 14,
+        fontSize: 13,
         fontFamily: "medium",
-        color: COLORS.black
+        color: COLORS.black,
+        textAlign: 'center'
     }
 });
 

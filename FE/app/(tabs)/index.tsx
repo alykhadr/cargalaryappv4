@@ -5,7 +5,7 @@ import Text from '@/components/LocalizedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, icons, SIZES } from '@/constants';
 import { useTheme } from '@/theme/ThemeProvider';
-import { banners, categories } from '@/data';
+import { banners } from '@/data';
 import SubHeaderItem from '@/components/SubHeaderItem';
 import Category from '@/components/Category';
 import ProductCard from '@/components/ProductCard';
@@ -14,9 +14,16 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { api } from '@/services/api';
 import { Car } from '@/types';
-import { resolveCarImage } from '@/utils/imageResolver';
+import { resolveCarImage, resolveCategoryIcon } from '@/utils/imageResolver';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
+import { useCatalogCategories } from '@/hooks/useCatalogCategories';
+import {
+  ALL_CATEGORY_ID,
+  buildFilterCategories,
+  filterCarsByCategory,
+  getCategoryPalette,
+} from '@/utils/catalog';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -42,11 +49,12 @@ const Home = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedCategories, setSelectedCategories] = useState(["0"]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(ALL_CATEGORY_ID);
   const { dark, colors } = useTheme();
   const { user, isGuest } = useAuth();
   const [cars, setCars] = useState<Car[]>([]);
   const [carsLoading, setCarsLoading] = useState(true);
+  const { categories, loading: categoriesLoading } = useCatalogCategories(cars);
   const bannerRef = useRef<FlatList>(null);
   const autoScrollIdx = useRef(0);
   const [bannerReady, setBannerReady] = useState(false);
@@ -301,36 +309,36 @@ const Home = () => {
       <SubHeaderItem
         title="Categories"
         navTitle="See all"
-        onPress={() => navigation.navigate('categories')}
+        onPress={() => router.push('/categories')}
       />
       <View style={styles.categoryGrid}>
-        {categories.slice(1, 9).map((item, index) => (
-          <Category
-            key={`${item.id}-${index}`}
-            name={item.name}
-            icon={item.icon}
-            iconColor={item.iconColor}
-            backgroundColor={item.backgroundColor}
-            onPress={item.onPress ? () => navigation.navigate(item.onPress) : undefined}
-          />
-        ))}
+        {categoriesLoading ? Array.from({ length: 8 }).map((_, index) => (
+          <View key={`category-skeleton-${index}`} style={styles.categoryPlaceholder}>
+            <View style={[styles.categoryPlaceholderIcon, { backgroundColor: dark ? COLORS.dark3 : '#EEF1F6' }]} />
+            <View style={[styles.categoryPlaceholderLabel, { backgroundColor: dark ? COLORS.dark3 : '#EEF1F6' }]} />
+          </View>
+        )) : categories.slice(0, 8).map((item) => {
+          const palette = getCategoryPalette(item.id);
+          return (
+            <Category
+              key={item.id}
+              name={item.name}
+              icon={resolveCategoryIcon(item.imageUrl, item.brandLogoKey)}
+              preserveIconColor={Boolean(item.imageUrl || item.brandLogoKey)}
+              iconColor={palette.iconColor}
+              backgroundColor={palette.backgroundColor}
+              onPress={() => router.push({ pathname: '/category/[id]', params: { id: item.id, title: item.name } })}
+            />
+          );
+        })}
       </View>
     </View>
   );
 
   /* ── Top Deals ── */
   const renderPopularProducts = () => {
-    const filteredCars = cars.filter(car =>
-      selectedCategories.includes('0') || selectedCategories.includes(car.categoryId)
-    );
-
-    const toggleCategory = (id: string) => {
-      const updated = [...selectedCategories];
-      const idx = updated.indexOf(id);
-      if (idx === -1) updated.push(id);
-      else updated.splice(idx, 1);
-      setSelectedCategories(updated);
-    };
+    const filteredCars = filterCarsByCategory(cars, selectedCategoryId);
+    const filterCategories = buildFilterCategories(categories);
 
     return (
       <View>
@@ -340,16 +348,16 @@ const Home = () => {
           onPress={() => navigation.navigate('mostpopularproducts')}
         />
         <FlatList
-          data={categories}
+          data={filterCategories}
           keyExtractor={item => item.id}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 4 }}
           renderItem={({ item }) => {
-            const active = selectedCategories.includes(item.id);
+            const active = selectedCategoryId === item.id;
             return (
               <TouchableOpacity
-                onPress={() => toggleCategory(item.id)}
+                onPress={() => setSelectedCategoryId(item.id)}
                 style={[
                   styles.chip,
                   active
@@ -372,6 +380,10 @@ const Home = () => {
             <View style={styles.productGrid}>
               {[1, 2, 3, 4, 5, 6].map(item => <SkeletonCard key={item} />)}
             </View>
+          ) : filteredCars.length === 0 ? (
+            <Text style={[styles.emptyStateText, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>
+              No cars available in this category yet.
+            </Text>
           ) : (
             <View style={styles.productGrid}>
               {filteredCars.map(item => (
@@ -573,6 +585,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
+  categoryPlaceholder: {
+    width: (SIZES.width - 32) / 4,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  categoryPlaceholderIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: 999,
+    marginBottom: 8,
+  },
+  categoryPlaceholderLabel: {
+    width: 56,
+    height: 12,
+    borderRadius: 999,
+  },
 
   /* Chips */
   chip: {
@@ -590,6 +618,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 16,
+  },
+  emptyStateText: {
+    fontSize: 14,
+    fontFamily: 'medium',
+    paddingVertical: 18,
   },
 });
 

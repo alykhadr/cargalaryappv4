@@ -10,7 +10,7 @@ interface InputProps extends TextInputProps {
     id: string;
     icon?: any;
     placeholderTextColor?: string;
-    errorText?: string[];
+    errorText?: string;
     onInputChanged: (id: string, text: string) => void;
 }
 

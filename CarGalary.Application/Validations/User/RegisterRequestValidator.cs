@@ -33,11 +33,8 @@ namespace arGalary.Application.Validations.CarFeature
             RuleFor(x => x.NameAr)
                 .NotEmpty().WithMessage("NameAr is required");
 
-            RuleFor(x => x.BranchId)
-                .GreaterThan(0).WithMessage("Branch is required");
-
-            RuleFor(x => x.DepartmentId)
-                .GreaterThan(0).WithMessage("Department is required");
+            RuleFor(x => x.PhoneNumber)
+                .NotEmpty().WithMessage("PhoneNumber is required");
 
             // RuleFor(x => x.Roles)
             //     .NotEmpty().WithMessage("At least one role must be selected")
