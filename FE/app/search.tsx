@@ -20,6 +20,9 @@ import { useCatalogCategories } from '@/hooks/useCatalogCategories';
 import { ALL_CATEGORY_ID, buildFilterCategories } from '@/utils/catalog';
 import SkeletonCard from '@/components/SkeletonCard';
 
+const DEFAULT_MIN_PRICE = 0;
+const DEFAULT_MAX_PRICE = 1500000;
+
 interface SliderHandleProps {
     enabled: boolean;
     markerStyle: object;
@@ -48,9 +51,9 @@ const Search = () => {
     const refRBSheet = useRef<any>(null);
     const { dark, colors } = useTheme();
     const [selectedCategoryId, setSelectedCategoryId] = useState(ALL_CATEGORY_ID);
-    const [selectedSorts, setSelectedSorts] = useState(["1"]);
-    const [selectedRating, setSelectedRating] = useState(["1"]);
-    const [priceRange, setPriceRange] = useState([0, 100]);
+    const [selectedSortId, setSelectedSortId] = useState("2");
+    const [selectedRatingId, setSelectedRatingId] = useState<string | null>(null);
+    const [priceRange, setPriceRange] = useState([DEFAULT_MIN_PRICE, DEFAULT_MAX_PRICE]);
     const [selectedTab, setSelectedTab] = useState('row');
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredProducts, setFilteredProducts] = useState<Car[]>([]);
@@ -63,16 +66,26 @@ const Search = () => {
         setPriceRange(values);
     };
 
-    const handleSearch = async (query?: string, categoryId: string = selectedCategoryId) => {
+    const handleSearch = async (
+        query?: string,
+        categoryId: string = selectedCategoryId,
+        sortId: string = selectedSortId,
+        ratingId: string | null = selectedRatingId,
+        nextPriceRange: number[] = priceRange,
+    ) => {
         const q = query !== undefined ? query : searchQuery;
         setIsSearching(true);
         try {
             const res = await api.getCars({
                 search: q || undefined,
                 categoryId: categoryId !== ALL_CATEGORY_ID ? categoryId : undefined,
+                sortBy: mapSortIdToApiValue(sortId),
+                minPrice: nextPriceRange[0] > DEFAULT_MIN_PRICE ? nextPriceRange[0].toString() : undefined,
+                maxPrice: nextPriceRange[1] < DEFAULT_MAX_PRICE ? nextPriceRange[1].toString() : undefined,
             });
-            setFilteredProducts(res.cars);
-            setResultsCount(res.total);
+            const visibleCars = applyRatingFilter(res.cars, ratingId);
+            setFilteredProducts(visibleCars);
+            setResultsCount(visibleCars.length);
         } catch {
             setFilteredProducts([]);
             setResultsCount(0);
@@ -240,35 +253,15 @@ const Search = () => {
 
     const toggleCategory = (categoryId: string) => {
         setSelectedCategoryId(categoryId);
-        handleSearch(searchQuery, categoryId);
+        handleSearch(searchQuery, categoryId, selectedSortId, selectedRatingId, priceRange);
     };
 
-    // Toggle sort selection
     const toggleSort = (sortId: string) => {
-        const updatedSorts = [...selectedSorts];
-        const index = updatedSorts.indexOf(sortId);
-
-        if (index === -1) {
-            updatedSorts.push(sortId);
-        } else {
-            updatedSorts.splice(index, 1);
-        }
-
-        setSelectedSorts(updatedSorts);
+        setSelectedSortId(sortId);
     };
 
-    // toggle rating selection
     const toggleRating = (ratingId: string) => {
-        const updatedRatings = [...selectedRating];
-        const index = updatedRatings.indexOf(ratingId);
-
-        if (index === -1) {
-            updatedRatings.push(ratingId);
-        } else {
-            updatedRatings.splice(index, 1);
-        }
-
-        setSelectedRating(updatedRatings);
+        setSelectedRatingId((current) => current === ratingId ? null : ratingId);
     };
 
     // Category item
@@ -295,7 +288,7 @@ const Search = () => {
     const renderSortItem = ({ item }: { item: { id: string; name: string } }) => (
         <TouchableOpacity
             style={{
-                backgroundColor: selectedSorts.includes(item.id) ? COLORS.primary : "transparent",
+                backgroundColor: selectedSortId === item.id ? COLORS.primary : "transparent",
                 padding: 10,
                 marginVertical: 5,
                 borderColor: COLORS.primary,
@@ -306,7 +299,7 @@ const Search = () => {
             onPress={() => toggleSort(item.id)}>
 
             <Text style={{
-                color: selectedSorts.includes(item.id) ? COLORS.white : COLORS.primary
+                color: selectedSortId === item.id ? COLORS.white : COLORS.primary
             }}>{item.name}</Text>
         </TouchableOpacity>
     );
@@ -314,7 +307,7 @@ const Search = () => {
     const renderRatingItem = ({ item }: { item: { id: string; title: string } }) => (
         <TouchableOpacity
             style={{
-                backgroundColor: selectedRating.includes(item.id) ? COLORS.primary : "transparent",
+                backgroundColor: selectedRatingId === item.id ? COLORS.primary : "transparent",
                 paddingHorizontal: 16,
                 paddingVertical: 6,
                 marginVertical: 5,
@@ -327,10 +320,10 @@ const Search = () => {
             }}
             onPress={() => toggleRating(item.id)}>
             <View style={{ marginRight: 6 }}>
-                <FontAwesome name="star" size={14} color={selectedRating.includes(item.id) ? COLORS.white : COLORS.primary} />
+                <FontAwesome name="star" size={14} color={selectedRatingId === item.id ? COLORS.white : COLORS.primary} />
             </View>
             <Text style={{
-                color: selectedRating.includes(item.id) ? COLORS.white : COLORS.primary
+                color: selectedRatingId === item.id ? COLORS.white : COLORS.primary
             }}>{item.title}</Text>
         </TouchableOpacity>
     );
@@ -383,9 +376,9 @@ const Search = () => {
                             values={priceRange}
                             sliderLength={SIZES.width - 32}
                             onValuesChange={handleSliderChange}
-                            min={0}
-                            max={100}
-                            step={1}
+                            min={DEFAULT_MIN_PRICE}
+                            max={DEFAULT_MAX_PRICE}
+                            step={5000}
                             allowOverlap={false}
                             snapped
                             minMarkerOverlapDistance={40}
@@ -395,6 +388,11 @@ const Search = () => {
                             containerStyle={{ height: 40 }}
                             trackStyle={{ height: 3 }}
                         />
+                        <Text style={[styles.priceRangeText, {
+                            color: dark ? COLORS.grayscale100 : COLORS.grayscale700
+                        }]}>
+                            {`SAR ${priceRange[0].toLocaleString()} - SAR ${priceRange[1].toLocaleString()}`}
+                        </Text>
                         <Text style={[styles.sheetTitle, {
                             color: dark ? COLORS.white : COLORS.greyscale900
                         }]}>Sort by</Text>
@@ -436,7 +434,7 @@ const Search = () => {
                             filled
                             style={styles.logoutButton}
                             onPress={() => {
-                                handleSearch();
+                                handleSearch(searchQuery, selectedCategoryId, selectedSortId, selectedRatingId, priceRange);
                                 refRBSheet.current.close();
                             }}
                         />
@@ -603,6 +601,11 @@ const styles = StyleSheet.create({
         color: COLORS.black,
         marginVertical: 12
     },
+    priceRangeText: {
+        fontSize: 14,
+        fontFamily: "medium",
+        marginTop: 4,
+    },
     reusltTabContainer: {
         flexDirection: "row",
         alignItems: "center",
@@ -637,3 +640,35 @@ const styles = StyleSheet.create({
 })
 
 export default Search
+
+function mapSortIdToApiValue(sortId: string) {
+    switch (sortId) {
+        case "1":
+            return "popular";
+        case "2":
+            return "recent";
+        case "3":
+            return "price_desc";
+        case "4":
+            return "price_asc";
+        case "5":
+            return "rating";
+        default:
+            return undefined;
+    }
+}
+
+function applyRatingFilter(cars: Car[], ratingId: string | null) {
+    if (!ratingId) {
+        return cars;
+    }
+
+    const selectedRating = ratings.find((item) => item.id === ratingId);
+    const minimumRating = selectedRating ? Number(selectedRating.title) : 0;
+
+    if (!minimumRating) {
+        return cars;
+    }
+
+    return cars.filter((car) => car.rating >= minimumRating);
+}

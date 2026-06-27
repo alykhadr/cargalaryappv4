@@ -44,6 +44,7 @@ namespace CarGalary.Application.Dtos.Frontend
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
+        public string Model { get; set; } = string.Empty;
         public string ImageKey { get; set; } = string.Empty;
         public List<string> SliderImageKeys { get; set; } = new();
         public string Price { get; set; } = "0.00";
@@ -55,6 +56,14 @@ namespace CarGalary.Application.Dtos.Frontend
         public string BrandLogoKey { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public List<string> Colors { get; set; } = new();
+        public int Year { get; set; }
+        public int Mileage { get; set; }
+        public string FuelType { get; set; } = string.Empty;
+        public string Transmission { get; set; } = string.Empty;
+        public string Drivetrain { get; set; } = string.Empty;
+        public string VehicleClass { get; set; } = string.Empty;
+        public int SeatingCapacity { get; set; }
+        public DateTime CreatedAtUtc { get; set; }
     }
 
     public class FrontendCarQueryDto

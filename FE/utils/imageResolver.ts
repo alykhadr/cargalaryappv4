@@ -125,6 +125,10 @@ export function resolveBrandLogo(key: string): any {
 }
 
 export function resolveCategoryIcon(imageUrl?: string | null, logoKey?: string): any {
+  if (logoKey && logoKey.trim().length > 0 && BRAND_LOGO_MAP[logoKey.trim()]) {
+    return resolveBrandLogo(logoKey.trim());
+  }
+
   if (imageUrl && imageUrl.trim().length > 0) {
     return { uri: normalizeRemoteImageUri(imageUrl.trim()) };
   }

@@ -139,7 +139,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, numSolds, price,
                                 <Text style={styles.ratingText}> {rating}</Text>
                             </View>
                             <View style={styles.priceBadge}>
-                                <Text style={styles.priceText}>${price}</Text>
+                                <Text style={styles.priceText}>SAR {price}</Text>
                             </View>
                         </View>
                     </View>

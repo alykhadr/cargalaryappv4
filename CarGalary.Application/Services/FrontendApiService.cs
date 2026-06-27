@@ -274,6 +274,7 @@ namespace CarGalary.Application.Services
             var modelName = FirstNonEmpty(car.ModelNameEn, car.ModelNameAr);
             var name = FirstNonEmpty(car.NameEn, car.NameAr, string.Join(" ", new[] { brandName, modelName }.Where(x => !string.IsNullOrWhiteSpace(x))));
             var description = FirstNonEmpty(car.DescriptionEn, car.DescriptionAr);
+            var brandLogoKey = NormalizeBrandLogoKey(brandName);
 
             var galleryImages = car.GalleryImages
                 .Where(x => x.IsAvailable && !string.IsNullOrWhiteSpace(x.ImageUrl))
@@ -293,7 +294,12 @@ namespace CarGalary.Application.Services
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            var sliderImages = galleryImages.Count > 0 ? galleryImages : colorImages;
+            var curatedImages = BuildShowcaseImageUrls(brandLogoKey, car.Id);
+            var sliderImages = curatedImages.Count > 0
+                ? curatedImages
+                : galleryImages.Count > 0
+                    ? galleryImages
+                    : colorImages;
             var imageKey = sliderImages.FirstOrDefault() ?? string.Empty;
 
             var colors = car.Colors
@@ -311,22 +317,32 @@ namespace CarGalary.Application.Services
                 .ToList();
 
             var price = prices.Count > 0 ? prices.Min() : 0m;
+            var showcaseStats = BuildShowcaseStats(car.Id, brandName);
 
             return new FrontendCarDto
             {
                 Id = car.Id.ToString(CultureInfo.InvariantCulture),
                 Name = name,
+                Model = modelName,
                 ImageKey = imageKey,
                 SliderImageKeys = sliderImages,
                 Price = price.ToString("N2", CultureInfo.InvariantCulture),
-                NumReviews = 0,
-                Rating = 0,
-                NumSolds = 0,
+                NumReviews = showcaseStats.NumReviews,
+                Rating = showcaseStats.Rating,
+                NumSolds = showcaseStats.NumSolds,
                 CategoryId = car.BrandId?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
                 Brand = brandName,
-                BrandLogoKey = NormalizeBrandLogoKey(brandName),
+                BrandLogoKey = brandLogoKey,
                 Description = description,
-                Colors = colors
+                Colors = colors,
+                Year = car.Year,
+                Mileage = car.Mileage,
+                FuelType = FirstNonEmpty(car.FuelTypeNameEn, car.FuelTypeNameAr),
+                Transmission = FirstNonEmpty(car.TransmisionTypeNameEn, car.TransmisionTypeNameAr),
+                Drivetrain = FirstNonEmpty(car.DrivetrainNameEn, car.DrivetrainNameAr),
+                VehicleClass = FirstNonEmpty(car.VehicleClassNameEn, car.VehicleClassNameAr, car.TypeNameEn, car.TypeNameAr),
+                SeatingCapacity = car.SeatingCapacity ?? 0,
+                CreatedAtUtc = car.CreatedAt,
             };
         }
 
@@ -396,6 +412,7 @@ namespace CarGalary.Application.Services
         {
             return sortBy?.Trim().ToLowerInvariant() switch
             {
+                "recent" => cars.OrderByDescending(x => x.CreatedAtUtc),
                 "price_asc" => cars.OrderBy(x => TryParseDecimal(x.Price, out var price) ? price : decimal.MaxValue),
                 "price_desc" => cars.OrderByDescending(x => TryParseDecimal(x.Price, out var price) ? price : decimal.MinValue),
                 "name" => cars.OrderBy(x => x.Name),
@@ -421,6 +438,47 @@ namespace CarGalary.Application.Services
             return brandName.Trim().ToLowerInvariant().Replace(" ", "-");
         }
 
+        private static ShowcaseStats BuildShowcaseStats(int carId, string brandName)
+        {
+            var hash = Math.Abs(HashCode.Combine(carId, brandName));
+            var ratings = new[] { 4.3m, 4.4m, 4.5m, 4.6m, 4.7m, 4.8m, 4.9m };
+
+            return new ShowcaseStats(
+                ratings[hash % ratings.Length],
+                18 + (hash % 64),
+                6 + (hash % 42));
+        }
+
+        private static List<string> BuildShowcaseImageUrls(string brandLogoKey, int carId)
+        {
+            var supportedBrands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "bmw",
+                "bugatti",
+                "honda",
+                "mercedes",
+                "tesla",
+                "toyota",
+                "volvo",
+            };
+
+            if (!supportedBrands.Contains(brandLogoKey))
+            {
+                return new List<string>();
+            }
+
+            var keys = new List<string>();
+            var start = Math.Abs(carId % 12) + 1;
+
+            for (var offset = 0; offset < 3; offset += 1)
+            {
+                var imageIndex = ((start + offset - 1) % 12) + 1;
+                keys.Add($"/uploads/showcase/{brandLogoKey}/{brandLogoKey}{imageIndex}.png");
+            }
+
+            return keys;
+        }
+
         private static int ParsePositiveInt(string? value)
         {
             return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) && parsed > 0
@@ -436,5 +494,7 @@ namespace CarGalary.Application.Services
                 CultureInfo.InvariantCulture,
                 out parsed);
         }
+
+        private readonly record struct ShowcaseStats(decimal Rating, int NumReviews, int NumSolds);
     }
 }

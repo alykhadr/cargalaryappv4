@@ -93,7 +93,7 @@ const WishlistCard: React.FC<WishlistCardProps> = ({ name, image, numSolds, pric
                                 <Text style={styles.ratingText}> {rating}</Text>
                             </View>
                             <View style={styles.priceBadge}>
-                                <Text style={styles.priceText}>${price}</Text>
+                                <Text style={styles.priceText}>SAR {price}</Text>
                             </View>
                         </View>
                     </View>

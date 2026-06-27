@@ -131,6 +131,15 @@ const CarDetails = () => {
         Toyota: '#FFC02D', Volvo: '#F54336', Bugatti: '#4AAF57', Honda: '#00BCD3',
     };
     const brandAccent = BRAND_COLORS[car?.brand ?? ''] ?? COLORS.primary;
+    const specItems = [
+        { label: 'Year', value: car?.year ? String(car.year) : '' },
+        { label: 'Mileage', value: car?.mileage ? `${car.mileage.toLocaleString()} km` : '' },
+        { label: 'Fuel', value: car?.fuelType || '' },
+        { label: 'Transmission', value: car?.transmission || '' },
+        { label: 'Drive', value: car?.drivetrain || '' },
+        { label: 'Class', value: car?.vehicleClass || '' },
+        { label: 'Seats', value: car?.seatingCapacity ? String(car.seatingCapacity) : '' },
+    ].filter((item) => item.value);
 
     const renderHeader = () => (
         <View style={styles.headerContainer}>
@@ -202,6 +211,29 @@ const CarDetails = () => {
             <Text style={[styles.descText, { color: dark ? COLORS.greyscale300 : COLORS.greyScale800 }]}>
                 {car?.description || ''}
             </Text>
+            {specItems.length > 0 && (
+                <View style={styles.specSection}>
+                    <Text style={[styles.descTitle, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>Key Details</Text>
+                    <View style={styles.specGrid}>
+                        {specItems.map((item) => (
+                            <View
+                                key={item.label}
+                                style={[styles.specCard, {
+                                    backgroundColor: dark ? COLORS.dark2 : COLORS.silver,
+                                    borderColor: dark ? COLORS.dark3 : COLORS.grayscale200,
+                                }]}
+                            >
+                                <Text style={[styles.specLabel, { color: dark ? COLORS.greyscale300 : COLORS.greyscale600 }]}>
+                                    {item.label}
+                                </Text>
+                                <Text style={[styles.specValue, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
+                                    {item.value}
+                                </Text>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            )}
             <View style={styles.featureContainer}>
                 <View style={styles.featureView}>
                     <Text style={[styles.descTitle, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>Color</Text>
@@ -270,7 +302,7 @@ const CarDetails = () => {
                         Price
                     </Text>
                     <Text style={[styles.cartSubtitle, { color: dark ? COLORS.white : COLORS.black }]}>
-                        ${car?.price || ''}
+                        SAR {car?.price || ''}
                     </Text>
                 </View>
                 <Animated.View style={btnAnimStyle}>
@@ -391,6 +423,29 @@ const styles = StyleSheet.create({
     separateLine: { width: "100%", height: 1, backgroundColor: COLORS.grayscale200 },
     descTitle: { fontSize: 18, fontFamily: "bold", color: COLORS.greyscale900, marginVertical: 8 },
     descText: { fontSize: 14, color: COLORS.greyScale800, fontFamily: "regular" },
+    specSection: { marginTop: 6 },
+    specGrid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 10,
+        marginTop: 4,
+    },
+    specCard: {
+        width: (SIZES.width - 44) / 2,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        borderRadius: 16,
+        borderWidth: 1,
+    },
+    specLabel: {
+        fontSize: 12,
+        fontFamily: "medium",
+        marginBottom: 6,
+    },
+    specValue: {
+        fontSize: 14,
+        fontFamily: "bold",
+    },
     featureContainer: {
         flexDirection: "row",
         alignItems: "center",

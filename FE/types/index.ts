@@ -28,6 +28,7 @@ export interface Brand {
 export interface Car {
   id: string;
   name: string;
+  model: string;
   imageKey: string;
   sliderImageKeys: string[];
   price: string;
@@ -39,6 +40,13 @@ export interface Car {
   brandLogoKey: string;
   description: string;
   colors: string[];
+  year: number;
+  mileage: number;
+  fuelType: string;
+  transmission: string;
+  drivetrain: string;
+  vehicleClass: string;
+  seatingCapacity: number;
 }
 
 export interface Inquiry {
