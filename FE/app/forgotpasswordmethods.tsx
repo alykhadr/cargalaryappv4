@@ -14,7 +14,7 @@ type Nav = {
 
 const ForgotPasswordMethods = () => {
     const { navigate } = useNavigation<Nav>();
-    const [selectedMethod, setSelectedMethod] = useState('sms');
+    const [selectedMethod, setSelectedMethod] = useState('username');
     const { colors, dark } = useTheme();
 
     const handleMethodPress = (method: any) => {
@@ -34,27 +34,26 @@ const ForgotPasswordMethods = () => {
                     </View>
                     <Text style={[styles.title, {
                         color: dark ? COLORS.white : COLORS.greyscale900
-                    }]}>Select which contact details
-                        should we use to reset your password</Text>
+                    }]}>Choose how you want to find your account before we send a reset link</Text>
                     <TouchableOpacity
                         style={[
                             styles.methodContainer,
-                            selectedMethod === 'sms' && { borderColor: dark ? COLORS.white : COLORS.primary, borderWidth: 2 },
+                            selectedMethod === 'username' && { borderColor: dark ? COLORS.white : COLORS.primary, borderWidth: 2 },
                         ]}
-                        onPress={() => handleMethodPress('sms')}>
+                        onPress={() => handleMethodPress('username')}>
                         <View style={styles.iconContainer}>
                             <Image
                                 source={icons.chat}
                                 resizeMode='contain'
                                 style={[styles.icon,
-                                selectedMethod === 'sms' && { tintColor: dark ? COLORS.white : COLORS.primary },
+                                selectedMethod === 'username' && { tintColor: dark ? COLORS.white : COLORS.primary },
                                 ]} />
                         </View>
                         <View>
-                            <Text style={styles.methodTitle}>via SMS:</Text>
+                            <Text style={styles.methodTitle}>via Username:</Text>
                             <Text style={[styles.methodSubtitle, {
                                 color: dark ? COLORS.white : COLORS.black
-                            }]}>+1 111 ******99</Text>
+                            }]}>Use the same username you log in with</Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -73,7 +72,7 @@ const ForgotPasswordMethods = () => {
                             <Text style={styles.methodTitle}>via Email:</Text>
                             <Text style={[styles.methodSubtitle, {
                                 color: dark ? COLORS.white : COLORS.black
-                            }]}>and***ley@yourdomain.com</Text>
+                            }]}>Send the reset link to your email address</Text>
                         </View>
                     </TouchableOpacity>
                     <ButtonFilled
@@ -81,7 +80,7 @@ const ForgotPasswordMethods = () => {
                         style={styles.button}
                         onPress={() =>
                             navigate(
-                                selectedMethod === "sms"
+                                selectedMethod === "username"
                                     ? 'forgotpasswordphonenumber'
                                     : 'forgotpasswordemail'
                             )

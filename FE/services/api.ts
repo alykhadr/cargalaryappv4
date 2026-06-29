@@ -1,13 +1,70 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
-import { Brand, Car, CarQueryParams, Inquiry, PrivacyPolicy, ProfilePayload, User } from '../types';
+import Constants from 'expo-constants';
+import { NativeModules, Platform } from 'react-native';
+import { Brand, Car, CarQueryParams, CompanyInformation, Inquiry, PrivacyPolicy, ProfilePayload, User } from '../types';
 
-const API_BASE_URL = (
-  process.env.EXPO_PUBLIC_CARGALARY_API_URL ||
-  (Platform.OS === 'android'
+const API_BASE_URL = resolveApiBaseUrl().replace(/\/$/, '');
+
+function resolveApiBaseUrl() {
+  const envUrl = process.env.EXPO_PUBLIC_CARGALARY_API_URL?.trim();
+  if (envUrl) {
+    return envUrl;
+  }
+
+  const devServerHost = resolveDevServerHost();
+  if (devServerHost) {
+    return `http://${devServerHost}:5121/api`;
+  }
+
+  return Platform.OS === 'android'
     ? 'http://10.0.2.2:5121/api'
-    : 'http://localhost:5121/api')
-).replace(/\/$/, '');
+    : 'http://localhost:5121/api';
+}
+
+function resolveDevServerHost() {
+  const manifestDebuggerHost = (Constants as any)?.manifest?.debuggerHost as string | undefined;
+  const manifest2DebuggerHost = (Constants as any)?.manifest2?.extra?.expoGo?.debuggerHost as string | undefined;
+  const expoHostUri = Constants.expoConfig?.hostUri;
+  const scriptUrl = NativeModules.SourceCode?.scriptURL as string | undefined;
+
+  const candidates = [
+    scriptUrl,
+    expoHostUri,
+    manifest2DebuggerHost,
+    manifestDebuggerHost,
+  ];
+
+  for (const candidate of candidates) {
+    const host = extractHost(candidate);
+    if (host) {
+      return host;
+    }
+  }
+
+  return null;
+}
+
+function extractHost(value?: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const normalized = value.includes('://') ? value : `http://${value}`;
+    const hostname = new URL(normalized).hostname;
+    if (!hostname) {
+      return null;
+    }
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+      return Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+    }
+
+    return hostname;
+  } catch {
+    return null;
+  }
+}
 
 async function request<T>(
   path: string,
@@ -81,6 +138,10 @@ type RegisterPayload = {
   phoneNumber: string;
 };
 
+type ForgotPasswordPayload = {
+  userNameOrEmail: string;
+};
+
 export const api = {
   // Auth
   signup: ({ email, password, fullName, phoneNumber }: RegisterPayload) =>
@@ -106,6 +167,12 @@ export const api = {
     request<AuthResponse>('/auth/login', {
       method: 'POST',
       body: { userName, password },
+    }),
+
+  forgotPassword: ({ userNameOrEmail }: ForgotPasswordPayload) =>
+    request<{ message: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: { userNameOrEmail },
     }),
 
   logout: () =>
@@ -157,4 +224,7 @@ export const api = {
   // Privacy policy
   getPrivacyPolicy: () =>
     request<PrivacyPolicy>('/privacy-policy'),
+
+  getCompanyInformation: () =>
+    request<CompanyInformation>('/company-information'),
 };

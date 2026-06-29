@@ -24,6 +24,7 @@ namespace CarGalary.Domain.Entities
            = new List<UserFavorite>();
 
         public Employee? Employee { get; set; }
-        public Request? Request { get; set; }
+        public ICollection<Request> Requests { get; set; }
+            = new List<Request>();
     }
 }

@@ -129,11 +129,6 @@ namespace CarGalary.Application.Services
                 {
                     throw new ArgumentException("UserId is invalid");
                 }
-
-                if (await _unitOfWork.Requests.UserHasRequestAsync(userId))
-                {
-                    throw new ArgumentException("This user already has a request");
-                }
             }
 
             var entity = _mapper.Map<Request>(dto);

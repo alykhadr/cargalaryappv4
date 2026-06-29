@@ -1,0 +1,141 @@
+﻿<error errorId="91bfdf0e-4837-406a-bc7a-f1aff75397a0" application="CarGalary.Api" host="Mac" type="System.ArgumentException" message="This user already has a request" source="CarGalary.Application" detail="# caller: @C:\Sources\ElmahCore\ElmahCore\ElmahCore\Internal$\CallerInfo.cs:9&#xA;System.ArgumentException: This user already has a request&#xA;   at CarGalary.Application.Services.RequestService.CreateAsync(CreateRequestDto dto) in /Users/alikhadr/Projects/carApp/CarGalary.Application/Services/RequestService.cs:line 135&#xA;   at CarGalary.Application.Services.FrontendApiService.CreateInquiryAsync(Guid userId, String email, FrontendCreateInquiryRequestDto request) in /Users/alikhadr/Projects/carApp/CarGalary.Application/Services/FrontendApiService.cs:line 267&#xA;   at CarGalary.Api.Controllers.InquiriesController.CreateInquiry(FrontendCreateInquiryRequestDto request) in /Users/alikhadr/Projects/carApp/CarGalary.Api/Controllers/InquiriesController.cs:line 45&#xA;   at lambda_method2308(Closure, Object)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.&lt;InvokeActionMethodAsync&gt;g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.&lt;InvokeNextActionFilterAsync&gt;g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State&amp; next, Scope&amp; scope, Object&amp; state, Boolean&amp; isCompleted)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.&lt;InvokeInnerFilterAsync&gt;g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeFilterPipelineAsync&gt;g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeAsync&gt;g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeAsync&gt;g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)&#xA;   at ElmahCore.Mvc.ErrorLogMiddleware.InvokeAsync(HttpContext context)" user="ui.1782584621168@example.com" time="2026-06-29T11:23:54.9119070Z" statusCode="500">
+  <serverVariables>
+    <item name="RequestTimedOut">
+      <value string="False" />
+    </item>
+    <item name="MinResponseDataRate">
+      <value string="Bytes per second: 240, Grace Period: 00:00:05" />
+    </item>
+    <item name="ConnectionIdFeature">
+      <value string="0HNMK82BGN7OE" />
+    </item>
+    <item name="HasStartedConsumingRequestBody">
+      <value string="True" />
+    </item>
+    <item name="MaxRequestBodySize">
+      <value string="30000000" />
+    </item>
+    <item name="MinRequestBodyDataRate">
+      <value string="Bytes per second: 240, Grace Period: 00:00:05" />
+    </item>
+    <item name="AllowSynchronousIO">
+      <value string="False" />
+    </item>
+    <item name="TraceIdentifier">
+      <value string="0HNMK82BGN7OE:00000001" />
+    </item>
+    <item name="IsUpgradableRequest">
+      <value string="False" />
+    </item>
+    <item name="IsUpgraded">
+      <value string="False" />
+    </item>
+    <item name="IsExtendedConnectRequest">
+      <value string="False" />
+    </item>
+    <item name="IsExtendedConnectAccepted">
+      <value string="False" />
+    </item>
+    <item name="RemoteIpAddress">
+      <value string="127.0.0.1" />
+    </item>
+    <item name="RemotePort">
+      <value string="65194" />
+    </item>
+    <item name="LocalIpAddress">
+      <value string="127.0.0.1" />
+    </item>
+    <item name="LocalPort">
+      <value string="5121" />
+    </item>
+    <item name="Scheme">
+      <value string="http" />
+    </item>
+    <item name="Method">
+      <value string="Post" />
+    </item>
+    <item name="MethodText">
+      <value string="POST" />
+    </item>
+    <item name="Path">
+      <value string="/api/inquiries" />
+    </item>
+    <item name="QueryString">
+      <value string="" />
+    </item>
+    <item name="RawTarget">
+      <value string="/api/inquiries" />
+    </item>
+    <item name="HttpVersion">
+      <value string="HTTP/1.1" />
+    </item>
+    <item name="Header_Connection">
+      <value string="keep-alive" />
+    </item>
+    <item name="Header_Host">
+      <value string="10.0.2.2:5121" />
+    </item>
+    <item name="Header_User-Agent">
+      <value string="okhttp/4.12.0" />
+    </item>
+    <item name="Header_Accept-Encoding">
+      <value string="gzip" />
+    </item>
+    <item name="Header_Authorization">
+      <value string="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MTA0NDU5Ni1lOGViLTQwZTgtMTEyNS0wOGRlZDQ3NmMzMjciLCJlbWFpbCI6IlVJLjE3ODI1ODQ2MjExNjhARVhBTVBMRS5DT00iLCJqdGkiOiI2ZGIyNjYwNy0wNDJlLTQ1ZTgtYWMzOC04ODliOWQyNmE0MDciLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQxMDQ0NTk2LWU4ZWItNDBlOC0xMTI1LTA4ZGVkNDc2YzMyNyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6IlVJLjE3ODI1ODQ2MjExNjhARVhBTVBMRS5DT00iLCJicmFuY2hfaWQiOiIxIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6InVpLjE3ODI1ODQ2MjExNjhAZXhhbXBsZS5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJ1c2VyIiwiZXhwIjoxNzgyODE3NTg2LCJpc3MiOiJDYXJBcGkiLCJhdWQiOiJDYXJBcGlVc2VycyJ9.tOHeCjZh0AtVZ8pt7cn1giVg6evHOMwGWbYz1dQ467w" />
+    </item>
+    <item name="Header_Content-Type">
+      <value string="application/json" />
+    </item>
+    <item name="Header_Content-Length">
+      <value string="82" />
+    </item>
+    <item name="RequestTrailersAvailable">
+      <value string="True" />
+    </item>
+    <item name="StatusCode">
+      <value string="200" />
+    </item>
+    <item name="HasResponseStarted">
+      <value string="False" />
+    </item>
+    <item name="HasFlushedHeaders">
+      <value string="False" />
+    </item>
+    <item name="HasResponseCompleted">
+      <value string="False" />
+    </item>
+    <item name="UnflushedBytes">
+      <value string="0" />
+    </item>
+    <item name="IsWebTransportRequest">
+      <value string="False" />
+    </item>
+    <item name="Items_Items__FV_Customizations">
+      <value string="(CarGalary.Application.Dtos.Frontend.FrontendCreateInquiryRequestDto, FluentValidation.AspNetCore.CustomizeValidatorAttribute)" />
+    </item>
+    <item name="Connection_Id">
+      <value string="0HNMK82BGN7OE" />
+    </item>
+    <item name="Connection_RemoteIpAddress">
+      <value string="127.0.0.1" />
+    </item>
+    <item name="Connection_RemotePort">
+      <value string="65194" />
+    </item>
+    <item name="Connection_LocalIpAddress">
+      <value string="127.0.0.1" />
+    </item>
+    <item name="Connection_LocalPort">
+      <value string="5121" />
+    </item>
+    <item name="HttpStatusCode">
+      <value string="500" />
+    </item>
+  </serverVariables>
+  <form>
+    <item name="$request-body">
+      <value string="{&quot;carId&quot;:&quot;1014&quot;,&quot;name&quot;:&quot;UI Smoke User1&quot;,&quot;phone&quot;:&quot;966500000555&quot;,&quot;message&quot;:&quot;agccas&quot;}" />
+    </item>
+  </form>
+</error>

@@ -1,4 +1,4 @@
-import { View, StyleSheet, Image, TouchableOpacity, FlatList, ListRenderItemInfo, ScrollView } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, FlatList, ListRenderItemInfo, ScrollView, Alert, Linking } from 'react-native';
 import AppAvatar from '@/components/AppAvatar';
 import React, { useEffect, useRef, useState } from 'react';
 import Text from '@/components/LocalizedText';
@@ -13,7 +13,7 @@ import SkeletonCard from '@/components/SkeletonCard';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { api } from '@/services/api';
-import { Car } from '@/types';
+import { Car, CompanyInformation } from '@/types';
 import { resolveCarImage, resolveCategoryIcon } from '@/utils/imageResolver';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
@@ -45,6 +45,10 @@ interface BannerItem {
 const FEATURED_CARD_W = 190;
 const FEATURED_CARD_H = 126;
 
+function normalizePhoneForWhatsapp(phone?: string | null) {
+  return (phone ?? '').replace(/[^\d]/g, '');
+}
+
 const Home = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const router = useRouter();
@@ -54,6 +58,7 @@ const Home = () => {
   const { user, isGuest } = useAuth();
   const [cars, setCars] = useState<Car[]>([]);
   const [carsLoading, setCarsLoading] = useState(true);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInformation | null>(null);
   const { categories, loading: categoriesLoading } = useCatalogCategories(cars);
   const bannerRef = useRef<FlatList>(null);
   const autoScrollIdx = useRef(0);
@@ -92,6 +97,12 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    api.getCompanyInformation()
+      .then(setCompanyInfo)
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (!bannerReady || !bannerContentReady) {
       return;
     }
@@ -120,6 +131,30 @@ const Home = () => {
     if (h < 12) return 'Good Morning';
     if (h < 17) return 'Good Afternoon';
     return 'Good Evening';
+  };
+
+  const handleWhatsappPress = async () => {
+    const phone = normalizePhoneForWhatsapp(companyInfo?.mobileNo || companyInfo?.telNo);
+    if (!phone) {
+      Alert.alert('WhatsApp unavailable', 'No WhatsApp contact number is configured yet.');
+      return;
+    }
+
+    const companyName = companyInfo?.companyNameEn?.trim() || 'Car Gallery';
+    const message = encodeURIComponent(`Hello ${companyName}, I want to ask about a car.`);
+    const url = `https://wa.me/${phone}?text=${message}`;
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (!supported) {
+        Alert.alert('WhatsApp unavailable', 'Unable to open WhatsApp on this device.');
+        return;
+      }
+
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert('WhatsApp unavailable', 'Unable to start WhatsApp chat right now.');
+    }
   };
 
 /* ── Header ── */
@@ -410,7 +445,11 @@ const Home = () => {
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {renderHeader()}
         <Animated.View style={[{ flex: 1 }, contentStyle]}>
-          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={styles.scrollContent}
+          >
             {renderSearchBar()}
             {renderBanner()}
             {renderFeatured()}
@@ -418,6 +457,13 @@ const Home = () => {
             {renderPopularProducts()}
           </ScrollView>
         </Animated.View>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.whatsappFab}
+          onPress={handleWhatsappPress}
+        >
+          <Image source={icons.whatsapp} resizeMode="contain" style={styles.whatsappIcon} />
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -426,6 +472,28 @@ const Home = () => {
 const styles = StyleSheet.create({
   area: { flex: 1, backgroundColor: COLORS.white },
   container: { flex: 1, backgroundColor: COLORS.white, padding: 16 },
+  scrollContent: { paddingBottom: 96 },
+  whatsappFab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 24,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: '#25D366',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  whatsappIcon: {
+    width: 28,
+    height: 28,
+    tintColor: COLORS.white,
+  },
 
   /* Header */
   headerContainer: {

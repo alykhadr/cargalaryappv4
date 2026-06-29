@@ -101,13 +101,6 @@ namespace CarGalary.Infrastructure.ImplementRepositories
                 .FirstOrDefaultAsync(x => x.Id == id && x.Car.BranchId == branchId);
         }
 
-        public async Task<bool> UserHasRequestAsync(Guid userId)
-        {
-            return await _context.Requests
-                .AsNoTracking()
-                .AnyAsync(x => x.UserId == userId && x.IsAvailable);
-        }
-
         public async Task<bool> UserExistsAsync(Guid userId)
         {
             return await _context.Users

@@ -11,7 +11,6 @@ namespace CarGalary.Domain.RepositoryInterfaces
         Task<Request?> GetByIdAsync(int id, int branchId);
         Task<Request?> GetByIdForUpdateAsync(int id);
         Task<Request?> GetByIdForUpdateAsync(int id, int branchId);
-        Task<bool> UserHasRequestAsync(Guid userId);
         Task<bool> UserExistsAsync(Guid userId);
     }
 }

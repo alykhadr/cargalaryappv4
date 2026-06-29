@@ -41,12 +41,11 @@ namespace CarGalary.Infrastructure.Configuration
                 .HasDefaultValueSql("GETUTCDATE()");
 
             builder.HasIndex(x => x.UserId)
-                .IsUnique()
                 .HasFilter("[UserId] IS NOT NULL");
 
             builder.HasOne(x => x.User)
-                .WithOne(u => u.Request)
-                .HasForeignKey<Request>(x => x.UserId)
+                .WithMany(u => u.Requests)
+                .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasOne(x => x.Car)

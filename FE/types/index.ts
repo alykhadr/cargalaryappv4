@@ -66,6 +66,25 @@ export interface PrivacyPolicy {
   isAvailable: boolean;
 }
 
+export interface CompanyInformation {
+  id: number;
+  companyNameAr?: string | null;
+  companyNameEn?: string | null;
+  crNumber?: string | null;
+  vatRegistrationNumber?: string | null;
+  logoUrl?: string | null;
+  mobileNo?: string | null;
+  telNo?: string | null;
+  email?: string | null;
+  aboutUsAr?: string | null;
+  aboutUsEn?: string | null;
+  ourMissionAr?: string | null;
+  ourMissionEn?: string | null;
+  ourGoalsAr?: string | null;
+  ourGoalsEn?: string | null;
+  isAvailable: boolean;
+}
+
 export interface ProfilePayload {
   fullName?: string;
   nickname?: string;

@@ -1,370 +1,154 @@
 import ButtonFilled from '@/components/ButtonFilled';
-import { NavigationProp } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Text from '@/components/LocalizedText';
-import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import RBSheet from 'react-native-raw-bottom-sheet';
+import TextInput from '@/components/LocalizedTextInput';
+import { Alert, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AddressMap from '../components/AddressMap';
-import Input from '../components/Input';
-import { COLORS, FONTS, icons, SIZES } from '../constants';
-import { commonStyles } from '../styles/CommonStyles';
+import Header from '../components/Header';
+import { COLORS, SIZES } from '../constants';
+import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '../theme/ThemeProvider';
-import { validateInput } from '../utils/actions/formActions';
-import { reducer } from '../utils/reducers/formReducers';
-
-const initialState = {
-    inputValues: {
-        address: '',
-        street: '',
-        postalCode: '',
-        appartment: '',
-    },
-    inputValidities: {
-        address: false,
-        street: false,
-        postalCode: false,
-        appartment: false,
-    },
-    formIsValid: false,
-}
 
 type Nav = {
-    navigate: (value: string) => void
-}
+  goBack: () => void;
+};
 
 const AddNewAddress = () => {
-    const { navigate } = useNavigation<Nav>();
-    const navigation = useNavigation<NavigationProp<any>>();
-    const bottomSheetRef = useRef<any>(null);
-    const [error, setError] = useState();
-    const [formState, dispatchFormState] = useReducer(reducer, initialState);
-    const [selectedLabel, setSelectedLabel] = useState(null);
-    const { dark, colors } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const { dark, colors } = useTheme();
+  const { user, isGuest, updateProfile } = useAuth();
+  const [address, setAddress] = useState(user?.country ?? '');
+  const [isSaving, setIsSaving] = useState(false);
 
-    const handleLabelSelection = (label: any) => {
-        setSelectedLabel(label)
-    };
+  useEffect(() => {
+    setAddress(user?.country ?? '');
+  }, [user?.country]);
 
-    const inputChangedHandler = useCallback(
-        (inputId: string, inputValue: string) => {
-            const result = validateInput(inputId, inputValue)
-            dispatchFormState({
-                inputId,
-                validationResult: result,
-                inputValue,
-            })
-        }, [dispatchFormState]);
+  const handleSave = async () => {
+    const trimmedAddress = address.trim();
+    if (!trimmedAddress) {
+      Alert.alert('Error', 'Please enter your address');
+      return;
+    }
 
-    useEffect(() => {
-        if (error) {
-            Alert.alert('An error occured', error)
-        }
-    }, [error]);
+    setIsSaving(true);
+    try {
+      await updateProfile({ country: trimmedAddress });
+      Alert.alert('Address Updated', 'Your profile address has been saved.');
+      navigation.goBack();
+    } catch (error: any) {
+      Alert.alert('Save Failed', error?.message || 'Unable to save address');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-    // open the bottom sheet on component mount
-    useEffect(() => {
-        bottomSheetRef.current.open();
-    }, []);
-
+  if (isGuest || !user) {
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-            <StatusBar hidden={true} />
-            <View
-                style={{
-                    position: 'absolute',
-                    marginHorizontal: 16,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    top: 22,
-                    zIndex: 999,
-                }}>
-                <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    style={{
-                        height: 45,
-                        width: 45,
-                        borderRadius: 22.5,
-                        backgroundColor: COLORS.black,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginRight: 16,
-                        zIndex: 9999,
-                    }}>
-                    <Image
-                        source={icons.arrowLeft}
-                        resizeMode="contain"
-                        style={{
-                            height: 24,
-                            width: 24,
-                            tintColor: COLORS.white,
-                        }}
-                    />
-                </TouchableOpacity>
-                <Text style={{ ...FONTS.body3 }}>Add New Address</Text>
-            </View>
-            <AddressMap dark={dark} />
-            <RBSheet
-                ref={bottomSheetRef}
-                height={500}
-                openDuration={250}
-                closeOnPressMask={false}
-                customStyles={{
-                    wrapper: {
-                        backgroundColor: 'transparent',
-                    },
-                    draggableIcon: {
-                        backgroundColor: COLORS.gray2,
-                        width: 100,
-                    },
-                    container: {
-                        backgroundColor: dark ? COLORS.dark1 : COLORS.white,
-                        paddingVertical: 16
-                    }
-                }}>
-                <View
-                    style={{
-                        width: SIZES.width - 32,
-                        marginHorizontal: 16,
-                    }}>
-                    <View style={{ flexDirection: 'row' }}>
-                        <View style={{ marginVertical: 0 }}>
-                            <View
-                                style={{
-                                    marginTop: 0,
-                                    width: SIZES.width - 32,
-                                }}>
-                                <Text style={[commonStyles.inputHeader, {
-                                    color: dark ? COLORS.white : COLORS.greyscale900
-                                }]}>
-                                    Address
-                                </Text>
-                                <Input
-                                    id="address"
-                                    onInputChanged={inputChangedHandler}
-                                    errorText={formState.inputValidities['address']}
-                                    placeholder="3235 Royal Ln. mesa, new jersy 34567"
-                                    placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
-                                />
-                            </View>
-                            <View style={{ marginTop: 12 }}>
-                                <Text style={[commonStyles.inputHeader, {
-                                    color: dark ? COLORS.white : COLORS.greyscale900
-                                }]}>
-                                    Appartment
-                                </Text>
-                                <Input
-                                    id="appartment"
-                                    onInputChanged={inputChangedHandler}
-                                    errorText={formState.inputValidities['appartment']}
-                                    placeholder="2143"
-                                    placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
-                                />
-                            </View>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    marginTop: 12,
-                                }}>
-                                <View
-                                    style={{ width: (SIZES.width - 32) / 2 - 10 }}>
-                                    <Text style={[commonStyles.inputHeader, {
-                                        color: dark ? COLORS.white : COLORS.greyscale900
-                                    }]}>
-                                        Street
-                                    </Text>
-                                    <Input
-                                        id="street"
-                                        onInputChanged={inputChangedHandler}
-                                        errorText={formState.inputValidities['street']}
-                                        placeholder="hason nagar"
-                                        placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
-                                    />
-                                </View>
-                                <View
-                                    style={{ width: (SIZES.width - 32) / 2 - 10 }}>
-                                    <Text style={[commonStyles.inputHeader, {
-                                        color: dark ? COLORS.white : COLORS.greyscale900
-                                    }]}>
-                                        Post Code
-                                    </Text>
-                                    <Input
-                                        id="postalCode"
-                                        onInputChanged={inputChangedHandler}
-                                        errorText={formState.inputValidities['postalCode']}
-                                        placeholder="3456"
-                                        placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
-                                    />
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                    <View>
-                        <Text
-                            style={{
-                                fontSize: 13,
-                                fontFamily: 'regular',
-                                marginBottom: 2,
-                                color: dark ? COLORS.white : COLORS.greyscale900
-                            }}>
-                            AVAILABLE TIME
-                        </Text>
-                        <View
-                            style={{ flexDirection: 'row', marginVertical: 13 }}>
-                            <TouchableOpacity
-                                style={[
-                                    styles.checkboxContainer,
-                                    selectedLabel === 'home' &&
-                                    styles.selectedCheckbox,
-                                    {
-                                        borderColor: dark ? COLORS.primary : COLORS.greyscale900
-                                    }
-                                ]}
-                                onPress={() => handleLabelSelection('home')}>
-                                <Text
-                                    style={[
-                                        selectedLabel === 'home' &&
-                                        styles.checkboxText,
-                                        {
-                                            color: selectedLabel === 'home' ? COLORS.white : dark ? COLORS.primary : COLORS.greyscale900
-                                        }
-                                    ]}>
-                                    Home
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[
-                                    styles.checkboxContainer,
-                                    selectedLabel === 'work' &&
-                                    styles.selectedCheckbox,
-                                    {
-                                        borderColor: dark ? COLORS.primary : COLORS.greyscale900
-                                    }
-                                ]}
-                                onPress={() => handleLabelSelection('work')}>
-                                <Text
-                                    style={[
-                                        selectedLabel === 'work' &&
-                                        styles.checkboxText, {
-                                            color: selectedLabel === 'work' ? COLORS.white : dark ? COLORS.primary : COLORS.greyscale900
-                                        }
-                                    ]}>
-                                    Work
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[
-                                    styles.checkboxContainer,
-                                    selectedLabel === 'other' &&
-                                    styles.selectedCheckbox,
-                                    {
-                                        borderColor: dark ? COLORS.primary : COLORS.greyscale900
-                                    }
-                                ]}
-                                onPress={() => handleLabelSelection('other')}>
-                                <Text
-                                    style={[
-                                        selectedLabel === 'other' &&
-                                        styles.checkboxText,
-                                        {
-                                            color: selectedLabel === 'other' ? COLORS.white : dark ? COLORS.primary : COLORS.greyscale900
-                                        }
-                                    ]}>
-                                    Other
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                        <ButtonFilled
-                            title="SAVE LOCATION"
-                            onPress={() => {
-                                bottomSheetRef.current.close()
-                                setTimeout(() => {
-                                    navigation.goBack()
-                                }, 1000)
-                            }}
-                            style={{
-                                borderRadius: 30
-                            }}
-                        />
-                    </View>
-                </View>
-            </RBSheet>
-        </SafeAreaView>
-    )
-}
+      <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+          <Header title="Add Address" />
+          <View style={styles.centerWrap}>
+            <Text style={[styles.title, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
+              Login required
+            </Text>
+            <Text style={[styles.subtitle, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>
+              Address is stored on your profile, so you need to be signed in to edit it.
+            </Text>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Header title={user?.country ? 'Update Address' : 'Add Address'} />
+        <View style={styles.formWrap}>
+          <Text style={[styles.title, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
+            Saved Address
+          </Text>
+          <Text style={[styles.subtitle, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>
+            This is the address currently tied to your account and visible from the profile address screen.
+          </Text>
+          <TextInput
+            value={address}
+            onChangeText={setAddress}
+            placeholder="Enter your address"
+            placeholderTextColor={dark ? COLORS.grayTie : COLORS.grayscale700}
+            multiline
+            textAlignVertical="top"
+            style={[
+              styles.addressInput,
+              {
+                color: dark ? COLORS.white : COLORS.greyscale900,
+                backgroundColor: dark ? COLORS.dark2 : COLORS.grayscale100,
+                borderColor: dark ? COLORS.dark3 : COLORS.grayscale200,
+              },
+            ]}
+          />
+        </View>
+        <View style={styles.buttonWrap}>
+          <ButtonFilled
+            title={isSaving ? 'Saving...' : 'Save Address'}
+            onPress={handleSave}
+            style={styles.button}
+          />
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
-    body3: {
-        fontSize: 12,
-        color: COLORS.grayscale700,
-        marginVertical: 3,
-    },
-    h3: {
-        fontSize: 12,
-        color: COLORS.grayscale700,
-        marginVertical: 3,
-        fontFamily: 'bold',
-        marginRight: 6,
-    },
-    btn1: {
-        width: 45,
-        height: 45,
-        borderRadius: 22.5,
-        backgroundColor: COLORS.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    btn2: {
-        width: 45,
-        height: 45,
-        borderRadius: 22.5,
-        borderColor: COLORS.primary,
-        borderWidth: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    checkboxContainer: {
-        paddingHorizontal: 8,
-        paddingVertical: 8,
-        borderRadius: 30,
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,.5)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 12,
-        marginBottom: 12,
-    },
-    roundedCheckBoxContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 48,
-        width: 48,
-        borderRadius: 22,
-        borderWidth: 1,
-        borderColor: COLORS.gray,
-        backgroundColor: COLORS.gray,
-        marginRight: 12,
-    },
-    selectedCheckbox: {
-        backgroundColor: COLORS.primary,
-    },
-    checkboxText: {
-        color: COLORS.white,
-        fontSize: 16,
-        fontFamily: 'regular',
-    },
-    starContainer: {
-        height: 48,
-        width: 48,
-        borderRadius: 24,
-        borderWidth: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 6,
-    },
-})
+  area: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: COLORS.white,
+  },
+  formWrap: {
+    flex: 1,
+    marginTop: 18,
+  },
+  centerWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: 'bold',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 14,
+    fontFamily: 'regular',
+    lineHeight: 20,
+    marginBottom: 18,
+  },
+  addressInput: {
+    minHeight: 160,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    fontFamily: 'regular',
+  },
+  buttonWrap: {
+    paddingBottom: 20,
+  },
+  button: {
+    width: SIZES.width - 32,
+    borderRadius: 30,
+  },
+});
 
-export default AddNewAddress
+export default AddNewAddress;

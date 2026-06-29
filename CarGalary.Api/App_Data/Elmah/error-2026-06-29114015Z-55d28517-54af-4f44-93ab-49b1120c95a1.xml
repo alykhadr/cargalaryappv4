@@ -1,0 +1,153 @@
+﻿<error errorId="55d28517-54af-4f44-93ab-49b1120c95a1" application="CarGalary.Api" host="Mac" type="Microsoft.Data.SqlClient.SqlException" message="Cannot insert duplicate key row in object 'dbo.Requests' with unique index 'IX_Requests_UserId'. The duplicate key value is (41044596-e8eb-40e8-1125-08ded476c327)." source="Core Microsoft SqlClient Data Provider" detail="# caller: @C:\Sources\ElmahCore\ElmahCore\ElmahCore\Internal$\CallerInfo.cs:9&#xA;Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.&#xA; ---&gt; Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot insert duplicate key row in object 'dbo.Requests' with unique index 'IX_Requests_UserId'. The duplicate key value is (41044596-e8eb-40e8-1125-08ded476c327).&#xA;   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)&#xA;   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)&#xA;   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)&#xA;   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean&amp; dataReady)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean&amp; moreRows)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean&amp; more)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.ReadAsyncExecute(Task task, Object state)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)&#xA;--- End of stack trace from previous location ---&#xA;   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)&#xA;ClientConnectionId:9c1485d3-b7e5-46a8-b04d-0c39e6500498&#xA;Error Number:2601,State:1,Class:14&#xA;   --- End of inner exception stack trace ---&#xA;   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)&#xA;   at CarGalary.Infrastructure.UnitOfWork.UnitOfWork.SaveChangesAsync(CancellationToken cancellationToken) in /Users/alikhadr/Projects/carApp/CarGalary.Infrastructure/UnitOfWork/UnitOfWork.cs:line 115&#xA;   at CarGalary.Application.Services.RequestService.CreateAsync(CreateRequestDto dto) in /Users/alikhadr/Projects/carApp/CarGalary.Application/Services/RequestService.cs:line 149&#xA;   at CarGalary.Application.Services.FrontendApiService.CreateInquiryAsync(Guid userId, String email, FrontendCreateInquiryRequestDto request) in /Users/alikhadr/Projects/carApp/CarGalary.Application/Services/FrontendApiService.cs:line 267&#xA;   at CarGalary.Api.Controllers.InquiriesController.CreateInquiry(FrontendCreateInquiryRequestDto request) in /Users/alikhadr/Projects/carApp/CarGalary.Api/Controllers/InquiriesController.cs:line 45&#xA;   at lambda_method674(Closure, Object)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.&lt;InvokeActionMethodAsync&gt;g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.&lt;InvokeNextActionFilterAsync&gt;g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State&amp; next, Scope&amp; scope, Object&amp; state, Boolean&amp; isCompleted)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.&lt;InvokeInnerFilterAsync&gt;g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeFilterPipelineAsync&gt;g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeAsync&gt;g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)&#xA;   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeAsync&gt;g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)&#xA;   at ElmahCore.Mvc.ErrorLogMiddleware.InvokeAsync(HttpContext context)" user="ui.1782584621168@example.com" time="2026-06-29T11:40:15.9900510Z" statusCode="500">
+  <serverVariables>
+    <item name="RequestTimedOut">
+      <value string="False" />
+    </item>
+    <item name="MinResponseDataRate">
+      <value string="Bytes per second: 240, Grace Period: 00:00:05" />
+    </item>
+    <item name="ConnectionIdFeature">
+      <value string="0HNMLQCKMMRI7" />
+    </item>
+    <item name="HasStartedConsumingRequestBody">
+      <value string="True" />
+    </item>
+    <item name="MaxRequestBodySize">
+      <value string="30000000" />
+    </item>
+    <item name="MinRequestBodyDataRate">
+      <value string="Bytes per second: 240, Grace Period: 00:00:05" />
+    </item>
+    <item name="AllowSynchronousIO">
+      <value string="False" />
+    </item>
+    <item name="TraceIdentifier">
+      <value string="0HNMLQCKMMRI7:00000001" />
+    </item>
+    <item name="IsUpgradableRequest">
+      <value string="False" />
+    </item>
+    <item name="IsUpgraded">
+      <value string="False" />
+    </item>
+    <item name="IsExtendedConnectRequest">
+      <value string="False" />
+    </item>
+    <item name="IsExtendedConnectAccepted">
+      <value string="False" />
+    </item>
+    <item name="RemoteIpAddress">
+      <value string="127.0.0.1" />
+    </item>
+    <item name="RemotePort">
+      <value string="49717" />
+    </item>
+    <item name="LocalIpAddress">
+      <value string="127.0.0.1" />
+    </item>
+    <item name="LocalPort">
+      <value string="5121" />
+    </item>
+    <item name="Scheme">
+      <value string="http" />
+    </item>
+    <item name="Method">
+      <value string="Post" />
+    </item>
+    <item name="MethodText">
+      <value string="POST" />
+    </item>
+    <item name="Path">
+      <value string="/api/inquiries" />
+    </item>
+    <item name="QueryString">
+      <value string="" />
+    </item>
+    <item name="RawTarget">
+      <value string="/api/inquiries" />
+    </item>
+    <item name="HttpVersion">
+      <value string="HTTP/1.1" />
+    </item>
+    <item name="Header_Accept">
+      <value string="*/*" />
+    </item>
+    <item name="Header_Connection">
+      <value string="keep-alive" />
+    </item>
+    <item name="Header_Host">
+      <value string="localhost:5121" />
+    </item>
+    <item name="Header_User-Agent">
+      <value string="node" />
+    </item>
+    <item name="Header_Accept-Encoding">
+      <value string="gzip, deflate" />
+    </item>
+    <item name="Header_Accept-Language">
+      <value string="*" />
+    </item>
+    <item name="Header_Authorization">
+      <value string="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MTA0NDU5Ni1lOGViLTQwZTgtMTEyNS0wOGRlZDQ3NmMzMjciLCJlbWFpbCI6IlVJLjE3ODI1ODQ2MjExNjhARVhBTVBMRS5DT00iLCJqdGkiOiIzMjk2MTQyMS05NTczLTRkMGUtOGI5OC1iN2UwOTAwYjQ4MDciLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQxMDQ0NTk2LWU4ZWItNDBlOC0xMTI1LTA4ZGVkNDc2YzMyNyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6IlVJLjE3ODI1ODQ2MjExNjhARVhBTVBMRS5DT00iLCJicmFuY2hfaWQiOiIxIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6InVpLjE3ODI1ODQ2MjExNjhAZXhhbXBsZS5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJ1c2VyIiwiZXhwIjoxNzgyODE5NjE1LCJpc3MiOiJDYXJBcGkiLCJhdWQiOiJDYXJBcGlVc2VycyJ9.plHIvLhEjyU-7Ji3dquGu4BigDdcQyZNpuEsa8XZNJ0" />
+    </item>
+    <item name="Header_Content-Type">
+      <value string="application/json" />
+    </item>
+    <item name="Header_Content-Length">
+      <value string="105" />
+    </item>
+    <item name="Header_sec-fetch-mode">
+      <value string="cors" />
+    </item>
+    <item name="RequestTrailersAvailable">
+      <value string="True" />
+    </item>
+    <item name="StatusCode">
+      <value string="200" />
+    </item>
+    <item name="HasResponseStarted">
+      <value string="False" />
+    </item>
+    <item name="HasFlushedHeaders">
+      <value string="False" />
+    </item>
+    <item name="HasResponseCompleted">
+      <value string="False" />
+    </item>
+    <item name="UnflushedBytes">
+      <value string="0" />
+    </item>
+    <item name="IsWebTransportRequest">
+      <value string="False" />
+    </item>
+    <item name="Items_Items__FV_Customizations">
+      <value string="(CarGalary.Application.Dtos.Frontend.FrontendCreateInquiryRequestDto, FluentValidation.AspNetCore.CustomizeValidatorAttribute)" />
+    </item>
+    <item name="Connection_Id">
+      <value string="0HNMLQCKMMRI7" />
+    </item>
+    <item name="Connection_RemoteIpAddress">
+      <value string="127.0.0.1" />
+    </item>
+    <item name="Connection_RemotePort">
+      <value string="49717" />
+    </item>
+    <item name="Connection_LocalIpAddress">
+      <value string="127.0.0.1" />
+    </item>
+    <item name="Connection_LocalPort">
+      <value string="5121" />
+    </item>
+    <item name="HttpStatusCode">
+      <value string="500" />
+    </item>
+  </serverVariables>
+  <form>
+    <item name="$request-body">
+      <value string="{&quot;carId&quot;:&quot;1014&quot;,&quot;name&quot;:&quot;UI Smoke User&quot;,&quot;phone&quot;:&quot;966500000555&quot;,&quot;message&quot;:&quot;post-fix inquiry 1782733215399&quot;}" />
+    </item>
+  </form>
+  <messageLog>
+    <message level="Error" exception="Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.&#xA; ---&gt; Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot insert duplicate key row in object 'dbo.Requests' with unique index 'IX_Requests_UserId'. The duplicate key value is (41044596-e8eb-40e8-1125-08ded476c327).&#xA;   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)&#xA;   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)&#xA;   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)&#xA;   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean&amp; dataReady)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean&amp; moreRows)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean&amp; more)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.ReadAsyncExecute(Task task, Object state)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)&#xA;--- End of stack trace from previous location ---&#xA;   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)&#xA;ClientConnectionId:9c1485d3-b7e5-46a8-b04d-0c39e6500498&#xA;Error Number:2601,State:1,Class:14&#xA;   --- End of inner exception stack trace ---&#xA;   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)" time-stamp="2026-06-29T11:40:15.9834980Z" message="An exception occurred in the database while saving changes for context type 'CarGalary.Infrastructure.Context.ApplicationDbContext'.&#xA;Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.&#xA; ---&gt; Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot insert duplicate key row in object 'dbo.Requests' with unique index 'IX_Requests_UserId'. The duplicate key value is (41044596-e8eb-40e8-1125-08ded476c327).&#xA;   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)&#xA;   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)&#xA;   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)&#xA;   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean&amp; dataReady)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean&amp; moreRows)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean&amp; more)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.ReadAsyncExecute(Task task, Object state)&#xA;   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)&#xA;--- End of stack trace from previous location ---&#xA;   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)&#xA;ClientConnectionId:9c1485d3-b7e5-46a8-b04d-0c39e6500498&#xA;Error Number:2601,State:1,Class:14&#xA;   --- End of inner exception stack trace ---&#xA;   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)&#xA;   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)" />
+  </messageLog>
+</error>

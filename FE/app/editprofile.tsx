@@ -1,492 +1,380 @@
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { NavigationProp } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from 'expo-router';
-import React, { useCallback, useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Text from '@/components/LocalizedText';
 import TextInput from '@/components/LocalizedTextInput';
-import { Alert, FlatList, Image, Modal, ScrollView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { getFormatedDate } from "react-native-modern-datepicker";
-import RNPickerSelect from 'react-native-picker-select';
+import { Alert, Image, Modal, ScrollView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ButtonFilled from '../components/ButtonFilled';
-import DatePickerModal from '../components/DatePickerModal';
 import Header from '../components/Header';
 import Input from '../components/Input';
-import { COLORS, FONTS, icons, images, SIZES } from '../constants';
+import { COLORS, icons, SIZES } from '../constants';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../theme/ThemeProvider';
-import { validateInput } from '../utils/actions/formActions';
 import { launchImagePicker } from '../utils/ImagePickerHelper';
-import { reducer } from '../utils/reducers/formReducers';
 
-const isTestMode = true;
+type Nav = {
+  goBack: () => void;
+};
 
-const initialState = {
-    inputValues: {
-        fullName: isTestMode ? 'John Doe' : '',
-        email: isTestMode ? 'example@gmail.com' : '',
-        nickname: isTestMode ? "" : "",
-        phoneNumber: ''
-    },
-    inputValidities: {
-        fullName: false,
-        email: false,
-        nickname: false,
-        phoneNumber: false,
-    },
-    formIsValid: false,
-}
-
-interface Item {
-    flag: string;
-    item: string;
-    code: string
-}
-
-interface RenderItemProps {
-    item: Item;
-}
+type AreaItem = {
+  code: string;
+  item: string;
+  callingCode: string;
+  flag: string;
+};
 
 const EditProfile = () => {
-    const navigation = useNavigation<NavigationProp<any>>();
-    const [image, setImage] = useState<any>(null);
-    const [error, setError] = useState();
-    const [formState, dispatchFormState] = useReducer(reducer, initialState);
-    const [areas, setAreas] = useState([]);
-    const [selectedArea, setSelectedArea] = useState<any>(null);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [openStartDatePicker, setOpenStartDatePicker] = useState(false);
-    const [selectedGender, setSelectedGender] = useState('');
-    const { dark } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const { dark } = useTheme();
+  const { user, updateProfile } = useAuth();
 
-    const genderOptions = [
-        { label: 'Male', value: 'male' },
-        { label: 'Female', value: 'female' },
-        { label: 'Other', value: 'other' },
-    ];
+  const [image, setImage] = useState<{ uri: string } | null>(null);
+  const [areas, setAreas] = useState<AreaItem[]>([]);
+  const [selectedArea, setSelectedArea] = useState<AreaItem | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-    const handleGenderChange = (value: any) => {
-        setSelectedGender(value);
-    };
+  const [fullName, setFullName] = useState(user?.fullName ?? '');
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber ?? '');
 
-    const today = new Date();
-    const startDate = getFormatedDate(
-        new Date(today.setDate(today.getDate() + 1)),
-        "YYYY/MM/DD"
-    );
+  useEffect(() => {
+    setFullName(user?.fullName ?? '');
+    setPhoneNumber(user?.phoneNumber ?? '');
+  }, [user]);
 
-    const [startedDate, setStartedDate] = useState("12/12/2023");
-    const handleOnPressStartDate = () => {
-        setOpenStartDatePicker(!openStartDatePicker);
-    };
+  useEffect(() => {
+    let isMounted = true;
 
-    const inputChangedHandler = useCallback(
-        (inputId: string, inputValue: string) => {
-            const result = validateInput(inputId, inputValue)
-            dispatchFormState({
-                inputId,
-                validationResult: result,
-                inputValue,
-            })
-        }, [dispatchFormState]);
-
-    useEffect(() => {
-        if (error) {
-            Alert.alert('An error occured', error)
+    fetch('https://restcountries.com/v3.1/all?fields=cca2,name,idd,flags')
+      .then((response) => response.json())
+      .then((data) => {
+        if (!isMounted) {
+          return;
         }
-    }, [error])
 
-    const pickImage = async () => {
-        try {
-            const tempUri = await launchImagePicker()
+        const areaData: AreaItem[] = data
+          .filter(
+            (item: any) =>
+              item.cca2 &&
+              item.name?.common &&
+              item.idd?.root &&
+              Array.isArray(item.idd.suffixes) &&
+              item.idd.suffixes.length > 0
+          )
+          .map((item: any) => ({
+            code: item.cca2,
+            item: item.name.common,
+            callingCode: `${item.idd.root}${item.idd.suffixes[0]}`,
+            flag: `https://flagsapi.com/${item.cca2}/flat/64.png`,
+          }))
+          .sort((a: AreaItem, b: AreaItem) => a.item.localeCompare(b.item));
 
-            if (!tempUri) return
+        setAreas(areaData);
 
-            // Set the image
-            setImage({ uri: tempUri })
-        } catch (error) { }
-    };
+        const preferredCode =
+          areaData.find((entry) => entry.item === user?.country)?.code ||
+          areaData.find((entry) => entry.code === 'SA')?.code ||
+          areaData.find((entry) => entry.code === 'US')?.code;
 
-    // fectch codes from rescountries api
-    useEffect(() => {
-        fetch("https://restcountries.com/v3.1/all?fields=cca2,name,idd,flags")
-            .then(response => response.json())
-            .then(data => {
-                const areaData = data
-                    .filter(
-                        (item: any) =>
-                            item.cca2 &&
-                            item.name?.common &&
-                            item.idd?.root &&
-                            Array.isArray(item.idd.suffixes) &&
-                            item.idd.suffixes.length > 0
-                    )
-                    .map((item: any) => ({
-                        code: item.cca2,
-                        item: item.name.common,
-                        callingCode: `${item.idd.root}${item.idd.suffixes[0]}`,
-                        flag: `https://flagsapi.com/${item.cca2}/flat/64.png`, // use flagsapi here
-                    }));
-
-                setAreas(areaData);
-                if (areaData.length > 0) {
-                    let defaultData = areaData.filter((a: any) => a.code == "US");
-
-                    if (defaultData.length > 0) {
-                        setSelectedArea(defaultData[0])
-                    }
-                }
-            })
-    }, [])
-
-    // render countries codes modal
-    function RenderAreasCodesModal() {
-
-        const renderItem = ({ item }: RenderItemProps) => {
-            return (
-                <TouchableOpacity
-                    style={{
-                        padding: 10,
-                        flexDirection: "row"
-                    }}
-                    onPress={() => {
-                        setSelectedArea(item),
-                            setModalVisible(false)
-                    }}
-                >
-                    <Image
-                        source={{ uri: item.flag }}
-                        resizeMode='contain'
-                        style={{
-                            height: 30,
-                            width: 30,
-                            marginRight: 10
-                        }}
-                    />
-                    <Text style={{ fontSize: 16, color: "#fff" }}>{item.item}</Text>
-                </TouchableOpacity>
-            )
+        if (preferredCode) {
+          setSelectedArea(areaData.find((entry) => entry.code === preferredCode) ?? null);
         }
-        return (
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}>
-                <TouchableWithoutFeedback
-                    onPress={() => setModalVisible(false)}>
-                    <View
-                        style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                        <View
-                            style={{
-                                height: 400,
-                                width: SIZES.width * 0.8,
-                                backgroundColor: COLORS.primary,
-                                borderRadius: 12
-                            }}
-                        >
-                            <FlatList
-                                data={areas}
-                                renderItem={renderItem}
-                                horizontal={false}
-                                keyExtractor={(item) => item.code}
-                                style={{
-                                    padding: 20,
-                                    marginBottom: 20
-                                }}
-                            />
-                        </View>
-                    </View>
-                </TouchableWithoutFeedback>
-            </Modal>
-        )
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (isMounted && user?.country && !selectedArea) {
+          setSelectedArea({
+            code: '',
+            item: user.country,
+            callingCode: '',
+            flag: '',
+          });
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.country]);
+
+  const effectiveCountry = useMemo(
+    () => selectedArea?.item || user?.country || '',
+    [selectedArea, user?.country]
+  );
+
+  const pickImage = async () => {
+    try {
+      const tempUri = await launchImagePicker();
+      if (!tempUri) {
+        return;
+      }
+      setImage({ uri: tempUri });
+    } catch {}
+  };
+
+  const handleUpdate = async () => {
+    if (!fullName.trim()) {
+      Alert.alert('Error', 'Full name is required');
+      return;
     }
 
-    return (
-        <SafeAreaView style={[styles.area, { backgroundColor: dark ? COLORS.dark1 : COLORS.white }]}>
-            <View style={[styles.container, { backgroundColor: dark ? COLORS.dark1 : COLORS.white }]}>
-                <Header title="Edit Profile" />
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={{ alignItems: "center", marginVertical: 12 }}>
-                        <View style={styles.avatarContainer}>
-                            <Image
-                                source={image === null ? images.user1 : image}
-                                resizeMode="cover"
-                                style={styles.avatar} />
-                            <TouchableOpacity
-                                onPress={pickImage}
-                                style={styles.pickImage}>
-                                <MaterialCommunityIcons
-                                    name="pencil-outline"
-                                    size={24}
-                                    color={COLORS.white} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    <View>
-                        <Input
-                            id="fullName"
-                            onInputChanged={inputChangedHandler}
-                            errorText={formState.inputValidities['fullName']}
-                            placeholder="Full Name"
-                            placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
-                        />
-                        <Input
-                            id="nickname"
-                            onInputChanged={inputChangedHandler}
-                            errorText={formState.inputValidities['nickname']}
-                            placeholder="Nickname"
-                            placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
-                        />
-                        <Input
-                            id="email"
-                            onInputChanged={inputChangedHandler}
-                            errorText={formState.inputValidities['email']}
-                            placeholder="Email"
-                            placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
-                            keyboardType="email-address" />
-                        <View style={{
-                            width: SIZES.width - 32
-                        }}>
-                            <TouchableOpacity
-                                style={[styles.inputBtn, {
-                                    backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale500,
-                                    borderColor: dark ? COLORS.dark2 : COLORS.greyscale500,
-                                }]}
-                                onPress={handleOnPressStartDate}>
-                                <Text style={{ ...FONTS.body4, color: COLORS.grayscale400 }}>{startedDate}</Text>
-                                <Feather name="calendar" size={24} color={COLORS.grayscale400} />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={[styles.inputContainer, {
-                            backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale500,
-                            borderColor: dark ? COLORS.dark2 : COLORS.greyscale500,
-                        }]}>
-                            <TouchableOpacity
-                                style={styles.selectFlagContainer}
-                                onPress={() => setModalVisible(true)}>
-                                <View style={{ justifyContent: "center" }}>
-                                    <Image
-                                        source={icons.down}
-                                        resizeMode='contain'
-                                        style={styles.downIcon}
-                                    />
-                                </View>
-                                <View style={{ justifyContent: "center", marginLeft: 5 }}>
-                                    <Image
-                                        source={{ uri: selectedArea?.flag }}
-                                        resizeMode="contain"
-                                        style={styles.flagIcon}
-                                    />
-                                </View>
-                                <View style={{ justifyContent: "center", marginLeft: 5 }}>
-                                    <Text style={{ color: dark ? COLORS.white : "#111", fontSize: 12 }}>{selectedArea?.callingCode}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            {/* Phone Number Text Input */}
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter your phone number"
-                                placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
-                                selectionColor="#111"
-                                keyboardType="numeric"
-                            />
-                        </View>
-                        <View>
-                            <RNPickerSelect
-                                placeholder={{ label: 'Select', value: '' }}
-                                items={genderOptions}
-                                onValueChange={(value) => handleGenderChange(value)}
-                                value={selectedGender}
-                                style={{
-                                    inputIOS: {
-                                        fontSize: 16,
-                                        paddingHorizontal: 10,
-                                        color: COLORS.greyscale600,
-                                        paddingRight: 30,
-                                        height: 52,
-                                        width: SIZES.width - 32,
-                                        alignItems: 'center',
-                                        backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale500,
-                                        borderRadius: 16
-                                    },
-                                    inputAndroid: {
-                                        fontSize: 16,
-                                        paddingHorizontal: 10,
-                                        color: COLORS.greyscale600,
-                                        paddingRight: 30,
-                                        height: 52,
-                                        width: SIZES.width - 32,
-                                        alignItems: 'center',
-                                        backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale500,
-                                        borderRadius: 16
-                                    },
-                                }}
-                            />
-                        </View>
-                        <Input
-                            id="occupation"
-                            onInputChanged={inputChangedHandler}
-                            errorText={formState.inputValidities['occupation']}
-                            placeholder="Occupation"
-                            placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
-                        />
-                    </View>
-                </ScrollView>
+    setIsSaving(true);
+    try {
+      await updateProfile({
+        fullName: fullName.trim(),
+        phoneNumber: phoneNumber.trim() || undefined,
+        country: effectiveCountry || undefined,
+        avatarUrl: user?.avatarUrl,
+      });
+      Alert.alert('Profile Updated', 'Your profile information has been saved.');
+      navigation.goBack();
+    } catch (error: any) {
+      Alert.alert('Update Failed', error?.message || 'Unable to update your profile');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const renderAreasCodesModal = () => (
+    <Modal animationType="slide" transparent visible={modalVisible}>
+      <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <ScrollView contentContainerStyle={styles.modalContent}>
+              {areas.map((item) => (
+                <TouchableOpacity
+                  key={item.code}
+                  style={styles.areaRow}
+                  onPress={() => {
+                    setSelectedArea(item);
+                    setModalVisible(false);
+                  }}
+                >
+                  <Image source={{ uri: item.flag }} resizeMode="contain" style={styles.areaFlag} />
+                  <Text style={styles.areaText}>{item.item}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
+
+  return (
+    <SafeAreaView style={[styles.area, { backgroundColor: dark ? COLORS.dark1 : COLORS.white }]}>
+      <View style={[styles.container, { backgroundColor: dark ? COLORS.dark1 : COLORS.white }]}>
+        <Header title="Edit Profile" />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.avatarSection}>
+            <View style={styles.avatarContainer}>
+              <Image
+                source={image ?? (user?.avatarUrl ? { uri: user.avatarUrl } : icons.userDefault2)}
+                resizeMode="cover"
+                style={styles.avatar}
+              />
+              <TouchableOpacity onPress={pickImage} style={styles.pickImage}>
+                <MaterialCommunityIcons name="pencil-outline" size={24} color={COLORS.white} />
+              </TouchableOpacity>
             </View>
-            <DatePickerModal
-                open={openStartDatePicker}
-                startDate={startDate}
-                selectedDate={startedDate}
-                onClose={() => setOpenStartDatePicker(false)}
-                onChangeStartDate={(date) => setStartedDate(date)}
+            <Text style={[styles.helperText, { color: dark ? COLORS.grayscale400 : COLORS.greyscale600 }]}>
+              Avatar preview updates locally. Profile details save to the API.
+            </Text>
+          </View>
+
+          <Input
+            id="fullName"
+            value={fullName}
+            onInputChanged={(_, value) => setFullName(value)}
+            placeholder="Full Name"
+            placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
+          />
+          <Input
+            id="email"
+            value={user?.email ?? ''}
+            onInputChanged={() => {}}
+            placeholder="Email"
+            placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
+            editable={false}
+          />
+
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale500,
+                borderColor: dark ? COLORS.dark2 : COLORS.greyscale500,
+              },
+            ]}
+          >
+            <TouchableOpacity style={styles.selectFlagContainer} onPress={() => setModalVisible(true)}>
+              <View style={{ justifyContent: 'center' }}>
+                <Image source={icons.down} resizeMode="contain" style={styles.downIcon} />
+              </View>
+              {selectedArea?.flag ? (
+                <View style={{ justifyContent: 'center', marginLeft: 5 }}>
+                  <Image source={{ uri: selectedArea.flag }} resizeMode="contain" style={styles.flagIcon} />
+                </View>
+              ) : null}
+              <View style={{ justifyContent: 'center', marginLeft: 5 }}>
+                <Text style={{ color: dark ? COLORS.white : '#111', fontSize: 12 }}>
+                  {selectedArea?.callingCode || effectiveCountry || 'Country'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TextInput
+              style={[styles.input, { color: dark ? COLORS.white : COLORS.black }]}
+              placeholder="Enter your phone number"
+              placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
+              selectionColor="#111"
+              keyboardType="phone-pad"
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
             />
-            {RenderAreasCodesModal()}
-            <View style={styles.bottomContainer}>
-                <ButtonFilled
-                    title="Update"
-                    style={styles.continueButton}
-                    onPress={() => navigation.goBack()}
-                />
-            </View>
-        </SafeAreaView>
-    )
+          </View>
+
+          <Input
+            id="country"
+            value={effectiveCountry}
+            onInputChanged={(_, value) => setSelectedArea({ code: '', item: value, callingCode: '', flag: '' })}
+            placeholder="Country"
+            placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
+          />
+        </ScrollView>
+      </View>
+
+      {renderAreasCodesModal()}
+      <View style={styles.bottomContainer}>
+        <ButtonFilled
+          title={isSaving ? 'Updating...' : 'Update'}
+          style={styles.continueButton}
+          onPress={handleUpdate}
+        />
+      </View>
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({
-    area: {
-        flex: 1,
-        backgroundColor: COLORS.white
-    },
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: COLORS.white
-    },
-    avatarContainer: {
-        marginVertical: 12,
-        alignItems: "center",
-        width: 130,
-        height: 130,
-        borderRadius: 65,
-    },
-    avatar: {
-        height: 130,
-        width: 130,
-        borderRadius: 65,
-    },
-    pickImage: {
-        height: 42,
-        width: 42,
-        borderRadius: 21,
-        backgroundColor: COLORS.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-    },
-    inputContainer: {
-        flexDirection: "row",
-        borderColor: COLORS.greyscale500,
-        borderWidth: .4,
-        borderRadius: 6,
-        height: 52,
-        width: SIZES.width - 32,
-        alignItems: 'center',
-        marginVertical: 16,
-        backgroundColor: COLORS.greyscale500,
-    },
-    downIcon: {
-        width: 10,
-        height: 10,
-        tintColor: "#111"
-    },
-    selectFlagContainer: {
-        width: 90,
-        height: 50,
-        marginHorizontal: 5,
-        flexDirection: "row",
-    },
-    flagIcon: {
-        width: 30,
-        height: 30
-    },
-    input: {
-        flex: 1,
-        marginVertical: 10,
-        height: 40,
-        fontSize: 14,
-        color: "#111"
-    },
-    inputBtn: {
-        borderWidth: 1,
-        borderRadius: 12,
-        borderColor: COLORS.greyscale500,
-        height: 50,
-        paddingLeft: 8,
-        fontSize: 18,
-        justifyContent: "space-between",
-        marginTop: 4,
-        backgroundColor: COLORS.greyscale500,
-        flexDirection: "row",
-        alignItems: "center",
-        paddingRight: 8
-    },
-    rowContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between"
-    },
-    bottomContainer: {
-        position: "absolute",
-        bottom: 32,
-        right: 16,
-        left: 16,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: SIZES.width - 32,
-        alignItems: "center"
-    },
-    continueButton: {
-        width: SIZES.width - 32,
-        borderRadius: 32,
-        backgroundColor: COLORS.primary,
-        borderColor: COLORS.primary
-    },
-    genderContainer: {
-        flexDirection: "row",
-        borderColor: COLORS.greyscale500,
-        borderWidth: .4,
-        borderRadius: 6,
-        height: 58,
-        width: SIZES.width - 32,
-        alignItems: 'center',
-        marginVertical: 16,
-        backgroundColor: COLORS.greyscale500,
-    }
+  area: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: COLORS.white,
+  },
+  avatarSection: {
+    alignItems: 'center',
+    marginVertical: 12,
+  },
+  avatarContainer: {
+    alignItems: 'center',
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+  },
+  avatar: {
+    height: 130,
+    width: 130,
+    borderRadius: 65,
+  },
+  helperText: {
+    fontSize: 12,
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  pickImage: {
+    height: 42,
+    width: 42,
+    borderRadius: 21,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    borderColor: COLORS.greyscale500,
+    borderWidth: 0.4,
+    borderRadius: 6,
+    height: 52,
+    width: SIZES.width - 32,
+    alignItems: 'center',
+    marginVertical: 16,
+    backgroundColor: COLORS.greyscale500,
+  },
+  downIcon: {
+    width: 10,
+    height: 10,
+    tintColor: '#111',
+  },
+  selectFlagContainer: {
+    width: 110,
+    height: 50,
+    marginHorizontal: 5,
+    flexDirection: 'row',
+  },
+  flagIcon: {
+    width: 30,
+    height: 30,
+  },
+  input: {
+    flex: 1,
+    marginVertical: 10,
+    height: 40,
+    fontSize: 14,
+    color: '#111',
+  },
+  bottomContainer: {
+    position: 'absolute',
+    bottom: 32,
+    right: 16,
+    left: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: SIZES.width - 32,
+    alignItems: 'center',
+  },
+  continueButton: {
+    width: SIZES.width - 32,
+    borderRadius: 32,
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  modalOverlay: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  modalCard: {
+    height: SIZES.height * 0.65,
+    width: SIZES.width * 0.84,
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+  },
+  modalContent: {
+    padding: 20,
+  },
+  areaRow: {
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  areaFlag: {
+    height: 30,
+    width: 30,
+    marginRight: 10,
+  },
+  areaText: {
+    fontSize: 16,
+    color: '#fff',
+  },
 });
 
-const pickerSelectStyles = StyleSheet.create({
-    inputIOS: {
-        fontSize: 16,
-        paddingHorizontal: 10,
-        color: COLORS.greyscale600,
-        paddingRight: 30,
-        height: 58,
-        width: SIZES.width - 32,
-        alignItems: 'center',
-        backgroundColor: COLORS.greyscale500,
-        borderRadius: 16
-    },
-    inputAndroid: {
-        fontSize: 16,
-        paddingHorizontal: 10,
-        color: COLORS.greyscale600,
-        paddingRight: 30,
-        height: 58,
-        width: SIZES.width - 32,
-        alignItems: 'center',
-        backgroundColor: COLORS.greyscale500,
-        borderRadius: 16
-    },
-});
-
-export default EditProfile
+export default EditProfile;
