@@ -26,6 +26,22 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
+function formatCarPrice(price?: string | number | null) {
+    if (price === null || price === undefined || price === '') {
+        return '--';
+    }
+
+    const numericPrice = typeof price === 'number'
+        ? price
+        : Number(String(price).replace(/,/g, ''));
+
+    if (Number.isNaN(numericPrice)) {
+        return String(price);
+    }
+
+    return numericPrice.toLocaleString();
+}
+
 const CarDetails = () => {
     const navigation = useNavigation<NavigationProp<any>>();
     const { carId } = useLocalSearchParams<{ carId: string }>();
@@ -131,6 +147,7 @@ const CarDetails = () => {
         Toyota: '#FFC02D', Volvo: '#F54336', Bugatti: '#4AAF57', Honda: '#00BCD3',
     };
     const brandAccent = BRAND_COLORS[car?.brand ?? ''] ?? COLORS.primary;
+    const formattedPrice = formatCarPrice(car?.price);
     const specItems = [
         { label: 'Year', value: car?.year ? String(car.year) : '' },
         { label: 'Mileage', value: car?.mileage ? `${car.mileage.toLocaleString()} km` : '' },
@@ -176,14 +193,44 @@ const CarDetails = () => {
     const renderContent = () => (
         <View style={styles.contentContainer}>
             <View style={styles.contentView}>
-                <Text style={[styles.contentTitle, { color: dark ? COLORS.white : COLORS.black }]}>
-                    {car?.name || ''}
-                </Text>
-                <TouchableOpacity onPress={handleFavoriteToggle}>
+                <View style={styles.titleColumn}>
+                    <Text style={[styles.contentTitle, { color: dark ? COLORS.white : COLORS.black }]}>
+                        {car?.name || ''}
+                    </Text>
+                    <View style={styles.heroMetaRow}>
+                        <View style={[styles.brandPill, {
+                            backgroundColor: dark ? COLORS.dark2 : '#F5F7FB',
+                            borderColor: dark ? COLORS.dark3 : `${brandAccent}20`,
+                        }]}>
+                            <View style={[styles.brandDot, { backgroundColor: brandAccent }]} />
+                            <Text style={[styles.brandPillText, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
+                                {car?.brand || 'Featured'}
+                            </Text>
+                        </View>
+                        <View style={[styles.inlinePriceCard, {
+                            backgroundColor: dark ? COLORS.dark2 : '#F8FAFC',
+                            borderColor: dark ? COLORS.dark3 : '#E7ECF3',
+                        }]}>
+                            <Text style={[styles.inlinePriceLabel, { color: dark ? COLORS.greyscale300 : COLORS.greyscale600 }]}>
+                                Listed Price
+                            </Text>
+                            <View style={styles.inlinePriceRow}>
+                                <Text style={[styles.inlinePriceCurrency, { color: brandAccent }]}>SAR</Text>
+                                <Text style={[styles.inlinePriceValue, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
+                                    {formattedPrice}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+                <TouchableOpacity onPress={handleFavoriteToggle} style={[styles.favoriteQuickAction, {
+                    backgroundColor: dark ? COLORS.dark2 : '#F7F7F8',
+                    borderColor: dark ? COLORS.dark3 : COLORS.grayscale200,
+                }]}>
                     <Image
                         source={isFavorite ? icons.heart2 : icons.heart2Outline}
                         resizeMode='contain'
-                        style={[styles.bookmarkIcon, { tintColor: dark ? COLORS.white : COLORS.black }]}
+                        style={[styles.bookmarkIcon, { tintColor: isFavorite ? '#FF4B4B' : dark ? COLORS.white : COLORS.black }]}
                     />
                 </TouchableOpacity>
             </View>
@@ -284,25 +331,36 @@ const CarDetails = () => {
             <AutoSlider images={sliderImages} />
             {renderHeader()}
             <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={styles.scrollBody}>
                 <Animated.View style={contentStyle}>
                     {renderContent()}
                 </Animated.View>
+                </View>
             </ScrollView>
             <View style={[styles.cartBottomContainer, {
                 backgroundColor: dark ? COLORS.dark1 : COLORS.white,
-                borderTopColor: dark ? COLORS.dark1 : COLORS.white,
+                borderTopColor: dark ? COLORS.dark3 : COLORS.grayscale200,
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: -3 },
                 shadowOpacity: dark ? 0.25 : 0.07,
                 shadowRadius: 12,
                 elevation: 12,
             }]}>
-                <View style={{ borderLeftWidth: 3, borderLeftColor: brandAccent, paddingLeft: 10 }}>
+                <View style={[styles.footerPriceCard, {
+                    backgroundColor: dark ? COLORS.dark2 : '#F8FAFC',
+                    borderColor: dark ? COLORS.dark3 : '#E7ECF3',
+                }]}>
                     <Text style={[styles.cartTitle, { color: dark ? COLORS.greyscale300 : COLORS.greyscale600 }]}>
                         Price
                     </Text>
-                    <Text style={[styles.cartSubtitle, { color: dark ? COLORS.white : COLORS.black }]}>
-                        SAR {car?.price || ''}
+                    <View style={styles.footerPriceRow}>
+                        <Text style={[styles.footerPriceCurrency, { color: brandAccent }]}>SAR</Text>
+                        <Text style={[styles.cartSubtitle, { color: dark ? COLORS.white : COLORS.black }]}>
+                            {formattedPrice}
+                        </Text>
+                    </View>
+                    <Text style={[styles.footerPriceHint, { color: dark ? COLORS.grayscale400 : COLORS.greyscale500 }]}>
+                        Final price depends on offer and availability
                     </Text>
                 </View>
                 <Animated.View style={btnAnimStyle}>
@@ -364,6 +422,7 @@ const CarDetails = () => {
 
 const styles = StyleSheet.create({
     area: { flex: 1, backgroundColor: COLORS.white },
+    scrollBody: { paddingBottom: 132 },
     headerContainer: {
         width: SIZES.width - 32,
         flexDirection: "row",
@@ -396,12 +455,71 @@ const styles = StyleSheet.create({
         width: SIZES.width - 32
     },
     contentView: {
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "space-between",
         flexDirection: "row",
         width: SIZES.width - 32
     },
-    contentTitle: { fontSize: 30, fontFamily: "bold", color: COLORS.black },
+    titleColumn: { flex: 1, paddingRight: 14 },
+    contentTitle: { fontSize: 28, lineHeight: 34, fontFamily: "bold", color: COLORS.black },
+    heroMetaRow: {
+        marginTop: 14,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 10,
+    },
+    brandPill: {
+        flexDirection: "row",
+        alignItems: "center",
+        borderRadius: 999,
+        borderWidth: 1,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+    },
+    brandDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 999,
+        marginRight: 8,
+    },
+    brandPillText: {
+        fontSize: 13,
+        fontFamily: "semiBold",
+    },
+    inlinePriceCard: {
+        minWidth: 128,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 18,
+        borderWidth: 1,
+    },
+    inlinePriceLabel: {
+        fontSize: 11,
+        fontFamily: "medium",
+        marginBottom: 3,
+    },
+    inlinePriceRow: {
+        flexDirection: "row",
+        alignItems: "baseline",
+    },
+    inlinePriceCurrency: {
+        fontSize: 12,
+        fontFamily: "bold",
+        marginRight: 6,
+    },
+    inlinePriceValue: {
+        fontSize: 18,
+        fontFamily: "bold",
+    },
+    favoriteQuickAction: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        borderWidth: 1,
+        alignItems: "center",
+        justifyContent: "center",
+    },
     ratingContainer: {
         flexDirection: "row",
         alignItems: "center",
@@ -465,30 +583,50 @@ const styles = StyleSheet.create({
     selectedColor: { marginRight: 7.8 },
     cartBottomContainer: {
         position: "absolute",
-        bottom: 12,
-        left: 0,
-        right: 0,
-        width: SIZES.width,
+        bottom: 10,
+        left: 12,
+        right: 12,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        height: 104,
+        minHeight: 92,
         backgroundColor: COLORS.white,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        borderTopRightRadius: 32,
-        borderTopLeftRadius: 32,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        borderRadius: 28,
         borderTopColor: COLORS.white,
         borderTopWidth: 1,
     },
-    cartTitle: { fontSize: 12, fontFamily: "medium", color: COLORS.greyscale600, marginBottom: 6 },
-    cartSubtitle: { fontSize: 24, fontFamily: "bold", color: COLORS.black },
+    footerPriceCard: {
+        flex: 1,
+        marginRight: 12,
+        borderRadius: 18,
+        borderWidth: 1,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+    },
+    cartTitle: { fontSize: 11, fontFamily: "medium", color: COLORS.greyscale600, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.6 },
+    footerPriceRow: {
+        flexDirection: "row",
+        alignItems: "baseline",
+    },
+    footerPriceCurrency: {
+        fontSize: 12,
+        fontFamily: "bold",
+        marginRight: 6,
+    },
+    cartSubtitle: { fontSize: 20, fontFamily: "bold", color: COLORS.black },
+    footerPriceHint: {
+        fontSize: 11,
+        fontFamily: "regular",
+        marginTop: 4,
+    },
     cartBtn: {
-        height: 58,
-        width: 200,
+        height: 54,
+        width: 168,
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: 32,
+        borderRadius: 22,
         backgroundColor: COLORS.black,
         flexDirection: "row",
     },

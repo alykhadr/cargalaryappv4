@@ -1,8 +1,8 @@
-import { View, StyleSheet, Image, TouchableOpacity, FlatList, ListRenderItemInfo, ScrollView, Alert, Linking } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, FlatList, ListRenderItemInfo, ScrollView, Alert, Linking, Platform } from 'react-native';
 import AppAvatar from '@/components/AppAvatar';
 import React, { useEffect, useRef, useState } from 'react';
 import Text from '@/components/LocalizedText';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, icons, SIZES } from '@/constants';
 import { useTheme } from '@/theme/ThemeProvider';
 import { banners } from '@/data';
@@ -31,6 +31,7 @@ import Animated, {
   withDelay,
   Easing,
 } from 'react-native-reanimated';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface BannerItem {
   id: number;
@@ -52,6 +53,7 @@ function normalizePhoneForWhatsapp(phone?: string | null) {
 const Home = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedCategoryId, setSelectedCategoryId] = useState(ALL_CATEGORY_ID);
   const { dark, colors } = useTheme();
@@ -459,10 +461,13 @@ const Home = () => {
         </Animated.View>
         <TouchableOpacity
           activeOpacity={0.9}
-          style={styles.whatsappFab}
+          style={[
+            styles.whatsappFab,
+            { bottom: (Platform.OS === 'ios' ? 88 : 64) + insets.bottom + 14 },
+          ]}
           onPress={handleWhatsappPress}
         >
-          <Image source={icons.whatsapp} resizeMode="contain" style={styles.whatsappIcon} />
+          <MaterialCommunityIcons name="whatsapp" size={28} color={COLORS.white} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -475,11 +480,10 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 96 },
   whatsappFab: {
     position: 'absolute',
-    right: 16,
-    bottom: 24,
-    width: 58,
-    height: 58,
-    borderRadius: 29,
+    right: 18,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: '#25D366',
     alignItems: 'center',
     justifyContent: 'center',
@@ -488,11 +492,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.18,
     shadowRadius: 16,
     elevation: 10,
-  },
-  whatsappIcon: {
-    width: 28,
-    height: 28,
-    tintColor: COLORS.white,
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.92)',
   },
 
   /* Header */
