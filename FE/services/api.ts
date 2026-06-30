@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { NativeModules, Platform } from 'react-native';
-import { Brand, Car, CarQueryParams, CompanyInformation, Inquiry, Offer, PrivacyPolicy, ProfilePayload, User } from '../types';
+import { AppNotificationItem, Brand, Car, CarQueryParams, CompanyInformation, FAQItem, Inquiry, Offer, PrivacyPolicy, ProfilePayload, User } from '../types';
 
 const API_BASE_URL = resolveApiBaseUrl().replace(/\/$/, '');
 
@@ -176,6 +176,11 @@ type ForgotPasswordPayload = {
   userNameOrEmail: string;
 };
 
+type ChangePasswordPayload = {
+  currentPassword: string;
+  newPassword: string;
+};
+
 export const api = {
   // Auth
   signup: ({ email, password, fullName, phoneNumber }: RegisterPayload) =>
@@ -197,10 +202,10 @@ export const api = {
       body: { userId, ...profile },
     }),
 
-  login: (userName: string, password: string) =>
+  login: (userName: string, password: string, rememberMe = false) =>
     request<AuthResponse>('/auth/login', {
       method: 'POST',
-      body: { userName, password },
+      body: { userName, password, rememberMe },
     }),
 
   forgotPassword: ({ userNameOrEmail }: ForgotPasswordPayload) =>
@@ -218,9 +223,19 @@ export const api = {
   updateProfile: (payload: ProfilePayload) =>
     request<{ user: User }>('/auth/profile', { method: 'PUT', body: payload, requiresAuth: true }),
 
+  changePassword: ({ currentPassword, newPassword }: ChangePasswordPayload) =>
+    request<{ message: string }>('/auth/change-password', {
+      method: 'POST',
+      body: { currentPassword, newPassword },
+      requiresAuth: true,
+    }),
+
   // Categories / brands
   getCategories: () =>
     request<Brand[]>('/brand'),
+
+  getFAQs: () =>
+    request<FAQItem[]>('/faqs'),
 
   getOffers: () =>
     request<Offer[]>('/offer'),
@@ -263,6 +278,11 @@ export const api = {
     request<{ inquiry: Inquiry }>('/inquiries', {
       method: 'POST',
       body: { carId, name, phone, message },
+      requiresAuth: true,
+    }),
+
+  getNotifications: (take = 20) =>
+    request<{ count: number; items: AppNotificationItem[] }>(`/requests/notifications?take=${take}`, {
       requiresAuth: true,
     }),
 

@@ -98,6 +98,23 @@ export interface CompanyInformation {
   isAvailable: boolean;
 }
 
+export interface FAQItem {
+  id: number;
+  titleAr?: string | null;
+  titleEn?: string | null;
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+  order: number;
+  isAvailable: boolean;
+}
+
+export interface AppNotificationItem {
+  id: number;
+  carName: string;
+  carImageUrl?: string | null;
+  createdDate: string;
+}
+
 export interface ProfilePayload {
   fullName?: string;
   nickname?: string;

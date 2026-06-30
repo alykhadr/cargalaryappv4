@@ -345,6 +345,56 @@ namespace CarGalary.Api.Controllers
             return Ok(new { user = ToFrontendUser(user) });
         }
 
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var user = await GetCurrentUserAsync();
+            if (user == null)
+            {
+                return Unauthorized(new ApiErrorResponse(
+                    AuthUnauthorizedCode,
+                    StatusCodes.Status401Unauthorized,
+                    errorCode: AuthUnauthorizedCode));
+            }
+
+            if (request == null || string.IsNullOrWhiteSpace(request.CurrentPassword))
+            {
+                return BadRequest(new ApiErrorResponse(AuthValidationFailedCode, StatusCodes.Status400BadRequest, new List<string>
+                {
+                    "Current password is required."
+                }));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                return BadRequest(new ApiErrorResponse(AuthNewPasswordRequiredCode));
+            }
+
+            if (request.NewPassword.Length < 6)
+            {
+                return BadRequest(new ApiErrorResponse(AuthNewPasswordMinLengthCode));
+            }
+
+            try
+            {
+                await _identity.ChangePasswordAsync(user.Id.ToString(), request.CurrentPassword.Trim(), request.NewPassword);
+                return Ok(new
+                {
+                    message = IsArabicRequest()
+                        ? "تم تغيير كلمة المرور بنجاح"
+                        : "Password changed successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiErrorResponse(
+                    AuthResetPasswordFailedCode,
+                    StatusCodes.Status400BadRequest,
+                    new List<string> { ex.Message }));
+            }
+        }
+
         // ================= FORGOT/RESET PASSWORD =================
 
         [HttpPost("forgot-password")]

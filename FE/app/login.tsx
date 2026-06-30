@@ -28,12 +28,13 @@ const Login = () => {
     const { navigate } = useNavigation<Nav>();
     const [formState, dispatchFormState] = useReducer(reducer, initialState);
     const [isLoading, setIsLoading] = useState(false);
+    const [isBiometricLoading, setIsBiometricLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isChecked, setChecked] = useState(false);
     const { colors, dark } = useTheme();
     const { language, setLanguage } = useDirection();
     const activeLang: 'EN' | 'AR' = language === 'Arabic' ? 'AR' : 'EN';
-    const { login, continueAsGuest } = useAuth();
+    const { login, continueAsGuest, canLoginWithBiometrics, biometricLabel, loginWithBiometrics } = useAuth();
 
     const handleLangChange = async (lang: 'EN' | 'AR') => {
         await setLanguage(lang === 'EN' ? 'English' : 'Arabic');
@@ -63,7 +64,7 @@ const Login = () => {
         }
         setIsLoading(true);
         try {
-            const res = await login(userName, password);
+            const res = await login(userName, password, { rememberMe: isChecked });
             if (res.needsProfile && res.userId) {
                 navigate('fillyourprofile', { userId: res.userId });
             } else {
@@ -79,6 +80,21 @@ const Login = () => {
     const handleGuest = () => {
         continueAsGuest();
         navigate('(tabs)');
+    };
+
+    const handleBiometricLogin = async () => {
+        setIsBiometricLoading(true);
+        try {
+            const success = await loginWithBiometrics();
+            if (!success) {
+                Alert.alert('Biometric Login', 'Biometric authentication was not completed. Please try again or log in with your password.');
+                return;
+            }
+
+            navigate('(tabs)');
+        } finally {
+            setIsBiometricLoading(false);
+        }
     };
 
     return (
@@ -150,6 +166,22 @@ const Login = () => {
                         onPress={handleLogin}
                         style={styles.button}
                     />
+
+                    {canLoginWithBiometrics ? (
+                        <TouchableOpacity
+                            style={[
+                                styles.biometricBtn,
+                                { borderColor: dark ? COLORS.white : COLORS.primary },
+                            ]}
+                            onPress={handleBiometricLogin}
+                        >
+                            <Text style={[styles.biometricBtnText, { color: dark ? COLORS.white : COLORS.primary }]}>
+                                {isBiometricLoading
+                                    ? 'Checking biometrics…'
+                                    : `Continue with ${biometricLabel || 'Biometrics'}`}
+                            </Text>
+                        </TouchableOpacity>
+                    ) : null}
 
                     <TouchableOpacity onPress={() => navigate('forgotpasswordmethods')}>
                         <Text style={[styles.forgotText, { color: dark ? COLORS.white : COLORS.primary }]}>
@@ -320,6 +352,19 @@ const styles = StyleSheet.create({
         marginVertical: 6,
         width: SIZES.width - 40,
         borderRadius: 30,
+    },
+    biometricBtn: {
+        marginTop: 12,
+        width: SIZES.width - 40,
+        height: 48,
+        borderRadius: 30,
+        borderWidth: 1.5,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    biometricBtnText: {
+        fontSize: 15,
+        fontFamily: 'semiBold',
     },
     forgotText: {
         fontSize: 15,

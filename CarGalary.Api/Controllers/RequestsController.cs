@@ -3,6 +3,7 @@ using CarGalary.Application.Dtos.Auth;
 using CarGalary.Application.Dtos.Brand;
 using CarGalary.Application.Interfaces;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarGalary.Api.Controllers
@@ -22,8 +23,16 @@ namespace CarGalary.Api.Controllers
             _brandService = brandService;
         }
 
-        
 
+        [Authorize]
+        [HttpGet("notifications")]
+        public async Task<IActionResult> GetNotifications([FromQuery] int take = 10)
+        {
+            var notifications = await _requestService.GetNotificationsAsync(take);
+            return Ok(notifications);
+        }
+
+        
         [HttpPost]
         public async Task<IActionResult> Create(
             [FromBody] CreateRequestDto dto,

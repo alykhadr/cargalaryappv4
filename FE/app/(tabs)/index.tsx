@@ -5,7 +5,6 @@ import Text from '@/components/LocalizedText';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, icons, SIZES } from '@/constants';
 import { useTheme } from '@/theme/ThemeProvider';
-import { banners } from '@/data';
 import SubHeaderItem from '@/components/SubHeaderItem';
 import Category from '@/components/Category';
 import ProductCard from '@/components/ProductCard';
@@ -195,11 +194,7 @@ const Home = () => {
       .finally(() => setOffersLoaded(true));
   }, []);
 
-  const bannerItems: BannerItem[] = offers.length > 0
-    ? offers.map(formatOfferBanner)
-    : offersLoaded
-      ? []
-      : (banners as BannerItem[]);
+  const bannerItems: BannerItem[] = offers.map(formatOfferBanner);
 
   useEffect(() => {
     if (!bannerReady || !bannerContentReady || bannerItems.length <= 1) {
@@ -402,40 +397,65 @@ const Home = () => {
     />
   );
 
-  const renderBanner = () => (
-    bannerItems.length === 0 ? null : (
+  const renderBannerLoading = () => (
     <View style={styles.bannerItemContainer}>
-      <FlatList
-        ref={bannerRef}
-        data={bannerItems}
-        renderItem={renderBannerItem}
-        keyExtractor={keyExtractor}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        removeClippedSubviews={false}
-        scrollEventThrottle={16}
-        onMomentumScrollEnd={(event) => {
-          const newIndex = Math.round(
-            event.nativeEvent.contentOffset.x / bannerWidth
-          );
-          autoScrollIdx.current = newIndex;
-          setCurrentIndex(newIndex);
-        }}
-        getItemLayout={(_, index) => ({
-          length: bannerWidth,
-          offset: bannerWidth * index,
-          index,
-        })}
-        onLayout={() => setBannerReady(true)}
-        onContentSizeChange={() => setBannerContentReady(true)}
-      />
-      <View style={styles.dotContainer}>
-        {bannerItems.map((_, i) => renderDot(i))}
+      <View
+        style={[
+          styles.bannerShadow,
+          styles.bannerLoadingShell,
+          { backgroundColor: dark ? COLORS.dark2 : '#EFF2F6' },
+        ]}
+      >
+        <View style={[styles.bannerLoadingBadge, { backgroundColor: dark ? COLORS.dark3 : '#DEE5EE' }]} />
+        <View style={[styles.bannerLoadingTitle, { backgroundColor: dark ? COLORS.dark3 : '#DEE5EE' }]} />
+        <View style={[styles.bannerLoadingSubtitle, { backgroundColor: dark ? COLORS.dark3 : '#DEE5EE' }]} />
+        <View style={[styles.bannerLoadingMeta, { backgroundColor: dark ? COLORS.dark3 : '#DEE5EE' }]} />
       </View>
     </View>
-    )
   );
+
+  const renderBanner = () => {
+    if (!offersLoaded) {
+      return renderBannerLoading();
+    }
+
+    if (bannerItems.length === 0) {
+      return null;
+    }
+
+    return (
+      <View style={styles.bannerItemContainer}>
+        <FlatList
+          ref={bannerRef}
+          data={bannerItems}
+          renderItem={renderBannerItem}
+          keyExtractor={keyExtractor}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          removeClippedSubviews={false}
+          scrollEventThrottle={16}
+          onMomentumScrollEnd={(event) => {
+            const newIndex = Math.round(
+              event.nativeEvent.contentOffset.x / bannerWidth
+            );
+            autoScrollIdx.current = newIndex;
+            setCurrentIndex(newIndex);
+          }}
+          getItemLayout={(_, index) => ({
+            length: bannerWidth,
+            offset: bannerWidth * index,
+            index,
+          })}
+          onLayout={() => setBannerReady(true)}
+          onContentSizeChange={() => setBannerContentReady(true)}
+        />
+        <View style={styles.dotContainer}>
+          {bannerItems.map((_, i) => renderDot(i))}
+        </View>
+      </View>
+    );
+  };
 
   /* ── Featured horizontal scroll ── */
   const renderFeatured = () => {
@@ -727,6 +747,37 @@ const styles = StyleSheet.create({
   },
   bannerSlide: {
     width: SIZES.width - 32,
+  },
+  bannerLoadingShell: {
+    width: SIZES.width - 32,
+    height: 170,
+    borderRadius: 30,
+    paddingHorizontal: 22,
+    paddingTop: 28,
+    justifyContent: 'flex-start',
+  },
+  bannerLoadingBadge: {
+    width: 82,
+    height: 30,
+    borderRadius: 15,
+    marginBottom: 18,
+  },
+  bannerLoadingTitle: {
+    width: '58%',
+    height: 28,
+    borderRadius: 14,
+    marginBottom: 14,
+  },
+  bannerLoadingSubtitle: {
+    width: '72%',
+    height: 18,
+    borderRadius: 9,
+    marginBottom: 12,
+  },
+  bannerLoadingMeta: {
+    width: '44%',
+    height: 16,
+    borderRadius: 8,
   },
   bannerContainer: {
     width: SIZES.width - 32,
