@@ -18,7 +18,10 @@ namespace CarGalary.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OfferResponseDto>>> GetOffers()
         {
-            var offers = await _offerService.GetAllAsync();
+            var now = DateTime.UtcNow;
+            var offers = (await _offerService.GetAllAsync())
+                .Where(x => x.IsAvailable && (!x.ExpiredAt.HasValue || x.ExpiredAt.Value >= now))
+                .ToList();
             return Ok(offers);
         }
     }

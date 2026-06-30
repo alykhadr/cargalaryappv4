@@ -13,8 +13,8 @@ import SkeletonCard from '@/components/SkeletonCard';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { api } from '@/services/api';
-import { Car, CompanyInformation } from '@/types';
-import { resolveCarImage, resolveCategoryIcon } from '@/utils/imageResolver';
+import { Car, CompanyInformation, Offer } from '@/types';
+import { resolveCarImage, resolveCategoryIcon, resolveRemoteImage } from '@/utils/imageResolver';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { useCatalogCategories } from '@/hooks/useCatalogCategories';
@@ -39,8 +39,15 @@ interface BannerItem {
   discountName: string;
   bottomTitle: string;
   bottomSubtitle: string;
-  imageKey: string;
+  imageUrl?: string | null;
+  imageKey?: string;
   brandColor: string;
+}
+
+interface SearchPreset {
+  id: string;
+  label: string;
+  params: Record<string, string>;
 }
 
 const FEATURED_CARD_W = 190;
@@ -48,6 +55,80 @@ const FEATURED_CARD_H = 126;
 
 function normalizePhoneForWhatsapp(phone?: string | null) {
   return (phone ?? '').replace(/[^\d]/g, '');
+}
+
+function resolveOfferBrandColor(offerId: number) {
+  const colors = ['#EB0A1E', '#1A96F0', '#22C55E', '#FF981F', '#2C3E50', '#C084FC'];
+  return colors[offerId % colors.length];
+}
+
+function formatOfferBanner(offer: Offer): BannerItem {
+  const percentage = typeof offer.percentageValue === 'number'
+    ? offer.percentageValue.toLocaleString(undefined, { maximumFractionDigits: 2 })
+    : null;
+
+  return {
+    id: offer.id,
+    discount: offer.isPercentage && percentage ? `${percentage}%` : 'LIVE',
+    discountName: offer.offerNameEn?.trim() || offer.offerNameAr?.trim() || 'Latest Offer',
+    bottomTitle: offer.descriptionEn?.trim() || offer.descriptionAr?.trim() || 'Explore this offer on our latest cars',
+    bottomSubtitle: offer.expiredAt
+      ? `Valid until ${new Date(offer.expiredAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+      : 'Limited time availability',
+    imageUrl: offer.offerImageUrl,
+    brandColor: resolveOfferBrandColor(offer.id),
+  };
+}
+
+function buildDashboardSearchPresets(cars: Car[], categories: { id: string; name: string }[]): SearchPreset[] {
+  const categoryPresets = categories.slice(0, 3).map((item) => ({
+    id: `category-${item.id}`,
+    label: item.name,
+    params: {
+      categoryId: item.id,
+      title: item.name,
+    },
+  }));
+
+  const topRatedPreset: SearchPreset = {
+    id: 'top-rated',
+    label: 'Top Rated',
+    params: {
+      ratingId: '5',
+      sortId: '5',
+    },
+  };
+
+  const newerModelPreset: SearchPreset = {
+    id: 'newer-models',
+    label: '2021+',
+    params: {
+      yearRange: '2021_plus',
+      sortId: '2',
+    },
+  };
+
+  const budgetPreset: SearchPreset = {
+    id: 'budget',
+    label: 'Under 200k',
+    params: {
+      maxPrice: '200000',
+      sortId: '4',
+    },
+  };
+
+  const transmissionPresetValue = cars.find((item) => item.transmission?.trim())?.transmission?.trim();
+  const transmissionPreset = transmissionPresetValue
+    ? [{
+        id: 'transmission',
+        label: transmissionPresetValue,
+        params: {
+          transmission: transmissionPresetValue,
+        },
+      }]
+    : [];
+
+  return [...categoryPresets, budgetPreset, newerModelPreset, topRatedPreset, ...transmissionPreset];
 }
 
 const Home = () => {
@@ -61,12 +142,15 @@ const Home = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [carsLoading, setCarsLoading] = useState(true);
   const [companyInfo, setCompanyInfo] = useState<CompanyInformation | null>(null);
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [offersLoaded, setOffersLoaded] = useState(false);
   const { categories, loading: categoriesLoading } = useCatalogCategories(cars);
   const bannerRef = useRef<FlatList>(null);
   const autoScrollIdx = useRef(0);
   const [bannerReady, setBannerReady] = useState(false);
   const [bannerContentReady, setBannerContentReady] = useState(false);
   const bannerWidth = SIZES.width - 32;
+  const searchPresets = buildDashboardSearchPresets(cars, categories);
 
   const headerOpacity = useSharedValue(0);
   const headerY = useSharedValue(-16);
@@ -105,12 +189,25 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (!bannerReady || !bannerContentReady) {
+    api.getOffers()
+      .then(setOffers)
+      .catch(() => setOffers([]))
+      .finally(() => setOffersLoaded(true));
+  }, []);
+
+  const bannerItems: BannerItem[] = offers.length > 0
+    ? offers.map(formatOfferBanner)
+    : offersLoaded
+      ? []
+      : (banners as BannerItem[]);
+
+  useEffect(() => {
+    if (!bannerReady || !bannerContentReady || bannerItems.length <= 1) {
       return;
     }
 
     const timer = setInterval(() => {
-      const next = (autoScrollIdx.current + 1) % (banners as any[]).length;
+      const next = (autoScrollIdx.current + 1) % bannerItems.length;
       autoScrollIdx.current = next;
       setCurrentIndex(next);
       requestAnimationFrame(() => {
@@ -121,7 +218,18 @@ const Home = () => {
       });
     }, 3500);
     return () => clearInterval(timer);
-  }, [bannerReady, bannerContentReady, bannerWidth]);
+  }, [bannerItems.length, bannerReady, bannerContentReady, bannerWidth]);
+
+  useEffect(() => {
+    autoScrollIdx.current = 0;
+    setCurrentIndex(0);
+    requestAnimationFrame(() => {
+      bannerRef.current?.scrollToOffset({
+        offset: 0,
+        animated: false,
+      });
+    });
+  }, [bannerItems.length]);
 
   const handleWishlistPress = () => {
     if (isGuest || !user) navigation.navigate('login');
@@ -206,44 +314,73 @@ const Home = () => {
 
   /* ── Search bar ── */
   const renderSearchBar = () => (
-    <TouchableOpacity
-      onPress={() => router.push('/search')}
-      style={[styles.searchBarContainer, {
-        backgroundColor: dark ? COLORS.dark2 : '#F7F7F7',
-        borderColor: dark ? COLORS.dark3 : 'rgba(0,0,0,0.06)',
-        shadowOpacity: dark ? 0.2 : 0.07,
-      }]}
-    >
-      <Image source={icons.search} resizeMode="contain" style={styles.searchIcon} />
-      <Text numberOfLines={1} style={styles.searchInput}>Search by brand, model...</Text>
-      <View style={styles.filterBadge}>
-        <Image source={icons.filter} resizeMode="contain" style={styles.filterIcon} />
-      </View>
-    </TouchableOpacity>
+    <View>
+      <TouchableOpacity
+        onPress={() => router.push('/search')}
+        style={[styles.searchBarContainer, {
+          backgroundColor: dark ? COLORS.dark2 : '#F7F7F7',
+          borderColor: dark ? COLORS.dark3 : 'rgba(0,0,0,0.06)',
+          shadowOpacity: dark ? 0.2 : 0.07,
+        }]}
+      >
+        <Image source={icons.search} resizeMode="contain" style={styles.searchIcon} />
+        <Text numberOfLines={1} style={styles.searchInput}>Search brand, model, fuel, year...</Text>
+        <View style={styles.filterBadge}>
+          <Image source={icons.filter} resizeMode="contain" style={styles.filterIcon} />
+        </View>
+      </TouchableOpacity>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.searchPresetRow}
+      >
+        {searchPresets.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            activeOpacity={0.86}
+            style={[
+              styles.searchPresetChip,
+              {
+                backgroundColor: dark ? COLORS.dark2 : '#FFFFFF',
+                borderColor: dark ? COLORS.dark3 : 'rgba(232,0,28,0.14)',
+              },
+            ]}
+            onPress={() => router.push({ pathname: '/search', params: item.params })}
+          >
+            <Text style={[styles.searchPresetText, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
+              {item.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
   );
 
   /* ── Banner ── */
   const renderBannerItem = ({ item }: ListRenderItemInfo<BannerItem>) => (
-    <View style={styles.bannerShadow}>
-      <View style={styles.bannerContainer}>
-        <Image
-          source={resolveCarImage(item.imageKey)}
-          resizeMode="cover"
-          style={StyleSheet.absoluteFillObject}
-        />
-        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.28)' }]} />
-        <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.72)', 'rgba(0,0,0,0.92)']}
-          locations={[0.18, 0.62, 1]}
-          style={StyleSheet.absoluteFillObject}
-        />
-        <View style={[styles.bannerTopLine, { backgroundColor: item.brandColor }]} />
-        <View style={styles.bannerContent}>
-          <View style={[styles.bannerBadge, { backgroundColor: item.brandColor }]}>
-            <Text style={styles.bannerBadgeText}>{item.discount} OFF</Text>
+    <View style={[styles.bannerSlide, { width: bannerWidth }]}>
+      <View style={styles.bannerShadow}>
+        <View style={styles.bannerContainer}>
+          <Image
+            source={item.imageUrl ? resolveRemoteImage(item.imageUrl) : resolveCarImage(item.imageKey || '')}
+            resizeMode="cover"
+            style={StyleSheet.absoluteFillObject}
+          />
+          <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.28)' }]} />
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.72)', 'rgba(0,0,0,0.92)']}
+            locations={[0.18, 0.62, 1]}
+            style={StyleSheet.absoluteFillObject}
+          />
+          <View style={[styles.bannerTopLine, { backgroundColor: item.brandColor }]} />
+          <View style={styles.bannerContent}>
+            <View style={[styles.bannerBadge, { backgroundColor: item.brandColor }]}>
+              <Text style={styles.bannerBadgeText}>{item.discount} OFF</Text>
+            </View>
+            <Text style={styles.bannerTitle}>{item.discountName}</Text>
+            <Text style={styles.bannerSubtitle}>{item.bottomTitle}</Text>
+            <Text style={styles.bannerMeta}>{item.bottomSubtitle}</Text>
           </View>
-          <Text style={styles.bannerTitle}>{item.discountName}</Text>
-          <Text style={styles.bannerSubtitle}>{item.bottomTitle}</Text>
         </View>
       </View>
     </View>
@@ -259,22 +396,24 @@ const Home = () => {
         index === currentIndex && {
           width: 20,
           borderRadius: 5,
-          backgroundColor: (banners as any[])[index]?.brandColor ?? COLORS.primary,
+          backgroundColor: bannerItems[index]?.brandColor ?? COLORS.primary,
         },
       ]}
     />
   );
 
   const renderBanner = () => (
+    bannerItems.length === 0 ? null : (
     <View style={styles.bannerItemContainer}>
       <FlatList
         ref={bannerRef}
-        data={banners as BannerItem[]}
+        data={bannerItems}
         renderItem={renderBannerItem}
         keyExtractor={keyExtractor}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
+        removeClippedSubviews={false}
         scrollEventThrottle={16}
         onMomentumScrollEnd={(event) => {
           const newIndex = Math.round(
@@ -292,9 +431,10 @@ const Home = () => {
         onContentSizeChange={() => setBannerContentReady(true)}
       />
       <View style={styles.dotContainer}>
-        {(banners as any[]).map((_, i) => renderDot(i))}
+        {bannerItems.map((_, i) => renderDot(i))}
       </View>
     </View>
+    )
   );
 
   /* ── Featured horizontal scroll ── */
@@ -547,6 +687,21 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
+  searchPresetRow: {
+    paddingBottom: 4,
+    marginBottom: 8,
+  },
+  searchPresetChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 18,
+    borderWidth: 1,
+    marginRight: 10,
+  },
+  searchPresetText: {
+    fontSize: 12,
+    fontFamily: 'semiBold',
+  },
   searchIcon: { height: 20, width: 20, tintColor: COLORS.gray },
   searchInput: { flex: 1, fontSize: 15, fontFamily: 'regular', marginHorizontal: 10, color: COLORS.gray },
   filterBadge: {
@@ -569,6 +724,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.22,
     shadowRadius: 18,
     elevation: 10,
+  },
+  bannerSlide: {
+    width: SIZES.width - 32,
   },
   bannerContainer: {
     width: SIZES.width - 32,
@@ -608,6 +766,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'medium',
     color: 'rgba(255,255,255,0.82)',
+  },
+  bannerMeta: {
+    fontSize: 11,
+    fontFamily: 'regular',
+    color: 'rgba(255,255,255,0.70)',
+    marginTop: 6,
   },
   bannerItemContainer: { width: '100%', paddingBottom: 4, height: 192 },
   dotContainer: {

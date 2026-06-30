@@ -12,6 +12,8 @@ namespace CarGalary.Domain.Entities
          
         public string? DescriptionEn { get; set; }
         public DateTime? ExpiredAt { get; set; }
+        public bool IsPercentage { get; set; }
+        public decimal? PercentageValue { get; set; }
        
     }
 }

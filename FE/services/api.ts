@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { NativeModules, Platform } from 'react-native';
-import { Brand, Car, CarQueryParams, CompanyInformation, Inquiry, PrivacyPolicy, ProfilePayload, User } from '../types';
+import { Brand, Car, CarQueryParams, CompanyInformation, Inquiry, Offer, PrivacyPolicy, ProfilePayload, User } from '../types';
 
 const API_BASE_URL = resolveApiBaseUrl().replace(/\/$/, '');
 
@@ -9,6 +9,10 @@ function resolveApiBaseUrl() {
   const envUrl = process.env.EXPO_PUBLIC_CARGALARY_API_URL?.trim();
   if (envUrl) {
     return envUrl;
+  }
+
+  if (Platform.OS === 'android' && isLikelyAndroidEmulator()) {
+    return 'http://10.0.2.2:5121/api';
   }
 
   const devServerHost = resolveDevServerHost();
@@ -64,6 +68,36 @@ function extractHost(value?: string | null) {
   } catch {
     return null;
   }
+}
+
+function isLikelyAndroidEmulator() {
+  const platformConstants = (NativeModules.PlatformConstants ?? {}) as Record<string, string | undefined>;
+  const values = [
+    platformConstants.Brand,
+    platformConstants.Device,
+    platformConstants.Fingerprint,
+    platformConstants.Hardware,
+    platformConstants.Manufacturer,
+    platformConstants.Model,
+    platformConstants.Product,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  if (!values) {
+    return false;
+  }
+
+  return [
+    'sdk_gphone',
+    'sdk_phone',
+    'emulator',
+    'generic',
+    'goldfish',
+    'ranchu',
+    'vbox',
+  ].some(marker => values.includes(marker));
 }
 
 async function request<T>(
@@ -188,9 +222,20 @@ export const api = {
   getCategories: () =>
     request<Brand[]>('/brand'),
 
+  getOffers: () =>
+    request<Offer[]>('/offer'),
+
   // Cars
   getCars: (params: CarQueryParams = {}) => {
-    const qs = new URLSearchParams(params as Record<string, string>).toString();
+    const qs = new URLSearchParams(
+      Object.entries(params).reduce<Record<string, string>>((acc, [key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          acc[key] = value;
+        }
+
+        return acc;
+      }, {})
+    ).toString();
     return request<{ cars: Car[]; total: number }>(`/cars${qs ? `?${qs}` : ''}`);
   },
 

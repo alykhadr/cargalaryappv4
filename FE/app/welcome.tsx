@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, illustrations, images } from "../constants";
 import { useTheme } from "../theme/ThemeProvider";
+import { useAuth } from "../context/AuthContext";
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -17,6 +18,7 @@ import Animated, {
 const Welcome = () => {
     const router = useRouter();
     const { dark } = useTheme();
+    const { user, isGuest, isLoading } = useAuth();
 
     const brandOpacity = useSharedValue(0);
     const brandY = useSharedValue(28);
@@ -34,6 +36,12 @@ const Welcome = () => {
         btnOpacity.value = withDelay(560, withTiming(1, cfg));
         btnY.value = withDelay(560, withTiming(0, cfg));
     }, []);
+
+    useEffect(() => {
+        if (!isLoading && (user || isGuest)) {
+            router.replace('/(tabs)');
+        }
+    }, [isGuest, isLoading, router, user]);
 
     const brandStyle = useAnimatedStyle(() => ({
         opacity: brandOpacity.value,

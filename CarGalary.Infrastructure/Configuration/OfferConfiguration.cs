@@ -19,6 +19,10 @@ namespace CarGalary.Infrastructure.Configuration
             builder.Property(o => o.DescriptionAr);
             builder.Property(o => o.DescriptionEn);
             builder.Property(o => o.ExpiredAt);
+            builder.Property(o => o.IsPercentage)
+                   .HasDefaultValue(false);
+            builder.Property(o => o.PercentageValue)
+                   .HasColumnType("decimal(5,2)");
 
             builder.Property(o => o.OfferImageUrl);
 

@@ -140,6 +140,14 @@ export function resolveCategoryIcon(imageUrl?: string | null, logoKey?: string):
   return icons.category;
 }
 
+export function resolveRemoteImage(value?: string | null, fallback: any = images.honda1): any {
+  if (value && value.trim().length > 0) {
+    return { uri: normalizeRemoteImageUri(value.trim()) };
+  }
+
+  return fallback;
+}
+
 export function resolveSliderImages(keys: string[]): any[] {
   return keys.map(k => resolveCarImage(k));
 }

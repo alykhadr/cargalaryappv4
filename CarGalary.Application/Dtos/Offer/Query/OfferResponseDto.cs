@@ -9,6 +9,8 @@ namespace CarGalary.Application.Dtos.Offer.Query
         public string? DescriptionAr { get; set; }
         public string? DescriptionEn { get; set; }
         public DateTime? ExpiredAt { get; set; }
+        public bool IsPercentage { get; set; }
+        public decimal? PercentageValue { get; set; }
         public bool IsAvailable { get; set; }
     }
 }

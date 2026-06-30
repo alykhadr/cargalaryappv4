@@ -25,6 +25,19 @@ export interface Brand {
   createdBy?: string | null;
 }
 
+export interface Offer {
+  id: number;
+  offerImageUrl?: string | null;
+  offerNameAr?: string | null;
+  offerNameEn?: string | null;
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+  expiredAt?: string | null;
+  isPercentage: boolean;
+  percentageValue?: number | null;
+  isAvailable: boolean;
+}
+
 export interface Car {
   id: string;
   name: string;

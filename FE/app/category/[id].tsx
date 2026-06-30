@@ -49,7 +49,10 @@ const CategoryDetails = () => {
         <HeaderWithSearch
           title={categoryTitle}
           icon={icons.search}
-          onPress={() => router.push('/search')}
+          onPress={() => router.push({
+            pathname: '/search',
+            params: categoryId ? { categoryId, title: categoryTitle } : {},
+          })}
         />
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={{ backgroundColor: dark ? COLORS.dark1 : COLORS.white, marginVertical: 16 }}>
