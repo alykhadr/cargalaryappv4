@@ -35,6 +35,28 @@ set APP_HOME=%DIRNAME%
 @rem Resolve any "." and ".." in APP_HOME to make it shorter.
 for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 
+@rem Ensure Node.js is available for Expo/React Native Gradle plugins when
+@rem Android Studio launches Gradle without the user's shell PATH.
+if not defined NODE_BINARY (
+  for /f "delims=" %%i in ('where node.exe 2^>NUL') do (
+    set "NODE_BINARY=%%i"
+    goto nodeFound
+  )
+)
+
+if not defined NODE_BINARY if exist "%USERPROFILE%\.nvm\versions\node" (
+  for /d %%d in ("%USERPROFILE%\.nvm\versions\node\*") do (
+    if exist "%%d\bin\node.exe" set "NODE_BINARY=%%d\bin\node.exe"
+  )
+)
+
+:nodeFound
+if defined NODE_BINARY (
+  for %%i in ("%NODE_BINARY%") do set "NODE_DIR=%%~dpi"
+  echo %PATH% | find /I "%NODE_DIR%" >NUL
+  if errorlevel 1 set "PATH=%NODE_DIR%;%PATH%"
+)
+
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 

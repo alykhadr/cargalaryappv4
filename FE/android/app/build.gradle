@@ -4,20 +4,65 @@ apply plugin: "com.facebook.react"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
+def resolveNodeExecutable() {
+    def explicitNode = System.getenv("NODE_BINARY")
+    if (explicitNode && new File(explicitNode).exists()) {
+        return explicitNode
+    }
+
+    try {
+        def shellProbe = ["/bin/zsh", "-lc", "command -v node"].execute(null, rootDir)
+        shellProbe.waitFor()
+        def shellNode = shellProbe.in.text.trim()
+        if (shellProbe.exitValue() == 0 && shellNode) {
+            return shellNode
+        }
+    } catch (Exception ignored) {
+    }
+
+    def commonNodePaths = [
+        "/opt/homebrew/bin/node",
+        "/usr/local/bin/node",
+        "/usr/bin/node",
+    ]
+    def commonNode = commonNodePaths.find { new File(it).exists() }
+    if (commonNode) {
+        return commonNode
+    }
+
+    def nvmNodeRoot = new File(System.getProperty("user.home"), ".nvm/versions/node")
+    if (nvmNodeRoot.exists()) {
+        def nvmNode = nvmNodeRoot
+            .listFiles()
+            ?.collect { new File(it, "bin/node") }
+            ?.findAll { it.exists() }
+            ?.sort { a, b -> a.absolutePath <=> b.absolutePath }
+            ?.last()
+        if (nvmNode) {
+            return nvmNode.absolutePath
+        }
+    }
+
+    throw new GradleException("Unable to locate Node.js. Set NODE_BINARY to your node executable path before running Gradle.")
+}
+
+def nodeExecutable = resolveNodeExecutable()
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
 react {
-    entryFile = file(["node", "-e", "require('expo/scripts/resolveAppEntry')", projectRoot, "android", "absolute"].execute(null, rootDir).text.trim())
-    reactNativeDir = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()
-    hermesCommand = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsolutePath() + "/sdks/hermesc/%OS-BIN%/hermesc"
-    codegenDir = new File(["node", "--print", "require.resolve('@react-native/codegen/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()
+    entryFile = file([nodeExecutable, "-e", "require('expo/scripts/resolveAppEntry')", projectRoot, "android", "absolute"].execute(null, rootDir).text.trim())
+    reactNativeDir = new File([nodeExecutable, "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()
+    hermesCommand = new File([nodeExecutable, "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsolutePath() + "/sdks/hermesc/%OS-BIN%/hermesc"
+    codegenDir = new File([nodeExecutable, "--print", "require.resolve('@react-native/codegen/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()
+    nodeExecutableAndArgs = [nodeExecutable]
 
     enableBundleCompression = (findProperty('android.enableBundleCompression') ?: false).toBoolean()
     // Use Expo CLI to bundle the app, this ensures the Metro config
     // works correctly with Expo projects.
-    cliFile = new File(["node", "--print", "require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })"].execute(null, rootDir).text.trim())
+    cliFile = new File([nodeExecutable, "--print", "require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })"].execute(null, rootDir).text.trim())
     bundleCommand = "export:embed"
 
     /* Folders */

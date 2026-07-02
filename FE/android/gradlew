@@ -88,6 +88,31 @@ APP_BASE_NAME=${0##*/}
 # Discard cd standard output in case $CDPATH is set (https://github.com/gradle/gradle/issues/25036)
 APP_HOME=$( cd -P "${APP_HOME:-./}" > /dev/null && printf '%s\n' "$PWD" ) || exit
 
+# Ensure Node.js is available for Expo/React Native Gradle plugins even when
+# Android Studio launches Gradle without the user's interactive shell PATH.
+if [ -z "$NODE_BINARY" ] || [ ! -x "$NODE_BINARY" ] ; then
+    if command -v node >/dev/null 2>&1 ; then
+        NODE_BINARY=$(command -v node)
+    else
+        for candidate in /opt/homebrew/bin/node /usr/local/bin/node /usr/bin/node "$HOME"/.nvm/versions/node/*/bin/node
+        do
+            if [ -x "$candidate" ] ; then
+                NODE_BINARY=$candidate
+                break
+            fi
+        done
+    fi
+fi
+
+if [ -n "$NODE_BINARY" ] && [ -x "$NODE_BINARY" ] ; then
+    export NODE_BINARY
+    NODE_DIR=${NODE_BINARY%/*}
+    case ":$PATH:" in
+      *":$NODE_DIR:"*) ;;
+      *) PATH="$NODE_DIR:$PATH"; export PATH ;;
+    esac
+fi
+
 # Use the maximum available, or set MAX_FD != -1 to use that value.
 MAX_FD=maximum
 
